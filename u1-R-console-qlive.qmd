@@ -1,0 +1,888 @@
+---
+title: "Storytelling visual con R"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+#date: "`r Sys.Date()`"
+bibliography: biblio.bib
+engine: knitr  
+format:
+  live-revealjs:
+    theme: theme-dds.scss
+    scrollable: true
+    toc-title: Index
+    toc: false
+    slide-number: c/t
+    fig-align: center
+    show-slide-number: all
+    transition: fade
+    background-transition: fade
+    height: 900
+    width: 1600
+    fontcolor: "#262d36"
+    highlight-style: ayu-mirage
+    multiplex: true
+    embed-resources: true
+    code-overflow: scroll
+webr:
+  #packages:
+  #  - leaflet
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    out-width: "50%"
+code-link: true
+execute:
+  code-overflow: scroll
+  echo: true
+  freeze: auto
+  eval: true
+  fig-height: 6
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+---
+
+
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+
+
+#  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
+
+<!-- background-image="img/r-giralda2.png" -->
+
+[Unidad 1]{.custom-title-1} [Toolkit del curso]{.custom-title-2} 
+<!-- [Gema Fernández-Avilés Calderón<br> Universidad de Castilla-La Mancha]{.custom-author} -->
+[R, RStudio y Quarto]{.custom-author}
+
+```{r}
+#| echo: false
+library(scales)
+library(knitr)
+library(kableExtra)
+options(dplyr.print_min = 6, dplyr.print_max = 6)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
+```
+
+
+
+# Agenda
+
+1.  Objetivos de aprendizaje
+
+2.  Resultados esperados
+
+3.  Conceptos clave 
+
+4.  ¿Qué hemos aprendido?
+
+
+
+# 1. Objetivos de aprendizaje `r emo::ji("hit")` {background-color="black"}
+
+- Saber qué es la consola de **R** y la interfaz gráfica **RStudio**.
+
+- Conocer lo imprescindible para trabajar con **R** como lenjuage de programación.
+
+- Obtener información de los datos, **utilizando herramientas y técnicas de programación modernas**: [**Rstudio**.]{style="color:red"}
+
+- Obtener información de los datos, utilizando herramientas y técnicas de programación modernas y de forma **reproducible**: [**Quarto**.]{style="color:red"}
+
+<!-- - Obtener información de los datos, utilizando herramientas y técnicas de programación modernas y de forma **reproducible y colaborativa**, [**Quarto + Rstudio + GitHub**.]{style="color:red"} -->
+
+
+- Recomendar biografía: 
+
+    + `r emo::ji("book")` @wickham2016r, 
+ 
+    + `r emo::ji("book")` @ismay2019statistical 
+ 
+    + `r emo::ji("book")` @fernandez2024fundamentos.
+
+
+# 2. Resultados esperados  `r emo::ji("winner")` {background-color="#017eae"}
+
+![**Consola de R**](img/rdo-esp-02.png){width="20%"} \quad
+![**Interfaz gráfica de Rstudio**](img/04-rdo-esp.png){width="60%"}
+
+
+# 3. Conceptos clave `r emo::ji("document")` {background-color="#AB5484"}
+
+
+## Antes de comenzar: R, Rstsudio y Latex  
+
+1.  **Descargar e instalar R**: [https://cloud.r-project.org/](https://cloud.r-project.org/)
+
+2.  **Descargar e instalar Rstudio:** [https://www.rstudio.com/products/rstudio/download/](https://www.rstudio.com/products/rstudio/download/)
+
+![**Iconos de R (izquierda) y Rstudio (derecha)**](img/r-rstudio-icons.png){width="3%"}
+
+3. **Opcional:** Instalar Latex. Abre R y copia y pega estas dos órdenes en la consola.
+
+```{r latex, eval=FALSE}
+#|  code-line-numbers: false
+install.packages('tinytex')
+tinytex::install_tinytex()
+```
+
+-  **Tener instalados los paquetes que solicitamos al inicio del curso**.
+
+
+## Lo imprescindible y necesario  
+
+::: columns
+::: {.column width="50%"}
+![**Consola de R.**](img/r-console.png){width="100%"}
+:::
+
+::: {.column width="50%"}
+```{webr r-calcula}
+# calculadora
+2 + 2
+```
+
+
+```{webr r-calcula-pi}
+# conoce muchas cosas...
+pi
+```
+
+
+```{webr r-calcula-norm}
+# genera y simula variables
+var <- rnorm(n=1000, mean=0, sd=1)
+length(var)
+head(var, 3)
+```
+:::
+:::
+
+------------------------------------------------------------------------
+
+::: columns
+::: {.column width="50%"}
+```{webr r-programa}
+# programación de funciones
+media_aritm <- function(x) {
+  sum(x) /length(x)
+}
+
+media_aritm(var)
+```
+
+
+```{webr r-fun-mean}
+# pero ya está programada
+mean(var)
+```
+
+>¿Qué más estará programado?
+
+```{webr r-fun-var}
+var(var)
+```
+
+>¡Y mucho más!
+
+```{r r-emo}
+#| echo: false
+emo::ji("happy")
+```
+:::
+
+::: {.column width="50%"}
+```{webr r-histogramas, out.width= "60%"}
+# gráficas: un histograma
+hist(var)
+```
+
+
+```{webr r-histogramas-red, out.width= "60%"}
+# gráficas: un histograma (a color)
+hist(var, col = "red")
+```
+:::
+:::
+
+------------------------------------------------------------------------
+
+## Paquetes
++ **Instalación** de paquetes (sólo se hace una vez).
+
+```{r HistData-instala, eval=FALSE}
+install.packages("HistData")
+```
+
++ **Lectura** de paquetes (se repite cada vez que se usa).
+```{r HistData-lee, eval=FALSE}
+library("HistData")
+```
+
++ Llamada de funciones dentro de un paquete con `::`
+```{r r-operador-paq-func, eval=FALSE}
+dplyr::filter()
+```
+
++ Llamada de datos dentro de un paquete con `::`
+```{r r-operador-paq-datos, eval=FALSE}
+HistData::Nightingale
+```
+
+
++ Lista de paquetes en CRAN por temas 
+[https://cran.r-project.org/web/views/]()
+---
+
+## Muy importante
+
++ **R** distingue MAYÚSCULAS y minúsculas:
+
+```{r r-MAY-min, eval=FALSE}
+Var
+#> Error: object 'Var' not found
+```
+
++ La almohadilla `#` sirve para comentar:
+
+```{r r-comenta}
+2+2  # esto es una suma
+```
+
++ El operador `<-` asigna a la parte izquierda lo que hay en la derecha:
+
+```{r r-operador}
+x <- 2 + 2
+x
+```
+
++ El operador `$` accede a variables dentro de un conjunto de datos:
+
+```{r r-dolar, eval=FALSE}
+Nightingale$Army
+```
+
+
+
+## ¿Dónde encontrar ayuda?
+
++ En el propio programa con la función `help()` y el operador `?`
+  
+    + Ayuda de funciones:
+    
+```{r r-ayuda-func, eval=FALSE}
+help(rnorm)
+?rnorm # Equivalente
+```
+
+    +  Ayuda de conjunto de datos:
+    
+```{r r-ayuda-datos, eval=FALSE}
+help("iris")
+?iris # Equivalente
+```
+
++ Las Cheatsheets:
+[https://posit.co/resources/cheatsheets/]()
+
++ Libros y manuales:
+[https://cran.r-project.org/manuals.html]()
+
++ Google:
+
+    + Stack Overflow
+
+    + Rpubs
+    
+    + GitHub
+
+---
+
+## The R Project for Statistical Computing
+
+![](img/cran-imp.png){}
+
+
+# Rstudio: la clave `r emo::ji("document")` {background-color="#AB5484"}
+
+
+# RStudio {background-color="#017eae"}
+![**Fuente @ismay2019statistical**](img/04-open-rstudio.png){width="60%"}
+
+## ¿Cuál es la diferencia entre R y RStudio?
+![**Fuente: @ismay2019statistical**](img/04-r-coche.png){width="60%"}
+
+::: {.callout-warning}
+**R** es un lenguaje de programación que ejecuta cálculos, mientras que **RStudio** es un entorno de desarrollo integrado (IDE) que proporciona una interfaz y agrega muchas funciones y herramientas útiles.
+:::
+
+
+## Diseño de RStudio 
+![**Diseño de Rstudio**](img/04-rstudio-layout.png){width="60%"}
+
+::: {.callout-warning}
+La posición relativa de cada panel pueden personalizarse
+desde el menú: `Tools \> Global Options \> Pane Layout`
+:::
+
+
+
+## ¿Qué son los paquetes de **R**?
+
+![**Analogía entre R y los paquetes. Fuente: @ismay2019statistical**](img/04-phone.png){width="60%"}
+
+::: {.callout-warning}
+**R** es como un teléfono móvil nuevo: si bien tiene una cierta cantidad de funciones cuando lo usamos por primera vez, no tiene todo. 
+
+Los **paquetes** son como las aplicaciones que podemos descargar en el teléfono desde la App Store de Apple o Google Play de Android.
+:::
+
+
+## Paquetes: instalación y carga
+
+
+::: columns
+::: {.column width="50%"}
+![**Instalación de paquetes**](img/04-install-pcks.png){width="100%"}
+:::
+
+::: {.column width="50%"}
+1. Click `Packages`.
+
+2. Click `Install`.
+
+3. Escribe el nombre del paquete “Packages”. Por ejemplo, `ggplot2`.
+
+4. Click `Install`.
+
+
+>[**Lectura de paquetes**]{style="color:red"}
+
+```{r lee-ggplot2, eval=FALSE}
+library(ggplot2)
+```
+::: {.callout-warning}
+La instalación de paquetes sólo se hace una.
+La lectura se realiza cada vez que se utilizan los paquetes.
+:::
+
+:::
+
+:::
+
+
+
+
+
+# Proyectos en RStudio `r emo::ji("box")` {background-color="#017eae"}
+
+## Proyectos en RStudio
+
+Un proyecto es un directorio de trabajo (carpeta) que contiene todo lo necesario para trabajar en un análisis de datos (proyecto) específico. Tipos de proyectos: documentos, presentaciones, paquetes, Webs,...
+
+>[**Creación de un proyecto Quarto**]{style="color:red"}
+
+`File > New proyect >`
+
+![**Creación de Quarto Project**](img/04-crea-proyect.png){width="80%"}
+
+## Creación de proyectos Quarto
+
+![**Creación de Proyectos Quarto**](img/04-abre-proy.png){width="60%"}
+
+## Estructura básica de poyectos
+
+Aunque podemos tener todos los archivos en la carpeta del proyecto (para proyectos pequeños) lo ideal es crear siempre una estructura. 
+
+::: columns
+::: {.column width="50%"}
+
++ `r emo::ji("folder")` `data`: contiene los archivos de datos.
+
++ `r emo::ji("folder")` `img`: contiene las imágenes.
+
++ `r emo::ji("folder")` `exer`: ejercicios, practicas.
+
+Más personal:
+
++ `r emo::ji("folder")` `old`: documentos que ya no necesito, pero por si acaso...
+
+:::
+
+::: {.column width="50%"}
+
+![**Estructura de proyecto**](img/04-proy-folders.png){width="60%"}
+:::
+:::
+
+## Compilación de documentos
+
+![**Compilación de documentos**](img/03-render-proy.png){width="60%"}
+
+
+# Informes reproducibles `r emo::ji("thinking")` {.smaller background-color="#017eae"} 
+
+## ¿Por qué informes reproducibles?
+
+![Growth in a Time of Debt (2010)](img/04-no-reproduc.png)
+
+
+Un famoso artículo académico de 2010, en el que se basan los grandes políticos para reforzar los argumentos a favor de los recortes de austeridad, contenía errores significativos:
+
++ De código  (excluyeron a cinco países con una importante deuda y alto crecimiento).
+
++ De manipulación de los datos (excluyeron del cómputo algunos países y algunos años).
+
++ De cálculo estadístico (errores en las ponderaciones).
+
+::: {.callout-warning}
+Estos errores se debieron al mal uso de una hoja de cálculo de Excel.
+:::
+
+
+
+
+# ¿Qué es Quarto? `r emo::ji("thinking")` {background-color="#017eae"}
+
+## Quarto es un lenguaje que tiene como base [**Markdown**]{style="color:red"} 
+<!-- <span style="color:red;">love</span>  -->
+(otro lenguaje). Entonces, empecemos viendo primero Markdown... `r emo::ji("thinking")`
+
+>Your data tells a story. Tell it with R Markdown. Turn your analyses into high quality documents, reports, presentations and dashboards.
+https://rmarkdown.rstudio.com/
+
+
+::: columns
+::: {.column width="50%"}
+![**R Markdown**. Artwork by Allison Horst](img/04-markdown.png){width="100%"}
+:::
+
+::: {.column width="50%"}
+::: {.callout-warning}
+Sintaxis Markdonw
+:::
+
+>Help > Markdown Quick Reference
+
+>https://rmarkdown.rstudio.com/
+
+>Cheatseets
+:::
+
+:::
+
+
+# Entonces, ¿qué es Quarto? {.smaller}
+
+Un nuevo marco de escritura para ciencia de datos, que combina código, 
+resultados y comentarios. Se nutre de la experiencia de `RMarkdown`.
+
+Los documentos de Quarto (\*.qmd) son completamente reproducibles y soportan docenas
+de formatos de salida tales como PDFs, archivos de Word, presentaciones, artículos científicos,... 
+
+::: columns
+::: {.column width="50%"}
+**¿Qué incluye?**
+
+-   Presentación de `código` y ecuaciones `LaTeX`
+-   Inclusión de `resultados` en la salida de las diapositivas
+-   Fondos de imagen, video e iframe
+-   Transiciones y animaciones elegantes
+-   Impresión a `PDF`, `HTML`
+
+Más información: <https://quarto.org>.
+:::
+
+::: {.column width="50%"}
+![](img/quarto.png)
+:::
+:::
+
+##  Quarto (fuente)
+
+
+![Estructura del documento](img/04-quarto-docs.png)
+
+
+##  Quarto (resultado)
+![Render](img/04-quarto-docs-rdo.png)
+
+## YAML en Quarto
+
+
+::: columns
+::: {.column width="50%"}
+![](img/04-yaml-quarto.png)
+:::
+
+::: {.column width="50%"}
+``` yaml
+title: "Mi informe en Quarto"
+subtitle: "Va a ser genial"
+author: "Gema Fernández-Avilés"
+date: "`r Sys.Date()`"
+format: 
+  html:
+   embed-resources: true
+   theme: cerulean
+   toc-title: Summary
+   toc: true
+   number-sections: true
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+```
+:::
+:::
+
+
+
+
+
+
+## Texto en Quarto
+
+Sintaxis Markdown
+
+
+```{r sintaxis-texto, eval=FALSE}
+#| code-line-numbers: false
+
+Cabeceros
+----------
+# Títutlo
+## Subtítulo
+
+Listas
+--------
++ Desayuno
++ Comida
++ Cena
+```
+
+## Imágenes en Quarto
+
+``` tex
+![Marco alemán](img/marco.jpg)
+```
+
+![Marco alemán](img/marco.jpg)
+
+
+## Ecuaciones con LaTeX
+
+
+::: columns
+::: {.column width="40%"}
+``` tex
+\begin{gather*}
+a_1=b_1+c_1\\
+a_2=b_2+c_2-d_2+e_2
+\end{gather*}
+
+\begin{align}
+a_{11}& =b_{11}&
+  a_{12}& =b_{12}\\
+a_{21}& =b_{21}&
+  a_{22}& =b_{22}+c_{22}
+\end{align}
+```
+:::
+
+::: {.column width="60%"}
+```{=tex}
+\begin{gather*}
+a_1=b_1+c_1\\
+a_2=b_2+c_2-d_2+e_2
+\end{gather*}
+```
+```{=tex}
+\begin{align}
+a_{11}& =b_{11}&
+  a_{12}& =b_{12}\\
+a_{21}& =b_{21}&
+  a_{22}& =b_{22}+c_{22}
+\end{align}
+```
+:::
+:::
+
+::: footer
+Learn more: [LaTeX Equations](https://quarto.org/docs/authoring/markdown-basics.html#equations)
+:::
+
+## Opciones de chunks  {.smaller}
+
+``` {.r code-line-numbers="1|2|3|4|5|6|7|8|9|11|12|13"} 
+#| echo: true
+#| eval: false
+#| fig-width: 10
+#| fig-height: 4.5
+#| code-fold: true
+#| code-summary: código plot interactivo
+#| code-overflow: scroll
+#| code-line-numbers: true
+#| code-copy: true
+
+library(gapminder)
+library(ggplot2)
+library(plotly)
+
+g<-ggplot(data=gapminder,
+       aes(x=gdpPercap, y=lifeExp)) +
+       geom_point(aes(color=continent)) +
+       geom_smooth(method = "loess")
+
+ggplotly(g) 
+```
+
+
+
+
+
+
+## Código ejecutable {.smaller}
+
+La @fig-gapminder representa....
+
+```{r opciones-codigo2}
+#| echo: true
+#| eval: true
+#| label: fig-gapminder
+#| fig-cap: Esperanza de vida y PIBpc.
+#| warning: false
+#| fig-width: 10
+#| fig-height: 4.5
+#| code-fold: true
+#| code-summary: código plot interactivo
+#| code-overflow: scroll
+#| code-line-numbers: true
+#| code-copy: true
+
+library(gapminder)
+library(ggplot2)
+library(plotly)
+
+g<-ggplot(data=gapminder,
+       aes(x=gdpPercap, y=lifeExp)) +
+       geom_point(aes(color=continent)) +
+       geom_smooth(method = "loess")
+
+ggplotly(g) 
+```
+
+
+
+# Styler: estilo de código  `r emo::ji("input")` {background-color="#017eae"}
+
+## ¿Qué interior te gusta más?
+
+::: columns
+::: {.column width="50%"}
+
+![Imagen tomada de: https://www.hola.com/hola-living/20200213160462/isabel-preysler-decoracion-terraza-invierno/](img/04-casa-styler.png)
+:::
+
+::: {.column width="50%"} 
+
+![Imagen tomada de: https://es.123rf.com/imagenes-de-archivo/casa_desordenada.html](img/04-casa-no-styler.png)
+:::
+
+:::
+
+## ¿Qué interior te gusta más?
+
+::: columns
+::: {.column width="50%"}
+
+![Imagen adaptada de: https://www.hola.com/hola-living/20200213160462/isabel-preysler-decoracion-terraza-invierno/](img/04-casa-styler-text.png)
+:::
+
+
+::: {.column width="50%"}
+![Imagen adaptada de: https://es.123rf.com/imagenes-de-archivo/casa_desordenada.html](img/04-casa-no-styler-text.png)
+:::
+
+:::
+
+## La guía de estilo tidyverse
+
+A. `MeencantalaciudaddeSevilla`
+
+B. `Me encanta la cuidad de Sevilla`
+
+La guía completa se encuentra en: [The tidyverse style guide](https://style.tidyverse.org/)
+
+
+## Nombre de ficheros
+
+```{r estilo-cod-ficheros, eval=FALSE}
+#| code-line-numbers: false
+#| 
+# Good
+fit_models.R
+utility_functions.R
+00_download.R
+01_explore.R
+
+# Bad
+fit models.R           # espacios
+fitmodels.r            # todo junto y r   
+utility.Functions.R    # otros estilos anteriores
+```
+
+
+## Sintaxis
+
+>`snake_case`: para nombres de objetos y funciones debe usarse minúscula, números y _ guión bajo para separar palabras dentro del nombre.
+
+
+```{r estilo-cod-objetos, eval=FALSE}
+#| code-line-numbers: false
+
+# Good
+day_one
+day_1
+
+# Bad
+DayOne
+dayone
+```
+
+
+<!-- ## Trabajando con `ggplot()` y `pippes` -->
+
+<!-- ```{r estilo-cod-pipe, eval=FALSE} -->
+<!-- # Good -->
+<!-- iris %>% -->
+<!--   filter(Species == "setosa") %>% -->
+<!--   ggplot(aes(x = Sepal.Width, y = Sepal.Length)) + -->
+<!--   geom_point() -->
+
+<!-- # Bad -->
+<!-- iris %>% -->
+<!--   filter(Species == "setosa") %>% ggplot(aes(x = Sepal.Width, y = Sepal.Length)) + geom_point() -->
+<!-- ``` -->
+
+<!-- ## Avanzado -->
+
+<!-- ```{r estilo-cod-paquetes, eval=FALSE} -->
+<!-- install.packages("styler") # restyle selected text, files, or entire project -->
+<!-- install.packages("lintr")  # comprobar que está segun la guia de estilo -->
+<!-- ``` -->
+
+
+
+<!-- # Github y Rstudio: control de versiones `r emo::ji("family")` {background-color="#017eae"} -->
+
+<!-- Esta sección es avanzada para este curso. Se plantea la idea de forma intuitiva y se facilitan referencias para profundizar en el tema. -->
+
+<!-- ## Git y GitHub -->
+
+
+<!-- ::: columns -->
+<!-- ::: {.column width="50%"} -->
+<!-- ![Imagen tomada de: https://git-scm.com/downloads/logos](img/04-git-logo.png){width="50%"} -->
+
+<!-- - Git es un sistema de control de versiones, como las funciones de "Control de cambios" de Microsoft Word. -->
+
+<!-- - Es el más popular. -->
+<!-- ::: -->
+
+<!-- ::: {.column width="50%"} -->
+<!-- ![Imagen tomada de: https://github.com/logos](img/04-github-logo.png){width="50%"} -->
+
+<!-- - GitHub el "alojamiento" de los proyectos Git de internet -- como DropBox mucho mejor. -->
+<!-- ::: -->
+<!-- ::: -->
+
+<!-- ## Versiones... -->
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-lego-steps.png) -->
+
+
+<!-- ## Versiones... -->
+
+<!-- ### con mensajer legibles para los humanos -->
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-lego-steps-commit-messages.png) -->
+
+
+<!-- ## ¿Por qué necesitamos un control de versiones? -->
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-phd_comics_vc.png) -->
+
+
+<!-- ## ¿Cómo trabajar con Git y GitHub en Rstudio? -->
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-whole-game-01.png) -->
+
+
+<!-- ## ¿Cómo trabajar con Git y GitHub en Rstudio? -->
+
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-whole-game-02.png) -->
+
+
+<!-- ## ¿Cómo trabajar con Git y GitHub en Rstudio? -->
+
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-whole-game-03.png) -->
+
+<!-- ## ¿Cómo trabajar con Git y GitHub en Rstudio? -->
+
+<!-- ![Imagen tomada de: https://datasciencebox.org](img/04-whole-game-04.png) -->
+
+
+<!-- ## Recursos para aprender GitHub en Rstudio -->
+
+
+<!-- + [Happy Git and GitHub for the useR](https://happygitwithr.com/). Libro imprescindible. -->
+
+
+<!-- + [Cómo usar Git/GitHub con R](http://destio.us.es/calvo/asignaturas/ge_esco/tutorialusargitgithubrstudio/UsarGitGithubconRStudio.html). Muy didáctico, sencillo y en español. -->
+
+
+
+
+
+
+# 4. ¿Qué hemos aprendido? `r emo::ji("book")` {background-color="black"}
+
++ Lo básico de **R**.
+
++ El entorno de RStudio.
+
++ Crear proyectos (Quarto o no): créate uno para cada análisis que hagas. 
+
++ Sintaxis Markdown y Quarto.
+
++ Hacer informes reproducibles.
+
++ El "estilo" de código.
+
+
+
+# Nuestra filosofía `r emo::ji("book")`: *learning by doing* {background-color="#AB5484"}
+
+
++ Recuerda que los ordenadores actualmente no son inteligentes.
+
++ Filosofía: `copy, paste, and tweak`.
+
++ La mejor forma de aprender código es haciéndolo.
+
++ La práctica es la clave.
+
+
+
+## Referencias 
+
+
+
+```{r eval=FALSE, include=FALSE, echo=FALSE}
+knitr::purl("u1-R-console.qmd")
+```

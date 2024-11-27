@@ -1,0 +1,6 @@
+• Tema 1.- Instalación de R y RStudio. Preparación del entorno. Creación de proyectos.
+• Tema 2.- Informes reproducibles en Quarto. Sintaxis Markdown y Quarto.
+• Tema 3.- Tipos de datos y tipos de gráficos.
+• Tema 4.- Paquete "ggplot2": la gramática de los gráficos.
+• Tema 5.- Mi primer ggplot.
+• Tema 6.- Construcción de gráficos elegantes.

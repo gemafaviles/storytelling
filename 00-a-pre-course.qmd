@@ -1,0 +1,174 @@
+---
+title: "Introducción a R para investigación y ciencia de datos"
+subtitle: "Pre-curso"
+author: "Gema Fernández-Avilés Calderón"
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: theme-dds.scss
+    transition: fade
+    background-transition: fade
+    height: 900
+    width: 1600
+    fontcolor: "#262d36"
+    highlight-style: ayu-mirage
+    multiplex: true
+    embed-resources: true
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+code-link: true
+execute:
+  echo: true
+  freeze: auto
+  eval: true
+  fig-height: 4
+  warning: false
+  code-fold: true
+  code-overflow: scroll
+  code-line-numbers: true
+  code-copy: true
+---
+
+
+
+
+# Pre-curso  `r emo::ji("alarm")`
+
+![](img/00-Rlearners.png){fig-alt="Artwork by @allison_horst"}
+
+Bienvenidos al curso **Introducción a R para investigación y ciencia de datos**. Es aconsejable que tengamos preparados nuestros ordenadores antes de comenzar el curso. Para ello, por favor, lee y realiza las siguientes acciones:
+
+## Descarga e instala R en tu PC
+
+Ve a la página [https://cloud.r-project.org/](https://cloud.r-project.org/) y elige la opción conveniende en función de tu sistema operativo:  Linux (Debian, Fedora/Redhat, Ubuntu), macOS o Windows. Al finalizar, verás el icono de **R** como acceso directo en tu estcritorio.
+
+<!-- ![Artwork by Allison Horst](img/00-r.gif){fig-alt=""}  -->
+
+
+## Descarga e instala RStudio
+
+Ve a la página [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/) y descarga e instala Rstudio. En función de las características de tu PC, la propia aplicación suele recomendarte la versión adecuada. 
+
+Puede ocurrir que no se cree el acceso directo de RStudio en tu escritorio. Si quieres poner un accedo directo a RStudio, en el buscador del ordenador (si tienes Windows se encuentra en la esquina inferior izquierda) escribe RStudio y ve a la carpeta que contiene la ubicación del programa. Desde allí, pinchando con el botón derecho del ratón sobre el icono de RStudio puedes crear un acceso directo a RStudio en el Escritorio.
+
+Al final los dos primeros pasos tendrás en tu escritorio estos dos iconos como accesos directos:
+
+![Icono de R (izquierda) y RStudio (derecha)](img/r-rstudio-icons.png){width="30%"}
+
+## Abre R console e instala los paquetes siguientes.
+
+De los iconos anteriores, abre  el icono de **R**.
+
+![**Consola de R.**](img/r-console.png){width="30%"}
+
+
+## Descarga e instalación de paquetes
+
+En la consola de **R**, copia y pega el siguiente código para instalar estos paquetes de paquetes:
+
+```{r eval=FALSE}
+#| code-line-numbers: false
+install.packages('rmarkdown') 
+install.packages('tidyverse')
+install.packages('rlang')
+install.packages('leaflet') 
+install.packages('leaflet.extras') 
+install.packages('leaflet.providers') 
+install.packages('plotly')
+install.packages('rvest')
+install.packages("palmerpenguins")
+install.packages('gapminder')
+install.packages('HistData')
+install.packages('skimr') 
+install.packages('tseries') 
+install.packages('scales') 
+install.packages('kableExtra') 
+install.packages('knitr') 
+install.packages('learnr')
+install.packages("remotes")
+remotes::install_github("rstudio/gradethis")
+install.packages('rio')
+install.packages('readxl')
+install.packages('fontawesome')
+install.packages("devtools")
+devtools::install_github("hadley/emo")
+```
+
+
+
+
+### OPCIONAL: LATEX Y PDF
+
+
+
++ Opción (1): Instalar el paquete \{tinytex\}
+
+```{r }
+#| code-line-numbers: false
+#| eval: false
+install.packages('tinytex')
+tinytex::install_tinytex()
+```
+
+Una vez instalado, para comprobar su correcta instalación, ejecutar el siguiente código R (copia y pega) en la consola:
+
+```{r}
+writeLines(c(
+  '\\documentclass{article}',
+  '\\begin{document}', 'Hello world!', '\\end{document}'
+), 'test.tex')
+tinytex::pdflatex('test.tex')
+```
+
+El resultado es un archivo llamado "test.pdf".
+
+
+
+
+## Índice del curso
+
+0. Presentación
+
+1. Hola R.
+
+2. *Toolkit* del curso: RStduio, Quarto y Github.
+
+3. Estructuras de datos en R.
+
+4. Importación y exportación de datos.
+
+5. Visualización de datos con \{ggplot2\}.
+
+6. Manipulación de datos con \{tidyverse\}
+
+
+
+
+![](img/icons8-code-R-64.png){fig-alt="Code icon with R logo"}
+
+
+::: {.callout-note}
+# Nuestra filosofía: `r emo::ji("book")` *learning by doing*
+
++ Recuerda que los ordenadores actualmente no son inteligentes.
+
++ Filosofía: `copy, paste, and tweak`.
+
++ La mejor forma de aprender código es haciéndolo.
+
++ La práctica es la clave.
+:::
+
+
+**Lo que NO aprenderás:**
+
+-   Programación en R.
+-   Escritura en Latex.
+-   Contenidos teóricos de ciencia de datos.
+
+
+::: {.callout-tip}
+Si tienes alguna duda, no dudes en escribirme a: `r emo::ji("mail")` gema.faviles@uclm.es 
+:::

@@ -1,0 +1,860 @@
+---
+title: "Storytelling visual con R"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+#date: "`r Sys.Date()`"
+bibliography: biblio.bib
+format:
+  revealjs:
+    theme: theme-dds.scss
+    scrollable: true
+    toc-title: Index
+    toc: false
+    slide-number: c/t
+    fig-align: center
+    show-slide-number: all
+    transition: fade
+    background-transition: fade
+    height: 900
+    width: 1600
+    fontcolor: "#262d36"
+    highlight-style: ayu-mirage
+    multiplex: true
+    embed-resources: true
+    code-overflow: scroll
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    out-width: "50%"
+code-link: true
+execute:
+  code-overflow: scroll
+  echo: true
+  freeze: auto
+  eval: true
+  fig-height: 6
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+---
+
+
+#  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
+
+<!-- background-image="img/r-giralda2.png" -->
+
+[Unidad 2]{.custom-title-1} [La importancia del contexto]{.custom-title-2} 
+<!-- [Gema Fernández-Avilés Calderón<br> Universidad de Castilla-La Mancha]{.custom-author} -->
+[La importancia del contexto]{.custom-author}
+
+```{r}
+#| echo: false
+library(scales)
+library(knitr)
+library(kableExtra)
+options(dplyr.print_min = 6, dplyr.print_max = 6)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
+```
+
+
+# Agenda
+
+1.  Objetivos de aprendizaje
+
+2.  Resultados esperados
+
+3.  Conceptos clave 
+
+4.  ¿Qué hemos aprendido?
+
+
+
+# 1. Objetivos de aprendizaje `r emo::ji("hit")` {background-color="black"}
+
+- Comprender la importancia de la visualización
+
+- Regresentaciones con \{ggplot2\}
+
+
+
+
+# 2. Resultados esperados  `r emo::ji("winner")` {background-color="#017eae"}
+
+![**Hexbin plot (starwars data)**](img/07-rdo-esp.png){width="60%"}
+
+
+# 3. Conceptos clave `r emo::ji("document")` {background-color="#AB5484"}
+
+
+# ¿Por qué es importante la visualización? `r emo::ji("picture")` {background-color="#017eae"}
+
+>[**"The simple graph has brought more information to the data analyst's mind than any other device." --- John Tukey**]{style="color:blue"} 
+
+
+## ¿Cómo describirías la relación entre la masa y la altura de los personajes de Starwars? 
+
+![**Imagen tomada de https://datasciencebox.org**](img/07-sw-plot.png){width="60%"}
+
+
+## ¿Existe algún outlier? {.smaller}
+
+::: columns
+
+::: {.column width="50%"}
+
+```{r sw-outlier-jabba, fig.show = "hide", warning = FALSE}
+library(ggplot2)
+library(dplyr)
+
+ggplot(data = starwars,
+       mapping = aes(x = height,
+                     y = mass)) +
+  geom_point()+
+  geom_point(
+   data = starwars |> 
+     filter(name == "Jabba Desilijic Tiure"), 
+     shape = "circle open", 
+      size = 5, color = "red"
+  )
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r ref.label = "sw-outlier-jabba", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+  
+  
+## Jabba Desilijic Tiure
+
+![**Imagen adaptada de https://datasciencebox.org**](img/07-jabba.png){width="60%"}
+
+
+## DatasauRus (descriptivos) {.smaller}
+
+```{r datasauRus-descriptivos}
+library(datasauRus)
+library(dplyr)
+
+datasaurus_dozen %>% 
+    group_by(dataset) %>% 
+    summarize(
+      mean_x    = mean(x),
+      mean_y    = mean(y),
+      std_dev_x = sd(x),
+      std_dev_y = sd(y),
+      corr_x_y  = cor(x, y)
+    )
+```
+
+## DatasauRus (plot)
+
+```{r datasauRus-visualiza, echo=FALSE}
+#| fig-align: center
+library(ggplot2)
+  ggplot(datasaurus_dozen, aes(x = x, y = y, colour = dataset))+
+    geom_point()+
+    theme_void()+
+    theme(legend.position = "none")+
+    facet_wrap(~dataset, ncol = 3)
+```
+
+
+::: {.callout-note}
+Otros ejemplos clásicos son el cuarteto de Anscombe y la paradoja de Simpson.
+:::
+
+
+
+
+# "The grammar of graphics": \{ggplot\} {background-color="black"}
+
+![**Imagen adaptada de https://datasciencebox.org**](img/07-ggplot2-book.png){width="60%"}
+
++ \{ggplot2\} es un paquete *tidyverse* para visualización de datos
+
++ gg in "ggplot2" referencia a Grammar of Graphics
+
++ Inspirado en el libro *Grammar of Graphics*, @wilkinson2012grammar.
+
+
+## ¿Cómo visualizar con la función `ggplot()` de \{ggplot\}?
+
+```{r ggplot-library, eval=FALSE}
+library(ggplot2)
+```
+
+```{r ggplot-teoria, eval=FALSE}
+ggplot(data = [dataset], 
+       mapping = aes(x = [x-variable], y = [y-variable])) +
+   geom_xxx() +
+   otras opciones
+```
+
+
+**Ahora, de verdad:**
+
+```{r ggplot-pract0, eval=FALSE}
+#| warning: false
+library(ggplot2)
+library(dplyr)  #cargamos los datos 'starwars'
+# se crea un nuevo data.frame sin el outlier (que se elimina)
+starwars2 <- filter(starwars, name != "Jabba Desilijic Tiure")
+```
+
+
+```{r ggplot-pract, eval=FALSE}
+ggplot(data = starwars2, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+>Ayuda con ggplot2: [ggplot2.tidyverse.org](ggplot2.tidyverse.org) y Cheatsheets.
+
+## Mi primer plot con `ggplot()` 
+
+::: columns
+::: {.column width="50%"}
+
+![**Fuente: Wikipedia**](img/07-sw-logo.png){width="100%"}
+:::
+
+::: {.column width="50%"}
+
+```{r ggplot-pract2, echo=FALSE}
+#| warning: false
+library(dplyr)  #cargamos los datos 'starwars'
+starwars2 <- filter(starwars, name != "Jabba Desilijic Tiure")
+
+library(ggplot2)
+ggplot(data = starwars2, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+:::
+:::
+
+
+
+# Paso a paso  `r emo::ji("feet")` {background-color="#017eae"}
+
+---
+
+## Paso a paso {.smaller}
+
+**Empezamos con el data.frame `starwars2`**
+
+::: columns
+::: {.column width="50%"}
+
+```{r code-st0, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "1"
+ggplot(data = starwars2) 
+```
+:::
+
+
+::: {.column width="50%"}
+
+```{r ref.label = "code-st0", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+
+```
+
+:::
+:::
+
+
+## Paso a paso: {.smaller}
+
+Empezamos con el data.frame `starwars2`
+**ponemos `height` en el eje-x**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-1, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "2"
+ggplot(data = starwars2,
+       mapping = aes(x = height))
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-1", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+## Paso a paso: {.smaller}
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+**ponemos `mass` en el eje-y**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-2, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "3"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass)) 
+```
+:::
+::: {.column width="50%"}
+```{r ref.label = "starwars2-2", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+
+## Paso a paso:  {.smaller}
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+**representamos cada observación con un punto**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-3, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "4"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass)) + 
+  geom_point() 
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-3", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso: {.smaller}
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+**y la variable `gender` para el color de cada punto**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-4, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "4"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) + 
+  geom_point()
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-4", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso: {.smaller}
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+y la variable `gender` para el color de cada punto.
+**Añadimos título al gráfico: "Mass vs. height of Starwars characters"**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-5, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "6"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour =gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters")
+```
+:::
+::: {.column width="50%"}
+```{r ref.label = "starwars2-5", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso: {.smaller}
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+y la variable `gender` para el color de cada punto.
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"
+**añadimos el subtítulo "by gender"**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-6, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "6"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       subtitle = "by gender")  
+```
+:::
+::: {.column width="50%"}
+```{r ref.label = "starwars2-6", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso:  {.smaller}
+
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+y la variable `gender` para el color de cada punto.
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"
+añadimos el subtítulo "Género de los personajes de starwars2"
+**etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", respectivamente**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-7, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "8"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       subtitle = "by gender",  
+       x = "Height (cm)", y = "Weight (kg)")
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-7", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso: {.smaller}
+
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+y la variable `gender` para el color de cada punto.
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"
+añadimos el subtítulo "Género de los personajes de starwars2"
+etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", respectivamente
+**etiquetamos la leyenda "Species"**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-8, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "9"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       subtitle = "by gender",  
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender") 
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-8", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso:  {.smaller}
+
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+y la variable `gender` para el color de cada punto.
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"
+añadimos el subtítulo "Género de los personajes de starwars2"
+etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", 
+etiquetamos la leyenda "Gender"
+**añadimos la fuente de los datos.**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-9, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "10"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       subtitle = "by gender",  
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender",
+       caption = "Source: dplyr package") 
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-9", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+---
+
+## Paso a paso: {.smaller}
+
+Empezamos con el data.frame `starwars2`
+ponemos `height` en el eje-x
+ponemos `mass` en el eje-y
+representamos cada observación con un punto
+y la variable `gender` para el color de cada punto.
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"
+añadimos el subtítulo "Género de los personajes de starwars2"
+etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", 
+etiquetamos la leyenda "Gender"
+añadimos la fuente de los datos.
+**Finalmente, usamos paleta con una escala de colores discreta que está diseñada para ser percibida por espectadores con formas comunes de daltonismo.**
+
+
+::: columns 
+::: {.column width="50%"}
+```{r starwars2-10, fig.show = "hide", warning = FALSE}
+#| code-line-numbers: "11"
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       subtitle = "by gender",  
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender",
+       caption = "Source: dplyr package")  +
+  scale_colour_viridis_d()
+```
+:::
+
+::: {.column width="50%"}
+```{r ref.label = "starwars2-10", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+:::
+:::
+
+
+# Aesthetics (estética) `r emo::ji("hit")`  {background-color="#017eae"}
+
+```{r aes-col, eval= FALSE }
+ggplot(data = starwars2,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = xxxxx,
+                     shape = xxxxx,
+                     size = xxxxx,
+                     alpha = xxxxx)
+       ) +
+  geom_point() 
+```
+
+
+# 5NG: cinco gráficos con nombre `r emo::ji("hit")`  {background-color="#017eae"}
+
+
+## 1. Scaterplots
+```{r sw-scaterplot}
+ggplot(data = starwars2, mapping = aes(x = height, y = mass)) +
+  geom_point()
+```
+
+
+## 2. Line plot
+```{r sw-line-plot}
+ipc <- readxl::read_excel("data/data_ipc.xlsx")
+
+g_ipc<- ggplot(data = ipc, mapping = aes(x = time, y = ipc)) +
+  geom_line(colour="blue", size=2)
+g_ipc
+```
+
+## 2. Line plot 
+```{r sw-line-plot2}
+g_ipc <- ggplot(data = ipc, mapping = aes(x = as.Date(time), y = ipc)) +
+  geom_line(colour="blue", size=2)
+g_ipc
+```
+
+## 3. Histográmas {.smaller}
+
+::: columns
+::: {.column width="50%"}
+```{r sw-hist}
+ggplot(data = starwars2, mapping = aes(x = mass)) +
+  geom_histogram()  #30 bins por defecto
+```
+:::
+
+::: {.column width="50%"}
+```{r sw-hist2}
+ggplot(data = starwars2, mapping = aes(x = mass)) +
+  geom_histogram(colour="red", fill="pink", bins = 15)
+```
+:::
+:::
+
+## 4. Boxplots {.smaller}
+
+::: columns
+::: {.column width="50%"}
+```{r sw-boxplot}
+ggplot(data = starwars2, mapping = aes(y = mass)) +
+  geom_boxplot() 
+```
+:::
+
+::: {.column width="50%"}
+```{r sw-boxplot2}
+ggplot(data = starwars2, mapping = aes(x=gender, 
+                                       y = mass, 
+                                       fill=gender)) +
+  geom_boxplot() 
+```
+:::
+:::
+
+## 5. Barplot {.smaller}
+
+::: columns
+::: {.column width="50%"}
+
+```{r barplot}
+ggplot(data = starwars2, mapping = aes(x = eye_color)) +
+  geom_bar() 
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r barplot-coord-flip}
+g_barplot <- ggplot(starwars2, aes(x = eye_color, 
+                                   fill = gender)) +
+  geom_bar() +
+  coord_flip()
+  g_barplot
+```
+
+:::
+:::
+
+
+
+# Otros gráficos interesantes `r emo::ji("hit")`  {background-color="#017eae"}
+
+
+## Hexbin plot
+
+```{r hexbin}
+ggplot(data = starwars2, mapping = aes(x = height, y = mass)) +
+  geom_hex() 
+```
+
+
+## Density
+
+```{r density}
+ggplot(data = starwars2, aes(x = height)) +
+  geom_density()
+```
+
+
+
+## Density con  `filter()`
+
+```{r density-filter}
+starwars2 %>%
+  filter(gender %in% c("feminine", "masculine")) %>%
+  ggplot(aes(height, fill = gender)) +
+  geom_density()
+```
+
+  
+## Density con `facet` {.smaller}
+
+
+```{r density-filter-face}
+starwars %>%
+  mutate(human = case_when(species == "Human" ~ "Human",
+                           species != "Human" ~ "Not Human")) %>%
+  filter(gender %in% c("feminine", "masculine"), !is.na(human)) %>%
+  ggplot(aes(height, fill = gender)) +
+  facet_grid(. ~ human) + #<--- this is a formula
+  geom_density()
+```
+
+```{r ref.label = "aes-face", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+
+
+
+
+
+# Gráficos interactivos `r emo::ji("hit")`  {background-color="#017eae"}
+
+## La función `ggplotly()` de \{plotly\}
+
+::: columns
+::: {.column width="50%"}
+```{r plotly-time}
+library(plotly)
+ggplotly(g_ipc)
+```
+:::
+
+::: {.column width="50%"}
+```{r plotly-barplot}
+#library(plotly) 
+ggplotly(g_barplot)
+```
+:::
+:::
+
+## El paquete `leaflet` {.smaller}
+
+::: columns
+::: {.column width="50%"}
+
+```{r leaflet1}
+library(leaflet)
+leaflet() %>%
+  addTiles() %>%  
+  addMarkers(lng= -5.9925707869459455, lat= 37.38633182455925, popup="La Giralda de Sevilla")
+```
+
+:::
+
+::: {.column width="50%"}
+```{r leaflet-provider}
+# library(leaflet)
+leaflet() %>%
+  addTiles() %>%  
+  addProviderTiles("Esri.WorldImagery") %>%
+  addMarkers(lng= -5.9925707869459455, lat= 37.38633182455925, popup="La Giralda de Sevilla")
+```
+:::
+:::
+
+
+## Recursos interesantes
+
+::: columns
+::: {.column width="33%"}
+
+![https://r-graph-gallery.com/boxplot.html](img/07-gallery.png){width="100%"}
+
+[**The R graph gallery**](https://r-graph-gallery.com/)
+:::
+
+::: {.column width="33%"}
+
+![https://r-charts.com/](img/07-rchart.png){width="100%"}
+
+[**R charts**](https://r-charts.com/)
+:::
+
+::: {.column width="33%"}
+
+![https://exts.ggplot2.tidyverse.org/gallery/](img/07-ggplot-ext.png){width="100%"}
+
+[**Extensiones \{ggplot2\}**](https://exts.ggplot2.tidyverse.org/gallery/)
+:::
+:::
+
+
+
+
+# Nuestra filosofía `r emo::ji("book")`: learning by doing {background-color="#AB5484"}
+
+
++ Recuerda que los ordenadores actualmente no son inteligentes.
+
++ Filosofía: `copy, paste, and tweak`
+
++ La mejor forma de aprender código es haciéndolo.
+
++ La práctica es la clave
+
+
+
+# 4. Conceptos clave `r emo::ji("book")` {background-color="black"}
+
+
++ \{ggplot2\}.
+
++ `geom_xxx()`.
+
+
+# Referencias 
+
+
+```{r eval=FALSE, include=FALSE, message=FALSE, results='hide', echo=FALSE}
+library(knitr)
+knit('u6-graphics.qmd', tangle=TRUE)
+source('scripts/u6-graphics.R')
+```
+
+```{r eval=FALSE, include=FALSE, echo=FALSE}
+knitr::purl("u5-graphics.qmd")
+```
+

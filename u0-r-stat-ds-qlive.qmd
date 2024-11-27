@@ -1,0 +1,231 @@
+---
+title: "Storytelling visual con R"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+#date: "`r Sys.Date()`"
+bibliography: biblio.bib
+engine: knitr  
+format:
+  live-revealjs:
+    theme: theme-dds.scss
+    scrollable: true
+    toc-title: Index
+    toc: false
+    slide-number: c/t
+    fig-align: center
+    show-slide-number: all
+    transition: fade
+    background-transition: fade
+    height: 900
+    width: 1600
+    fontcolor: "#262d36"
+    highlight-style: ayu-mirage
+    multiplex: true
+    embed-resources: true
+    code-overflow: scroll
+webr:
+  packages:
+    - leaflet
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    out-width: "50%"
+code-link: true
+execute:
+  code-overflow: scroll
+  echo: true
+  freeze: auto
+  eval: true
+  fig-height: 6
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+---
+
+
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+#  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
+
+<!-- background-image="img/r-giralda2.png" -->
+
+[**Unidad 0**]{.custom-title-1} [**¡Bienvenidos!**]{.custom-title-2} 
+<!-- [Gema Fernández-Avilés Calderón<br> Universidad de Castilla-La Mancha]{.custom-author} -->
+[¿Nos presentamos?]{.custom-author}
+
+
+
+
+## ¿Dónde estamos? {.smaller}
+
+::: {style="text-align: center;"}
+::: columns
+::: {.column width="50%"}
+::: {.fragment fragment-index="1"}
+### Curso [online]{style="color: #026928;"}
+:::
+
+<br>
+
+::: {.fragment fragment-index="2"}
+<!-- ![](img/gema-blanco.jpg){width="15%"} -->
+
+**Orientación:**
+
+Datos, presentación, comunicación, **R**
+:::
+
+<br>
+
+::: {.fragment fragment-index="3"}
+![](img/icons8-cake-64.png){fig-alt="Cake icon"}
+
+**Filosofía:**
+
+Probemos primero el pastel
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment fragment-index="4"}
+### Sobre [R para storytelling y ciencia de datos]{style="color: #026928;"}
+:::
+
+<br>
+
+::: {.fragment fragment-index="5"}
+![](img/icons8-code-64.png){fig-alt="Code icon"}
+
+**Objetivo 1:**
+
+*Comunicar* 
+:::
+
+<br>
+
+::: {.fragment fragment-index="6"}
+![](img/icons8-code-R-64.png){fig-alt="Code icon with R logo"}
+
+**Objetivo 2:**
+
+**R** como herramienta de comunicación y visualización.
+:::
+:::
+:::
+:::
+
+## Objetivos
+
+-   Proporcionar un *overview* de las herramientas más importantes del
+    software estadístico R. Reproducibilidad.
+-   Trabajar con datos reales.
+-   Resumir los recursos más importantes.
+
+**Lo que NO aprenderás:**
+
+-   Programación en R.
+-   Escritura en Latex.
+-   Contenidos teóricos.
+
+
+# Nuestra filosofía `r emo::ji("book")`: learning by doing {background-color="#AB5484"}
+
+
++ Recuerda que los ordenadores actualmente no son inteligentes.
+
++ Filosofía: `copy, paste, and tweak`
+
++ La mejor forma de aprender código es haciéndolo.
+
++ La práctica es la clave
+
+
+
+## ¿Cuál de las siguientes tres descripciones le da una mejor idea del producto final?
+
+::: {layout-ncol="3"}
+![**Ingredientes**](img/receta.png){width="50%"}
+
+![**Libro de recetas**](img/libro-receta.png){width="50%"}
+
+
+![**Tarta**](img/tarta.png){width="50%"}
+:::
+
+
+
+## Empecemos probando el pastel
+
+```{webr geolocal}
+#| fig-height: 6
+#| fig-width: 15
+
+library(leaflet)
+leaflet() |>
+  addTiles() |>  
+  addProviderTiles("Esri.WorldImagery") |>
+  addMarkers(lng= -4.023600990127399, lat= 39.85717967902482, popup="  ")
+```
+
+## Empecemos probando el pastel
+```{webr geolocal2}
+#| fig-height: 6
+#| fig-width: 15
+#| code-line-numbers: "1|5"
+
+library(leaflet)
+leaflet() |>
+  addTiles() |>  
+  addProviderTiles("Esri.WorldImagery") |>
+  addMarkers(lng= -4.023600990127399, lat= 39.85717967902482, popup="  ")
+```
+
+
+## Tu turno. ¿Qué (pastel) te gustaría geolocalizar?
+
+```{webr tu-turno}
+library(leaflet)
+leaflet() |>
+  addTiles() |>  
+  addProviderTiles("Esri.WorldImagery") |>
+  addMarkers(lng= ____________, lat= __________, popup="_________")
+```
+
+
+## Índice del curso  {background-color="#017eae"}
+
++ **Sesión I. Fundamentos básicos de R**
+
+    1. *Toolkit* del curso: R, RStudio y Quarto.
+
+    2. La importancia del contexto.
+
+    3. La elección de un gráfico efectivo. From data to viz******.
+    
+    4. El desorden es tu enemigo.
+    
+    5. Centra la atención de tu audiencia.
+    
+    6. Piensa como un diseñador. 
+    
+    7. Cuenta una historia.
+    
+    8. Consideraciones finales. Ejemplos mal aquí o al principio.
+
+
+
+
+```{r eval=FALSE, include=FALSE, message=FALSE, results='hide', echo=FALSE}
+library(knitr)
+knit('u0-r-stat-ds.qmd', tangle=TRUE)
+source('u0-r-stat-ds.R')
+```

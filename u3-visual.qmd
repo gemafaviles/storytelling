@@ -50,9 +50,9 @@ execute:
 
 <!-- background-image="img/r-giralda2.png" -->
 
-[Unidad 2]{.custom-title-1} [La importancia del contexto]{.custom-title-2} 
+[Unidad 3]{.custom-title-1} [La elección de un gráfico efectivo.]{.custom-title-2} 
 <!-- [Gema Fernández-Avilés Calderón<br> Universidad de Castilla-La Mancha]{.custom-author} -->
-[La importancia del contexto]{.custom-author}
+[*From data to viz* ]{.custom-author}
 
 ```{r}
 #| echo: false
@@ -80,7 +80,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 
 - Comprender la importancia de la visualización
 
-- Regresentaciones con \{ggplot2\}
+- Representaciones con \{`ggplot2`\}
 
 
 
@@ -95,59 +95,18 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 
 # ¿Por qué es importante la visualización? `r emo::ji("picture")` {background-color="#017eae"}
 
->[**"The simple graph has brought more information to the data analyst's mind than any other device." --- John Tukey**]{style="color:blue"} 
+>[**"The simple graph has brought more information to the data analyst's mind than any other device." --- John Tukey**]{style="color:white"} 
 
 
-## ¿Cómo describirías la relación entre la masa y la altura de los personajes de Starwars? 
 
-![**Imagen tomada de https://datasciencebox.org**](img/07-sw-plot.png){width="60%"}
-
-
-## ¿Existe algún outlier? {.smaller}
-
-::: columns
-
-::: {.column width="50%"}
-
-```{r sw-outlier-jabba, fig.show = "hide", warning = FALSE}
-library(ggplot2)
-library(dplyr)
-
-ggplot(data = starwars,
-       mapping = aes(x = height,
-                     y = mass)) +
-  geom_point()+
-  geom_point(
-   data = starwars |> 
-     filter(name == "Jabba Desilijic Tiure"), 
-     shape = "circle open", 
-      size = 5, color = "red"
-  )
-```
-
-:::
-
-::: {.column width="50%"}
-
-```{r ref.label = "sw-outlier-jabba", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
-```
-:::
-:::
-  
-  
-## Jabba Desilijic Tiure
-
-![**Imagen adaptada de https://datasciencebox.org**](img/07-jabba.png){width="60%"}
-
-
-## DatasauRus (descriptivos) {.smaller}
+## DatasauRus  {.smaller}
 
 ```{r datasauRus-descriptivos}
 library(datasauRus)
 library(dplyr)
 
-datasaurus_dozen %>% 
-    group_by(dataset) %>% 
+datasaurus_dozen |> 
+    group_by(dataset) |> 
     summarize(
       mean_x    = mean(x),
       mean_y    = mean(y),
@@ -157,7 +116,7 @@ datasaurus_dozen %>%
     )
 ```
 
-## DatasauRus (plot)
+## DatasauRus  
 
 ```{r datasauRus-visualiza, echo=FALSE}
 #| fig-align: center
@@ -176,19 +135,63 @@ Otros ejemplos clásicos son el cuarteto de Anscombe y la paradoja de Simpson.
 
 
 
+## ¿Cómo describirías la relación entre la masa y la altura de los personajes de Starwars? 
 
-# "The grammar of graphics": \{ggplot\} {background-color="black"}
+<!-- ![**Imagen tomada de https://datasciencebox.org**](img/07-sw-plot.png){width="60%"} -->
+
+```{r}
+library(tidyverse)
+ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point() 
+```
+
+
+
+
+<!-- ## ¿Existe algún outlier? {.smaller} -->
+
+<!-- ::: columns -->
+
+<!-- ::: {.column width="50%"} -->
+
+<!-- ```{r sw-outlier-jabba, fig.show = "hide", warning = FALSE} -->
+<!-- library(ggplot2) -->
+<!-- library(dplyr) -->
+
+<!-- ggplot(data = starwars, -->
+<!--        mapping = aes(x = height, y = mass)) + -->
+<!--   geom_point() -->
+<!-- ``` -->
+
+<!-- ::: -->
+
+<!-- ::: {.column width="50%"} -->
+
+<!-- ```{r ref.label = "sw-outlier-jabba", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8} -->
+<!-- ``` -->
+<!-- ::: -->
+<!-- ::: -->
+
+  
+## ¿Quién es el *outlier*? Jabba Desilijic Tiure
+
+![**Imagen adaptada de https://datasciencebox.org**](img/07-jabba.png){width="60%"}
+
+
+
+
+# "The grammar of graphics": \{`ggplot`\} {background-color="black"}
 
 ![**Imagen adaptada de https://datasciencebox.org**](img/07-ggplot2-book.png){width="60%"}
 
-+ \{ggplot2\} es un paquete *tidyverse* para visualización de datos
++ \{`ggplot2`\} es un paquete `tidyverse` para visualización de datos.
 
-+ gg in "ggplot2" referencia a Grammar of Graphics
++ **gg** en `ggplot2` hace referencia a *Grammar of Graphics.*
 
 + Inspirado en el libro *Grammar of Graphics*, @wilkinson2012grammar.
 
 
-## ¿Cómo visualizar con la función `ggplot()` de \{ggplot\}?
+## ¿Cómo visualizar con la función `ggplot()` de \{`ggplot`\}?
 
 ```{r ggplot-library, eval=FALSE}
 library(ggplot2)
@@ -252,7 +255,7 @@ ggplot(data = starwars2, mapping = aes(x = height, y = mass)) +
 
 ---
 
-## Paso a paso {.smaller}
+## Paso a paso: {.smaller}
 
 **Empezamos con el data.frame `starwars2`**
 
@@ -278,7 +281,7 @@ ggplot(data = starwars2)
 
 ## Paso a paso: {.smaller}
 
-Empezamos con el data.frame `starwars2`
+Empezamos con el data.frame `starwars2`  
 **ponemos `height` en el eje-x**
 
 
@@ -299,9 +302,9 @@ ggplot(data = starwars2,
 
 ## Paso a paso: {.smaller}
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-**ponemos `mass` en el eje-y**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+**ponemos `mass` en el eje-y**  
 
 
 ::: columns 
@@ -324,10 +327,10 @@ ggplot(data = starwars2,
 
 ## Paso a paso:  {.smaller}
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-**representamos cada observación con un punto**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+**representamos cada observación con un punto**  
 
 
 ::: columns 
@@ -351,11 +354,11 @@ ggplot(data = starwars2,
 
 ## Paso a paso: {.smaller}
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-**y la variable `gender` para el color de cada punto**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+**y la variable `gender` para el color de cada punto**  
 
 
 ::: columns 
@@ -380,12 +383,12 @@ ggplot(data = starwars2,
 
 ## Paso a paso: {.smaller}
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-y la variable `gender` para el color de cada punto.
-**Añadimos título al gráfico: "Mass vs. height of Starwars characters"**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+y la variable `gender` para el color de cada punto.  
+**Añadimos título al gráfico: "Mass vs. height of Starwars characters"**  
 
 
 ::: columns 
@@ -410,13 +413,13 @@ ggplot(data = starwars2,
 
 ## Paso a paso: {.smaller}
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-y la variable `gender` para el color de cada punto.
-Añadimos título al gráfico: "Mass vs. height of Starwars characters"
-**añadimos el subtítulo "by gender"**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+y la variable `gender` para el color de cada punto.  
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"  
+**añadimos el subtítulo "by gender"**  
 
 
 ::: columns 
@@ -443,14 +446,14 @@ ggplot(data = starwars2,
 ## Paso a paso:  {.smaller}
 
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-y la variable `gender` para el color de cada punto.
-Añadimos título al gráfico: "Mass vs. height of Starwars characters"
-añadimos el subtítulo "Género de los personajes de starwars2"
-**etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", respectivamente**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+y la variable `gender` para el color de cada punto.  
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"  
+añadimos el subtítulo "Género de los personajes de starwars2"  
+**etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", respectivamente**  
 
 
 ::: columns 
@@ -479,14 +482,14 @@ ggplot(data = starwars2,
 ## Paso a paso: {.smaller}
 
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-y la variable `gender` para el color de cada punto.
-Añadimos título al gráfico: "Mass vs. height of Starwars characters"
-añadimos el subtítulo "Género de los personajes de starwars2"
-etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", respectivamente
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+y la variable `gender` para el color de cada punto.  
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"  
+añadimos el subtítulo "Género de los personajes de starwars2"  
+etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", respectivamente  
 **etiquetamos la leyenda "Species"**
 
 
@@ -517,16 +520,16 @@ ggplot(data = starwars2,
 ## Paso a paso:  {.smaller}
 
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-y la variable `gender` para el color de cada punto.
-Añadimos título al gráfico: "Mass vs. height of Starwars characters"
-añadimos el subtítulo "Género de los personajes de starwars2"
-etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", 
-etiquetamos la leyenda "Gender"
-**añadimos la fuente de los datos.**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+y la variable `gender` para el color de cada punto.  
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"  
+añadimos el subtítulo "Género de los personajes de starwars2"  
+etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)",   
+etiquetamos la leyenda "Gender"  
+**añadimos la fuente de los datos.**  
 
 
 ::: columns 
@@ -556,17 +559,17 @@ ggplot(data = starwars2,
 
 ## Paso a paso: {.smaller}
 
-Empezamos con el data.frame `starwars2`
-ponemos `height` en el eje-x
-ponemos `mass` en el eje-y
-representamos cada observación con un punto
-y la variable `gender` para el color de cada punto.
-Añadimos título al gráfico: "Mass vs. height of Starwars characters"
-añadimos el subtítulo "Género de los personajes de starwars2"
-etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)", 
-etiquetamos la leyenda "Gender"
-añadimos la fuente de los datos.
-**Finalmente, usamos paleta con una escala de colores discreta que está diseñada para ser percibida por espectadores con formas comunes de daltonismo.**
+Empezamos con el data.frame `starwars2`  
+ponemos `height` en el eje-x  
+ponemos `mass` en el eje-y  
+representamos cada observación con un punto  
+y la variable `gender` para el color de cada punto.  
+Añadimos título al gráfico: "Mass vs. height of Starwars characters"  
+añadimos el subtítulo "Género de los personajes de starwars2"  
+etiquetamos los ejes x e y como "x = "Height (cm)", y = "Weight (kg)",   
+etiquetamos la leyenda "Gender"  
+añadimos la fuente de los datos.  
+**Finalmente, usamos paleta con una escala de colores discreta que está diseñada para ser percibida por espectadores con formas comunes de daltonismo.**  
 
 
 ::: columns 
@@ -609,94 +612,294 @@ ggplot(data = starwars2,
 ```
 
 
-# 5NG: cinco gráficos con nombre `r emo::ji("hit")`  {background-color="#017eae"}
+# ¿Cuál es la mejor representación gráfica? `r emo::ji("hit")`  {background-color="#017eae"}
+
+# ¿Cómo son mis datos? `r emo::ji("thinking")`  
+
+# Un mundo de posibilidades `r emo::ji("thinking")` 
+
+>[[**From data to viz project**]{style="color:blue"}](https://www.data-to-viz.com/)
+
+![**Árbol de clasificación de gráficos según el tipo de datos**](img/03-visual-from-data-to-viz.png){width="60%"}
 
 
-## 1. Scaterplots
-```{r sw-scaterplot}
-ggplot(data = starwars2, mapping = aes(x = height, y = mass)) +
-  geom_point()
+
+# 1. Distribución `r emo::ji("hit")`  {background-color="#017eae"}
+
+
+![**Gráficos para distribuciones**](img/03-visual-distribution.png){width="60%"}
+
+# 1. Distribución `r emo::ji("hit")`  {background-color="#017eae"}
+
+## 1.1 Histograma
+
+Un histograma es una representación gráfica de una variable en forma de barras, donde la superficie de cada barra es proporcional a la frecuencia de los valores representados. 
+
+```{r hist-prep}
+library(CDR)
+head(renta_municipio_data)
+
+renta <- renta_municipio_data |>
+   drop_na()
 ```
 
 
-## 2. Line plot
-```{r sw-line-plot}
-ipc <- readxl::read_excel("data/data_ipc.xlsx")
-
-g_ipc<- ggplot(data = ipc, mapping = aes(x = time, y = ipc)) +
-  geom_line(colour="blue", size=2)
-g_ipc
+```{r renta-hist}
+ggplot(renta, aes(`2019`)) +
+  geom_histogram() #30 bins por defecto
 ```
 
-## 2. Line plot 
-```{r sw-line-plot2}
-g_ipc <- ggplot(data = ipc, mapping = aes(x = as.Date(time), y = ipc)) +
-  geom_line(colour="blue", size=2)
-g_ipc
+## 1.1 Histograma 
+
+
+```{r renta-hist-beauty}
+p_renta_2019 <- ggplot(renta, aes(`2019`)) +
+  geom_histogram(color = "yellow", 
+                 fill = "red", 
+                 bins = nclass.Sturges(renta_municipio_data$`2019`)) +
+labs(title = "Distribución de la renta por municipios",
+       x = "Renta per cápita",
+       y = "Frecuencia") +
+theme_minimal()
+
+p_renta_2019 
 ```
 
-## 3. Histográmas {.smaller}
 
-::: columns
-::: {.column width="50%"}
-```{r sw-hist}
-ggplot(data = starwars2, mapping = aes(x = mass)) +
-  geom_histogram()  #30 bins por defecto
-```
-:::
+## 1.2 Gráfico de densidad
 
-::: {.column width="50%"}
-```{r sw-hist2}
-ggplot(data = starwars2, mapping = aes(x = mass)) +
-  geom_histogram(colour="red", fill="pink", bins = 15)
-```
-:::
-:::
+Una representación alternativa al histograma es la línea de densidad, que sustituye las barras por una línea continua, generalmente suavizada
 
-## 4. Boxplots {.smaller}
+```{r renta-density}
 
-::: columns
-::: {.column width="50%"}
-```{r sw-boxplot}
-ggplot(data = starwars2, mapping = aes(y = mass)) +
-  geom_boxplot() 
-```
-:::
-
-::: {.column width="50%"}
-```{r sw-boxplot2}
-ggplot(data = starwars2, mapping = aes(x=gender, 
-                                       y = mass, 
-                                       fill=gender)) +
-  geom_boxplot() 
-```
-:::
-:::
-
-## 5. Barplot {.smaller}
-
-::: columns
-::: {.column width="50%"}
-
-```{r barplot}
-ggplot(data = starwars2, mapping = aes(x = eye_color)) +
-  geom_bar() 
+p_renta_2019_density <- ggplot(renta, aes(`2019`)) +
+  geom_density(fill = "blue",  alpha= 0.4) +
+  labs(title = "Distribución de la renta por municipios",
+       x = "Renta per cápita",
+       y = "Densidad") +
+  theme_minimal()
 ```
 
-:::
 
-::: {.column width="50%"}
+## 1.2 Gráfico de densidad e histograma
 
-```{r barplot-coord-flip}
-g_barplot <- ggplot(starwars2, aes(x = eye_color, 
-                                   fill = gender)) +
-  geom_bar() +
-  coord_flip()
-  g_barplot
+```{r renta-density2}
+p_renta_2019_density + 
+  geom_histogram(aes(y=..density..), 
+                 fill = "yellow", color="blue", alpha = 0.4)
 ```
 
-:::
-:::
+
+1.3 Boxplot vs. Violín 
+
+```{r}
+p <- renta |>
+  ggplot(aes(x=0, y= `2019`)) 
+
+boxplot <- p + 
+  geom_boxplot(color = "red", fill = "pink") +
+  theme_minimal()
+
+violin <- p + geom_violin(color = "red", fill = "pink") +
+  theme_minimal()
+
+library(patchwork)
+boxplot + violin
+```
+
+
+1.3 Violín 
+
+```{r}
+# con el objeto renta haz un gráfico de violin para la variable `2019`, 2018, 2017 en un mismo plot para que se puedan comparar
+
+p <- renta |>
+   ggplot(aes(x=0, y= `2017`))
+ 
+p +
+   geom_violin(aes(fill = "2017"), color = "red") +
+   geom_violin(aes(x=1, y= `2018`, fill = "2018"), color = "blue") +
+   geom_violin(aes(x=2, y= `2019`, fill = "2019"), color = "green") +
+   theme_minimal() +
+   scale_fill_manual(values = c("2017" = "red", "2018" = "blue", "2019" = "green")) +
+#  pon en el eje x los años y en el eje y Renta per cápita  (euros)
+   scale_x_continuous(breaks = c(0, 1, 2), labels = c("2017", "2018", "2019")) +
+   labs(title = "Distribución de la renta por municipios",
+       x = "Año",
+       y = "Renta per cápita (euros)")
+```
+
+
+1.3 Violín 
+
+Cuando se trabaja en un proyecto de ciencia de datos, lo normal es tener tanto variables cualitativas como cuantitativas. 
+
+```{r}
+
+nox_madrid <-contam_mad |>  
+  na.omit() |>  
+  filter(nom_abv == "NOx") |> 
+  filter(between(fecha, left = as.Date("2022-03-01"), right = as.Date("2022-03-31"))) 
+  
+ nox_madrid |> 
+  ggplot(aes(zona, daily_mean)) +
+  geom_violin() +
+  geom_jitter(height = 0, width = 0.01) +
+  aes(x = zona, y = daily_mean, fill =zona) +
+  labs(title = "Distribución de NOx por zona",
+       x = "Zona",
+       y = "Concentración de NOx (µg/m3)") +
+  theme_minimal()
+
+```
+
+
+1.3 Violín 
+
+```{r}
+library(ggstatsplot)
+
+ggbetweenstats(
+  data =nox_madrid,
+  x = zona,
+  y = daily_mean
+)
+```
+
+
+
+
+
+## 1.2 Densidad
+
+```{r}
+library(ggridges)
+nox_madrid |> 
+  ggplot(aes(x = daily_mean, y = zona, fill= zona)) +
+  geom_density_ridges() +
+  theme_ridges() + 
+  labs(title = "Distribución de NOx por zona",
+       x = "Concentración de NOx (µg/m3)",
+       y = "Zona") +
+  theme_minimal()
+```
+
+
+
+
+# 2. Distribución `r emo::ji("hit")`  {background-color="#017eae"}
+
+
+![**Gráficos para correlaciones**](img/03-visual-correlation.png){width="60%"}
+
+
+## 2.1 Scatterplot
+
+
+```{r}
+# Load data
+demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
+colnames(demog_data) <- gsub("\\.", "_", colnames(demog_data))
+```
+
+
+```{r}
+# scatterplot entre growth.rate y Life.expectancy
+demog_data  |>
+  ggplot(aes(x = Growth_rate, y = Life_expectancy)) +
+  geom_point() +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
+## 2.1 Scatterplot
+
+```{r}
+
+
+demog_data  |>
+  ggplot(aes(x = Growth_rate, y = Life_expectancy, size=Pop,  color=Continent)) +
+  geom_point(alpha=0.5) +
+  scale_size(range = c(.1, 20)) +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
+
+
+
+
+
+## 2.1 Scatterplot
+
+```{r}
+demog_scatter <- ggplot(data = demog_data, # data
+              aes(x = Growth_rate, y = Life_expectancy, colour = Continent)) + #aesthetics
+    geom_point(alpha = 0.5) + #geometries
+    facet_wrap(~ Continent, scales = "free") + #facets
+    labs(title = "Life expectancy at birth vs. Per capita GDP", 
+         x = "Growth_rate", y = "Life_expectancy", colour = "Continent") + #labels
+    theme_light() #themes
+
+demog_scatter 
+```
+
+
+## 2.1 Scatterplot
+
+```{r}
+demog_scatter + geom_smooth(method = NULL, se = T) 
+```
+
+
+## 2.1 Scatterplot matrix
+
+```{r}
+# con las variables cuantitativas el conjunto de datos demog_data haz una scatterplot matrix
+library(GGally)
+
+demo_cuanti <- demog_data |>
+   select(Pop, Birth_rate, Mortality_rate, Life_expectancy, Infant_mortality, 
+         Children_per_woman,  Growth_rate, Population_aged_65_) |>
+   na.omit()
+
+demo_cuanti |> 
+   ggpairs()
+```
+
+
+## Correlation matrix
+
+```{r}
+# con las variables cuantitativas el conjunto de datos demog_data haz una matriz de correlación
+demo_cuanti |> 
+  cor() |> 
+  corrplot:: corrplot.mixed( order = 'AOE')
+```
+
+
+## 2.2 Heatmap
+
+```{r}
+heatmap(as.matrix(scale(demo_cuanti)), col = topo.colors(256), cexCol =  0.5) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -723,8 +926,8 @@ ggplot(data = starwars2, aes(x = height)) +
 ## Density con  `filter()`
 
 ```{r density-filter}
-starwars2 %>%
-  filter(gender %in% c("feminine", "masculine")) %>%
+starwars2 |>
+  filter(gender %in% c("feminine", "masculine")) |>
   ggplot(aes(height, fill = gender)) +
   geom_density()
 ```
@@ -734,10 +937,10 @@ starwars2 %>%
 
 
 ```{r density-filter-face}
-starwars %>%
+starwars |>
   mutate(human = case_when(species == "Human" ~ "Human",
-                           species != "Human" ~ "Not Human")) %>%
-  filter(gender %in% c("feminine", "masculine"), !is.na(human)) %>%
+                           species != "Human" ~ "Not Human")) |>
+  filter(gender %in% c("feminine", "masculine"), !is.na(human)) |>
   ggplot(aes(height, fill = gender)) +
   facet_grid(. ~ human) + #<--- this is a formula
   geom_density()
@@ -754,21 +957,6 @@ starwars %>%
 
 ## La función `ggplotly()` de \{plotly\}
 
-::: columns
-::: {.column width="50%"}
-```{r plotly-time}
-library(plotly)
-ggplotly(g_ipc)
-```
-:::
-
-::: {.column width="50%"}
-```{r plotly-barplot}
-#library(plotly) 
-ggplotly(g_barplot)
-```
-:::
-:::
 
 ## El paquete `leaflet` {.smaller}
 
@@ -777,8 +965,8 @@ ggplotly(g_barplot)
 
 ```{r leaflet1}
 library(leaflet)
-leaflet() %>%
-  addTiles() %>%  
+leaflet() |>
+  addTiles() |>  
   addMarkers(lng= -5.9925707869459455, lat= 37.38633182455925, popup="La Giralda de Sevilla")
 ```
 
@@ -787,9 +975,9 @@ leaflet() %>%
 ::: {.column width="50%"}
 ```{r leaflet-provider}
 # library(leaflet)
-leaflet() %>%
-  addTiles() %>%  
-  addProviderTiles("Esri.WorldImagery") %>%
+leaflet() |>
+  addTiles() |>  
+  addProviderTiles("Esri.WorldImagery") |>
   addMarkers(lng= -5.9925707869459455, lat= 37.38633182455925, popup="La Giralda de Sevilla")
 ```
 :::

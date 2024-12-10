@@ -79,54 +79,334 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 
 # 1. Objetivos de aprendizaje `r emo::ji("hit")` {background-color="black"}
 
-- Saber .........
+- Subrayar la importancia del contexto.
 
+- Conectar los datos con la historia.
 
-- Recomendar biografía: 
+- Mostrar cómo el contexto influye en la visualización.
 
-    + `r emo::ji("book")` @wickham2016r ........
- 
-
+- Evitar manipulaciones no intencionadas.
 
 
 
 # 2. Resultados esperados  `r emo::ji("winner")` {background-color="#017eae"}
 
-![**Interfaz gráfica de Rstudio**](img/04-rdo-esp.png){width="60%"}
+![](img/05-luke-skywalker.png){width="60%"}
 
 
 # 3. Conceptos clave `r emo::ji("document")` {background-color="#AB5484"}
 
 
-## xxxxxxxxxxxxxxx  
+## Análisis exploratorio frente a análisis explicativo
 
- 
+![**Tipos de análisis**. Fuente: @knaflic2019storytelling**](img/u2-context-eda-expl.png){width="60%"}
 
- 
+- El análisis **exploratorio**: es lo que se hace para comprender los datos y averiguar
+qué puede ser digno de mención o interesante para otros.
+[**El análisis exploratorio es como buscar perlas en las ostras.**]{style="color:red"}
 
-# xxxxxxxxx: la clave `r emo::ji("document")` {background-color="#AB5484"}
-
-
-# RStudio {background-color="#017eae"}
-![**Fuente @ismay2019statistical**](img/04-open-rstudio.png){width="60%"}
-
+- El análisis **explicativo**: es lo que se hace para explicar los datos a otros.
+[**El análisis explicativo es como hacer joyas con las perlas.**]{style="color:red"}
 
 
+## Cuestiones clave
 
-
-
+![**¿Dónde empezamos?**. Fuente: @knaflic2019storytelling](img/u2-context-www.png){width="60%"}
 
 
 
+## ¿Cómo nos comunicamos con el público?
+
+![**Communication mechanism continuum**. Fuente: @knaflic2019storytelling](img/u2-context-on-off-line.png){width="60%"}
+
+
+## ¿Cómo organizamos el contexto?
+
+
++ [**Historia en 3‐minutos**:]{style="color:red"}: Si sólo dispusieras de tres minutos para decirle a su público lo que necesita saber, ¿qué le dirías?
+
++ [**La gran idea**:]{style="color:red"} la Gran Idea reduce el "qué" aún más: a una sola frase.
+
++ [**Storyboard o representación visual de la historias**:]{style="color:red"} una serie de imágenes que representan las escenas clave de la historia.
+
+
+<!-- # Antes de seguir: la clave `r emo::ji("document")` {background-color="#AB5484"} -->
+
+
+# El contexto en **R**: `tidyverse` {background-color="#AB5484"}
+
+- Conocer qué es el `tidyverse` y los datos `tidy`
+    
+- Descubrir las acciones (`verbos`) de \{dplyr\}.
+
+- Aprender a visualizar datos con \{`ggplot2`\}.
+
+
+# Tidy data `r emo::ji("document")` {background-color="#017eae"}
+
+## ¿Qué significa tidy? ¿Cuál de estas dos imágenes es más tidy?
+
+![**Imagen tomada de: iStock**](img/08-tidy-ropa.png){width="60%"}
+
+## ¡Acertaste!
+![**Imagen adaptada de: iStock**](img/08-tidy-ropa-text.png){width="60%"}
+
+
+
+## Características de los datos tidy
+
++ Cada variable forma una columna.
+
++ Cada observación forma una fila.
+
++ Cada tipo de unidad de observación forma una tabla.
+
+![**Fuente: @wickham2016r**](img/08-tidy-data-tabla.png){width="15%"}
+
+
+
+
+# The grammar of data wrangling: \{tidyverse\} `r emo::ji("construction")` {background-color="#017eae"} 
+
+::: columns
+::: {.column width="50%"}
+![**Fuente: Allison Horst**](img/08-tidyverse.png){width="80%"} 
+:::
+
+::: {.column width="50%"}
+![**Fuente: https://r4ds.had.co.nz/**](img/08-r4ds.png){width="50%"}   
+:::
+:::
+
+## [**Tidyverse**:]{style="color:red"} {.smaller}
+
+Es una colección de paquetes coehrentes, que
+    comparten gramática, filosofía y estructura y están diseñados para
+    realizar juntos como una canalización completa (*pipeline*). Todos
+    se basan en la idea de *tidy data* propuesta por Hadley Wickham
+    @hadley2014tidy y pueden instalarse con un único comando en R:
+
+```{r eval=FALSE}
+install.packages("tidyverse")
+```
+
+    
+
+Los paquetes que forman parte del tidyverse son:
+
+-    **\{readr\}**, para importación de datos.
+
+-   **\{dplyr\}**, para manipulación de datos.
+
+-   **\{tidyr\}**, para ordenar datos.
+
+-   **\{ggplot2\}**, para visualización de datos.
+
+-   **\{purrr\}**, para programación.
+
+-   **\{tibble\}**, para `tibbles`, un nuevo formato de `data frames`.
+
+-   **\{stringr\}**, para caracteres.
+
+-   **\{forcats\}**, para factores.
+
+
+
+# El operador pipe `r emo::ji("document")` {background-color="#017eae"}
+
+## ¿Qué es un pipe?
+
+En programación, un pipe (tubo) es una técnica que permite pasar información de un 
+proceso a otro.
+
+![Fuente: https://static-bcrf.biochem.wisc.edu/courses/Tabular-data-analysis-with-R-and-Tidyverse/book/8-tidyverseanotherRuniverse.html](img/08-pipe-tuberia.png){width="30%"} 
+
+## ¿Cómo funciona el pipe de forma intuitiva?
+
+
+Imagina la siguiente secuencia:
+
+```{r pipe-car1}
+#| eval: false
+(i) find keys, (ii) unlock car, (iii) start car, (iv) drive to work y (v) park.
+```
+
+
+Expresado como un cojunto de funciones anidadas y pseudo-código **R** podría ser así:
+
+```{r pipe-car2}
+#| eval: false
+park(drive(start_car(unlock(find("keys"))), to = "work"))
+```
+
+
+Utilizando pipes la lectura se hace más fácil y natural:
+
+```{r pipe-car3}
+#| eval: false
+find("keys") |>
+  unlock_car() |>
+  start_car() |>
+  drive(to = "work") |>
+  park()
+```
+
+
+
+# Transformación de datos con `dplyr` {background-color="#017eae"}
+
+::: columns
+
+::: {.column width="20%"}
+
+![**Fuente: https://dplyr.tidyverse.org/**](img/08-dplyr-logo.png)
+:::
+
+::: {.column width="80%"}
+
+```{r dplyr1, eval=FALSE}
+#| code-line-numbers: false
+filas:
+  filter() filtra casos en función de sus valores.
+  arrange() cambia el orden de las filas.
+
+columnas:
+  select() elige variables en función de sus nombres.
+
+transformación:
+  summarise() reduce múltiples valores a un solo resumen.
+  mutate() agrega nuevas variables que son funciones de variables existentes.
+
+agrupación:
+  group_by() agrupa datos por una o más variables.
+```
+
+:::
+
+:::
+
+
+
+## Importante: Cheatsheets en **R**  
+
+>[[**Cheatsheets**]{style="color:blue"}](https://posit.co/resources/cheatsheets/)
+
+
+![**Fuente: https://posit.co/resources/cheatsheets/**](img/u2-context-cheatsheet.png)
+
+
+## Manos a la obra {background-color="black"}
+
+::: {.callout-note}
+Nosotros vamos a contar historias con los datos usando el software 
+estadístico **R** por lo que es necesario conocer algunos paquetes y funciones
+para poder manipular y represenar los datos.
+:::
+
+¿Qué hay en un conjunto de datos?  
+
+![**Mapa del universo observable con los objetos astronómicos notables conocidos en la actualidad. Fuente: Wikipedia.**](img/05-universo.png){width="50%"}
+
+## El conjunto de datos `starwars`
+
+![**Fuente: https://datasciencebox.org**](img/starwars-dataset.png){width="50%"}
+
+## Terminología (común)
+
+- Cada fila es una **observación**
+- Cada columna es una **variable**
+
+```{r carga-datos-starwars}
+library("dplyr")
+starwars
+```
+
+
+
+
+## Tablas de datos (data.frames)
+
++ Cada columna: variable (cuantitativa o cualitativa).
+
++ Cada fila:  elemento  observado las características que representan las variables. 
+
++ La forma más común: `data.frame`. 
+      
++ Para extraer una variable del `data.frame` se utiliza el operador `$`: `nombre_dataframe$nombre_variable`.
+
++ Cada columna del `data.frame` es un `vector` (otra estructura de datos). 
+
+
+
+## Algunas cuestiones básicas
+
+¿Cuántas columnas (variables) tiene?
+```{r sw-ncol}
+ncol(starwars)
+```
+
+¿Cuántas filas (observaciones) tiene?
+```{r sw-nrow}
+nrow(starwars)
+```
+
+¿Cuál es la dimensión del dataset?
+```{r sw-dim}
+dim(starwars)
+```
+
+
+## Tablas de datos (`data.frames`)
+
+```{r sw-head}
+# la función head() muestra los primeros valores
+head(starwars, 3)
+```
+
+
+```{r sw-variable-name}
+sw_name<-starwars$name
+```
+
+
+::: {.callout-note}
+El operador `<-` asigna al "símbolo" que hay a su izquierda el resultado
+de la expresión que hay a su derecha. El operador `=` funciona igual que `<-`. 
+:::
+
+## Una observación (el bueno): **Luke Skywalker**
+
+![**Fuente: https://datasciencebox.org**](img/05-luke-skywalker.png){width="50%"}
+
+
+
+## Exploración del dataset `starwars`  
+
+De un **vistazo** (con la función `glimpse()`):
+
+```{r sw-explora}
+skimr::skim(starwars)
+```
+
+
+
+## ¿Qué conozco sobre Luke Skywalker (el bueno)?
+```{r sw-obsev-luke-skywalker}
+# tidy
+starwars|>
+  filter(name=="Luke Skywalker")
+```
 
 
 
 
 # 4. ¿Qué hemos aprendido? `r emo::ji("book")` {background-color="black"}
 
-+ Lo básico de **R**.
++ La importancia del contexto en la comunicación.
 
-+  ..............
++ Nociones básicas para manipular datos en **R**.
+
++ Homework: cumplimentar la hoja de trabajo.
 
 
 

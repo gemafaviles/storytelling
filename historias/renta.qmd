@@ -1,0 +1,227 @@
+---
+title: "Renta municipal en España (2015-2019)"
+format: html
+editor: visual
+---
+
+# Los municipios españoles del norte tienen una renata per cápita más alta que los del sur en 2019. IGUAL THE BIG IDEA NO ES ESTE TITULAR... EN ESPAÑA TODOS LOS MUNICIPIOS TIENEN LA MISMA RENTA.. NO SÉ
+
+## Lectura de datos
+
+Comprueba que tienes instalado el paquete CDR. Si no es así, instálalo con el siguiente comando (solo es necesario ejecutarlo una vez). Si el paquete `remotes` no está instalado, descomentar para instalarlo.
+
+```{r}
+# install.packages("remotes")
+# remotes::install_github("cdr-book/CDR")
+
+library(CDR)
+head(renta_municipio_data)
+```
+
+Un poco de información sobre los datos:
+
+```{r hist-prep}
+help(renta_municipio_data)
+names(renta_municipio_data)
+str(renta_municipio_data)
+```
+
+Vemos que hay mezcla de secciones censales y municipios. Vamos a quedarnos solo con los municipios...
+
+```{r municipios}
+renta_municipio_data <- renta_municipio_data[substr(
+  renta_municipio_data$Unidad, 6, 6) == " ",
+]
+```
+
+Eliminación de NAs
+
+```{r hist-prep2}
+library(tidyverse)
+renta <- renta_municipio_data |>
+   drop_na()
+
+head(renta)
+```
+
+## ¿Cuál es la renta per cápita media de los municipios españoles en 2019?
+
+```{r}
+summary(renta_municipio_data$`2019`)
+```
+
+## ¿Es la renta media la misma en todos los municipios?
+
+```{r}
+library("summarytools")
+renta |>
+  select(`2019`) |>
+  descr()
+```
+
+## ¡Qué lio! Mejor un gráfico que una tabla (J. Tukey)
+
+```{r renta-hist}
+ggplot(data = renta, aes(x=`2019`)) +
+  geom_histogram() #30 bins por defecto
+```
+
+## Qué histograma más feo, vamos a mejorarlo
+
+```{r renta-hist-beauty}
+p_renta_2019 <- ggplot(renta, aes(`2019`)) +
+  geom_histogram(color = "pink", 
+                 fill = "yellow", 
+                 bins = nclass.Sturges(renta_municipio_data$`2019`)) +
+  geom_vline(aes(xintercept = mean(`2019`)), color = "red", linetype = "dashed") +
+  geom_text(aes(x = mean(`2019`), y = 100, label = round(mean(`2019`), 2)), color = "red") +
+  labs(title = "Distribución de la renta por municipios",
+       x = "Renta per cápita",
+       y = "Frecuencia") +
+theme_minimal()
+
+p_renta_2019 
+```
+
+## ¿Sería mejor tener un gráfico de densidad? ¿Cómo se interpretaría?
+
+¿Qué diferencias hay respecto al histograma?
+
+```{r renta-density}
+
+p_renta_2019_density <- ggplot(renta, aes(`2019`)) +
+  geom_density(fill = "pink",  alpha= 0.4, color="blue", lwd=2) +
+  geom_vline(aes(xintercept = mean(`2019`)), color = "red", linetype = "dashed") +
+  geom_text(aes(x = mean(`2019`), y = 0.0, label = round(mean(`2019`), 2)), color = "red") +
+  labs(title = "Distribución de la renta por municipios",
+       x = "Renta per cápita",
+       y = "Densidad") +
+  theme_minimal()
+
+p_renta_2019_density
+```
+
+## ¿Cuál me gusta más? ¿Histograma o densidad? ¿Juntos
+
+```{r renta-density2}
+p_renta_2019_density + 
+  geom_histogram(aes(y=..density..), 
+                 fill = "yellow", color="blue", alpha = 0.4)
+```
+
+## ¿Por qué no tener un 5-summary plot? ¿Qué nos dice?
+
+```{r}
+p <- renta |>
+  ggplot(aes(x=0, y= `2019`)) 
+
+boxplot <- p + 
+  geom_boxplot(color = "red", fill = "pink") +
+  theme_minimal()
+
+violin <- p + geom_violin(color = "red", fill = "pink") +
+  theme_minimal()
+
+library(patchwork)
+boxplot + violin
+```
+
+## ¿En los años anteriores la renta ha sido similar?
+
+```{r}
+# con el objeto renta haz un gráfico de violin para las variables `2015`, `2016`, `2017`, `2018`, `2019` del objeto `renta` en un mismo plot para que se puedan comparar
+p <- renta |>
+  ggplot(aes(x=0, y= `2015`))
+
+p + geom_violin( ) +
+     geom_violin(aes(fill = "2015")) +
+     geom_violin(aes(x=1, y= `2016`, fill = "2016")) +
+     geom_violin(aes(x=2, y= `2017`, fill = "2017")) +
+     geom_violin(aes(x=3, y= `2018`, fill = "2018")) +
+     geom_violin(aes(x=4, y= `2019`, fill = "2019")) +
+  # añade la media de cada año al violín
+  geom_point(aes(x=0, y=mean(`2015`)), color = "red") +
+  geom_point(aes(x=1, y=mean(`2016`)), color = "red") +
+  geom_point(aes(x=2, y=mean(`2017`)), color = "red") +
+  geom_point(aes(x=3, y=mean(`2018`)), color = "red") +
+  geom_point(aes(x=4, y=mean(`2019`)), color = "red") +
+  theme_minimal() +
+    scale_x_continuous(breaks = c(0, 1, 2, 3, 4), 
+                        labels = c("2015", "2016", "2017", "2018", "2019")) +
+     labs(title = "Distribución de la renta por municipios",
+          x = "Año",
+          y = "Renta per cápita (euros)")
+```
+
+Este plot funciona, no se si lo puedes poner más mono.
+
+## Son los municipios de norte más ricos que los del sur de España en 2019?
+
+```{r}
+library("sf")
+help(municipios)
+
+munis_renta <- municipios |>
+  left_join(renta) |>   # une datasets
+  select(name, cpro, cmun, `2015`,`2016`,`2017`,`2018`,`2019` )     # selecciona variables
+```
+
+```{r}
+ggplot(munis_renta) +
+  geom_sf(aes(fill = `2019`), color = NA) +
+  scale_fill_continuous(
+    labels = scales::label_number(
+      big.mark = ".", decimal.mark = ",", suffix = " €" )) +
+  theme_minimal()
+```
+
+## Que no nos mientan con la estadística (ni con la visualización)
+
+```{r}
+munis_renta_clean <- munis_renta |>
+  filter(!is.na(`2019`))
+
+# crea Fisher-Jenks clases
+library(classInt)
+fisher <- classIntervals(munis_renta_clean$`2019`,
+style = "fisher", n = 10
+)
+
+ggplot(munis_renta_clean) +
+  geom_sf(aes(fill = cut(`2019`, fisher$brks)), color = NA) +
+            scale_fill_viridis_d(option= "A" , 
+                                 labels= scales::label_number(suffix= "€")) +
+guides(fill = guide_colorsteps()) +
+  labs(fill= "Fisher-Jenks") +
+theme_minimal()
+```
+
+# Optativo, lollipop por provincias ordenado
+
+Municipios y provincias, no sé si aporta algo, se ven los outliers... y las provincias que están por debajo de la media
+
+```{r}
+munis_renta |>
+  ggplot(aes(x = `2019`, y = cpro, color = cpro)) +
+  geom_point() +
+  labs(title = "Renta per cápita por provincia en 2019",
+       x = "Renta per cápita",
+       y = "Provincia") +
+  theme_minimal()
+```
+
+## ¿Y si lo hacemos por provincias ordenado con un lollipop? No me funciona arrange()
+
+```{r}
+munis_renta |>
+  group_by(cpro) |>
+  summarise(pro2019 = mean(`2019`, na.rm = TRUE)) |>
+  arrange(pro2019) |>
+  ggplot(aes(x = pro2019, y = cpro, color = cpro)) +
+  geom_segment(aes(xend = 0, yend = cpro), color ="grey") +
+  geom_point() +
+  labs(title = "Renta per cápita por provincia en 2019",
+       x = "Renta per cápita",
+       y = "Provincia") +
+  theme_minimal()
+```

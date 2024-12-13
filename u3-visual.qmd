@@ -3,9 +3,9 @@ title: "Storytelling visual con R"
 subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
 author:   
   - name: Gema Fernández-Avilés 
-    email: gema.faviles@uclm.es
+    email: Gema.FAviles@uclm.es
   - name: Isidro Hidalgo
-    email: isidro.hidalgo@uclm.es 
+    email: Isidro.Hidalgo@uclm.es 
 #date: "`r Sys.Date()`"
 bibliography: biblio.bib
 format:

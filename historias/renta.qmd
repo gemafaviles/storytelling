@@ -10,8 +10,8 @@ self-contained: true
 Trabajo en una compañía privada que quiere introducir un producto de alta gama, y me ha pedido el jefe que le haga un informe sobre la renta municipal en España de los últimos años, porque el CEO quiere ampliar el mercado a determinados tramos de renta, y necesita localizar caladeros de negocio. Me ha dicho que los datos los puedo sacar del paquete `CDR`. También me ha dicho que están limpios, pero no me fío.
 
 # Contexto
-¿Por qué es importante? Porque no da lo mismo analizar la renta como administración que como empresario que busca oportunidades de negocio. En el primer caso, se busca entender la distribución de la renta para poder diseñar políticas públicas que reduzcan la desigualdad. Probablemente, no estamos tan interesados en los municipios más ricos, sino en los más desiguales.
-Pero como somos gente de empresa, buscamos identificar segmentos de mercado con capacidad de compra para ofrecer un producto, por lo que nos interesa saber dónde vive la gente con más dinero.
+
+¿Por qué es importante? Porque no da lo mismo analizar la renta como administración que como empresario que busca oportunidades de negocio. En el primer caso, se busca entender la distribución de la renta para poder diseñar políticas públicas que reduzcan la desigualdad. Probablemente, no estamos tan interesados en los municipios más ricos, sino en los más desiguales. Pero como somos gente de empresa, buscamos identificar segmentos de mercado con capacidad de compra para ofrecer un producto, por lo que nos interesa saber dónde vive la gente con más dinero.
 
 En cualquiera de los dos casos, lo primero es hacer un análisis exploratorio para ver si hay algo raro en los datos y analizar mínimamente las variables de interés. Y después, le vamos a preparar al jefe un par de gráficos para que vea que soy un crack **aportándole conocimiento**.
 
@@ -50,6 +50,7 @@ renta <- renta_municipio_data |>
 
 head(renta)
 ```
+
 ¡Esto ya es otra cosa! Ahora sí que podemos empezar a trabajar con datos limpios (los ingleses les llaman "tidy data").
 
 ## ¿Cuál es la renta per cápita media de los municipios españoles en 2019?
@@ -214,7 +215,6 @@ p + geom_violin( ) +
        x = "Año",
        y = "Renta per cápita (euros)")
 ```
-
 
 ## ¿Son los municipios de norte más ricos que los del sur de España en 2019?
 

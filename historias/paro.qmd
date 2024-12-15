@@ -18,9 +18,10 @@ paleta_heatmaps <- c("#B3FF0080", "#213894FF")
 paleta_lineas <- c("blue4", "orange","darkgreen")
 data("parados_clm")
 parados_clm
+help(parados_clm)
 ```
-## Evolución del paro medio anual en Castilla-La Mancha
-Para ver el paro medio anual en función del tiempo, se construye un gráfico de evolución. Para ello, representamos el paro medio por año, marcando los años que suponen un máximo o mínimo en la serie:
+# Evolución del paro a lo largo del tiempo
+Podemos construir un gráfico lineal...
 ```{r}
 resumen <- parados_clm |>
      group_by(anyo) |>
@@ -50,63 +51,44 @@ graf <- ggplot(resumen, aes(anyo, parados)) +
 graf
 ```
 
-Tomamos como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue devastador, multiplicándolo por un factor de 3.
+En adelante, vamos a tomar como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue mucho mayor, multiplicándolo casi por 3.
 
-## Evolución del paro medio anual en función de la edad y el sexo
-Para ver cómo ha cambiado la estructura del paro registrado en función de la `edad` y el `sexo` de los parados se pueden utilizar diferentes gráficos. En este análisis, se usan mapas de calor y gráficos de distribución de densidad. Para hacer un mapa de calor\index{mapa de calor} que permita comparar dos variables simultáneamente, se construye la siguiente función:
+# Evolución del paro medio anual en función de la edad y el sexo
+Para ver simultáneamente una variable cuantitativa en función de otras dos variables, podemos usar un mapa de calor:
 
 ```{r}
-heatmap_anyos <- function(var1, var2, inicio = 2007, intermedio = 2019,
-                          fin = 2022){
-     tabla <- select(parados_clm, anyo, var1, var2, parados) |>
-          filter(anyo %in% c(inicio, intermedio, fin))
-     names(tabla) <- c("anyo", "var1", "var2", "parados")
-     tabla <- tabla |>
-          group_by(anyo, var1, var2) |>
-          summarise(parados = sum(parados))
-     graf <- ggplot(tabla, aes(x = var1, y= var2, fill = parados)) +
-          geom_raster() +
-          scale_fill_gradientn(colours = paleta_heatmaps) +
-          facet_wrap(~ anyo) + 
-          labs(x = "", y = "") +
-          theme(axis.text = element_text(size = 10, face = "bold"),
-                axis.title = element_text(size = 10, face = "bold"),
-                strip.text = element_text(size = 10, face = "bold"))
-     return(graf)}
+tabla <- parados_clm |>
+  select(anyo, sexo, edad, parados) |>
+  filter(anyo %in% c(2007, 2019, 2022))
+tabla <- tabla |>
+    group_by(anyo, sexo, edad) |>
+    summarise(parados = sum(parados))
+graf <- ggplot(tabla, aes(x = sexo, y= edad, fill = parados)) +
+    geom_raster() +
+    scale_fill_gradientn(colours = paleta_heatmaps) +
+    facet_wrap(~ anyo) + 
+    labs(x = "", y = "") +
+    theme(axis.text = element_text(size = 10, face = "bold"),
+          axis.title = element_text(size = 10, face = "bold"),
+          strip.text = element_text(size = 10, face = "bold"))
+graf
 ```
-Si se lanza la función `heatmap_anyos()` para las variables `edad` y `sexo`, tomando como años comparativos 2007, 2019 y 2022, se obtiene:
+Se puede apreciar que en los dos procesos críticos se ha producido un **desplazamiento del paro hacia los intervalos de mayor edad**, especialmente en las **mujeres**.
+
+El mapa de calor es muy útil para una primera impresión, pero ¿es la mejor visualización? Si nos fijamos, no se aprecia bien la forma de la distribución. Vamos a intentar mejorar el resultado:
+
 ```{r}
-heatmap_anyos("sexo", "edad")
+ggplot(tabla, aes(x = edad, y = parados, col = anyo, fill = anyo)) +
+  geom_ribbon(aes(ymin = 0, ymax = tabla$parados), alpha = 0.6) +
+  facet_wrap(~ sexo, ncol = 2) +
+  ylab("número de parados") +
+  scale_y_continuous(labels = function(x) format(x,
+       big.mark = ".", decimal.mark = ",", scientific = FALSE)) +
+   theme(axis.text = element_text(size = 10, face = "bold"),
+         axis.title = element_text(size = 10, face = "bold"),
+         strip.text = element_text(size = 10, face = "bold"))
 ```
-En la Fig. \@ref(fig:empleo-heatmap-edad-sexo) se puede apreciar que en los dos procesos críticos se ha producido un **desplazamiento del paro hacia los intervalos de mayor edad**, siendo este cambio más pronunciado en las **mujeres**.  
-El mapa de calor es muy útil para una primera impresión de estos cambios, pero si se desea observar detalladamente cómo ha cambiado la distribución\index{distribución} del paro según el `sexo` y la `edad`, es mejor programar la función `densidad_compara()`, que proporciona mayor nivel de detalle: produce un cuadro de gráficos comparando la distribución de la edad, para cada estrato de la variable elegida, para tres años diferentes (2007, 2019 y 2022 por defecto). Los parámetros `alpha` y `size` permiten ajustar tamaño y opacidad de las líneas, mejorando la apariencia general del gráfico.
-```{r}
-densidad_compara <- function(variab, inicio = 2007, medio = 2019,
-                             fin = 2022){
-     tabla <- select(parados_clm, anyo, variab, edad, parados) |>
-          filter(anyo %in% c(inicio, medio, fin))
-     names(tabla) <- c("anyo", "variable", "edad", "parados")
-     tabla <- tabla |>
-          group_by(anyo, edad, variable) |> 
-          summarise(parados = sum(parados))# |>
-     
-     graf <- ggplot(tabla, aes(x = edad, y = parados, color = anyo,
-                    fill = anyo)) + geom_line(alpha=0.6, size = 1) +
-          facet_wrap(~ variable, ncol = dim(table(tabla$variable))[1]) +
-          ylab("número de parados") + labs(color="año") +
-          scale_color_manual(values = paleta_lineas) +
-          scale_y_continuous(labels = function(x) format(x,
-               big.mark = ".",
-               scientific = FALSE)) +
-          theme(strip.text = element_text(size = 10, face = "bold"),
-                axis.title = element_text(size = 10, face = "bold"),
-                axis.text = element_text(size = 10, face = "bold"))
-     return(graf)}
-```
-Ejecutando esta función para la variable `sexo` se obtiene:
-```{r}
-densidad_compara("sexo")
-```
+
 En la Fig. \@ref(fig:empleo-densidad-sexo) se observa que en 2007, antes de ambas crisis, los hombres parados presentan **dos máximos**, en torno a 25 y 60 años, mientras que las mujeres desempleadas tienen una distribución bastante centrada entre 30 y 40 años. En cambio, en 2022 se aprecia el desplazamiento de la distribución de los parados de ambos sexos hacia los estratos de edad **mayores de 50 años**. Este desplazamiento es algo más intenso en las mujeres.  
 Se observa igualmente que comparando las distribuciones de las mujeres de 2019 y 2022, la crisis de la COVID-19 ha incrementado entre 5 y 10 años la distribución de la edad de las mujeres paradas. Este desplazamiento es inferior en los hombres, donde supone menos de 5 años.
 

@@ -6,30 +6,18 @@ self-contained: true
 ---
 
 # Contexto
-En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**\index{COVID-19}. Uno de los parámetros socioeconómicos que se ven más afectados por este tipo de procesos es el paro registrado. El paro registrado se define como el conjunto de los demandantes inscritos en las oficinas de empleo, una vez excluidos los inscritos sin disponibilidad para trabajar y los demandantes no parados, tales como estudiantes, desempleados en formación, etc. [@TOHARIA].
-**Castilla-La Mancha**, comunidad autónoma interior de España, no ha sido ajena a las crisis económicas mencionadas, por lo que en este trabajo se quiere analizar el impacto de las mismas en la estructura del **paro registrado**\index{paro registrado} de la región. Para ello, se utilizan las siguientes variables explicativas: **sexo**\index{sexo} y **edad**\index{edad} de la persona desempleada, **sector de actividad económica de procedencia**\index{sector} y **tiempo de búsqueda de empleo**\index{tiempo de búsqueda de empleo}. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.  
+En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de las crisis en las mujeres de la región.
 
-Para el análisis se usan las librerías y objetos (paletas de colores para los gráficos) siguientes:
+Hemos conseguido del paquete `CDR` un conjunto de datos con las siguientes variables: **sexo** y **edad** del parado, **sector de actividad económica de procedencia** y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.  
+
 ```{r}
 library(CDR)
 library(tidyverse)
 library(ggpubr)
-paleta_heatmaps <- c(rgb(.7,1,0,.5),  rgb(.13,.22,.58,1))
+paleta_heatmaps <- c("#B3FF0080", "#213894FF")
 paleta_lineas <- c("blue4", "orange","darkgreen")
-```
-Para cargar el conjunto de datos, `parados_clm`, incluido en el paquete `CDR`, y mostrar la estructura de la `tibble`\index{tibble} se usa:
-```{r}
 data("parados_clm")
 parados_clm
-# A tibble: 92,215 × 8
-# anyo   sexo    edad   sector  t_bus_e    tramo_edad  t_bus_e_agr  parados
-# <ord>  <fct>   <dbl>  <fct>   <ord>      <ord>       <ord>       <dbl>
-# 2007   hombre  16     agricu  t<=7 días  <30 años    t<=6 meses   0.66666667
-# 2018   mujer   36     sinact  t<=7 días  30-44 años  t<=6 meses   1.66666667
-# 2012   mujer   30     agricu  t<=7 días  30-44 años  t<=6 meses   5.33333333
-# 2022   mujer   49     constr  t<=7 días  >44 años    t<=6 meses   0.75000000
-# 2007   mujer   54     indust  t<=7 días  >44 años    t<=6 meses   1.50000000
-# … with 92,210 more rows
 ```
 ## Evolución del paro medio anual en Castilla-La Mancha
 Para ver el paro medio anual en función del tiempo, se construye un gráfico de evolución. Para ello, representamos el paro medio por año, marcando los años que suponen un máximo o mínimo en la serie:
@@ -44,23 +32,25 @@ paro_anyos <- resumen |>
      select(parados) |>
      mutate(parados = round(parados, 0))
 puntos <- data.frame(anyos, paro_anyos)
+ggplot(resumen, aes(anyo, parados)) + geom_line()
 
 graf <- ggplot(resumen, aes(anyo, parados)) +
      geom_line(linewidth = 2, col = paleta_lineas[1], alpha = 0.5) +
-     xlab("")+ ylab("número de parados") +
+     xlab("")+ ylab("") +
      geom_point(puntos, mapping = aes(x = anyos, y = parados,
           shape = "circle filled", size = 1, fill = paleta_lineas[1],
           alpha = 0.5)) +
      theme(legend.position = "none",
-          axis.title = element_text(face="bold", size = 10),
-          axis.text = element_text(face="bold", size = 10),
-          strip.text = element_text(size = 9, face = "bold")) +
+          axis.title = element_text(size = 10),
+          axis.text = element_text(size = 10),
+          strip.text = element_text(size = 9)) +
      scale_y_continuous(labels = function(x) format(x, big.mark = ".",
-          scientific = FALSE))
+          scientific = FALSE), limits = c(0, 300000)) +
+  ggtitle("Evolución del número de parados en Castilla-La Mancha")
 graf
 ```
 
-De un primer análisis visual de la Fig. \@ref(fig:empleo-total) se toman como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año, 2022. Se puede observar que, si bien la crisis de la **COVID-19** ha tenido profundos efectos sectoriales, principalmente en turismo\index{turismo}, comercio\index{comercio} y restauración\index{restauración}, la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue devastador, multiplicando por un factor mayor de 3 la cifra total de paro en la región desde 2007. Sin embargo, a partir del año 2013 el paro registrado inicia una tendencia a la baja muy pronunciada que aún hoy continúa, después de haber repuntado ligeramente por la crisis de la COVID-19.
+Tomamos como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue devastador, multiplicándolo por un factor de 3.
 
 ## Evolución del paro medio anual en función de la edad y el sexo
 Para ver cómo ha cambiado la estructura del paro registrado en función de la `edad` y el `sexo` de los parados se pueden utilizar diferentes gráficos. En este análisis, se usan mapas de calor y gráficos de distribución de densidad. Para hacer un mapa de calor\index{mapa de calor} que permita comparar dos variables simultáneamente, se construye la siguiente función:

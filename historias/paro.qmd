@@ -8,7 +8,7 @@ self-contained: true
 # Contexto
 En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de las crisis en las mujeres de la región.
 
-Hemos conseguido del paquete `CDR` un conjunto de datos con las siguientes variables: **sexo** y **edad** del parado, **sector de actividad económica de procedencia** y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.  
+Hemos conseguido del paquete `CDR` un conjunto de datos con algunas variables interesantes: **sexo** y **edad** del parado y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.  
 
 ```{r}
 library(CDR)
@@ -34,7 +34,11 @@ paro_anyos <- resumen |>
      mutate(parados = round(parados, 0))
 puntos <- data.frame(anyos, paro_anyos)
 ggplot(resumen, aes(anyo, parados)) + geom_line()
+```
 
+El gráfico no tiene una escala de ordenadas realista, y es muy simple. Podemos mejorarlo un poco...
+
+```{r}
 graf <- ggplot(resumen, aes(anyo, parados)) +
      geom_line(linewidth = 2, col = paleta_lineas[1], alpha = 0.5) +
      xlab("")+ ylab("") +

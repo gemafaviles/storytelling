@@ -1,0 +1,310 @@
+---
+title: "La borrasca Filomena"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
+format: html
+theme: cerulean
+highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+
+
+::: {.callout-note}
+Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
+que puede instalarse con el siguiente comando:
+
+```r
+install.packages("remotes")
+remotes::install_github("cdr-book/CDR")
+```
+
+Los datos referentes a la temperatura en España han sido recopilados por la Agencia Estatal de Meteorología (AEMET) y descargados en **R* con el paquete climatológico `climaemet` y los mapas de España han sido procesados con el paquete `mapSpain`.
+
+:::
+
+
+
+
+# Preparar los datos
+
+Lectura de datos:
+
+```{r}
+library(CDR)        # Para los datos de temperatura
+head(tempmin_data)
+```
+
+
+```{r }
+library(mapSpain)  # Para mapas de España. Filta las Islas Canarias
+library(dplyr)     # Para manipulación de datos
+esp <- esp_get_ccaa() |> 
+  filter(ine.ccaa.name != "Canarias")
+```
+
+# Limpiar y preparar los datos
+
+Verificamos que los sistemas de coordenadas sean los mismos y transformamos si es necesario.
+
+```{r}
+library(sf)
+tmin_sf <- st_as_sf(tempmin_data, coords = c("longitud", "latitud"), crs = 4326)
+```
+
+
+```{r }
+# Verificar y transformar CRS
+if (st_crs(tmin_sf) != st_crs(esp)) {
+  esp <- st_transform(esp, st_crs(tmin_sf))
+}
+```
+
+# Crear visualizaciones iniciales
+
+Generamos un boxplot de las temperaturas mínimas.
+
+```{r}
+library(ggplot2)
+ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
+  geom_boxplot(fill = "red")
+```
+
+# Contar la historia con los datos
+
+Aplicamos los principios de storytelling para mejorar la visualización.
+
+## Contexto
+
+Añadimos un título y un subtítulo que expliquen el contexto del anticiclón Filomena y su impacto en las temperaturas mínimas en España.
+
+```{r }
+boxplot_inicial <- ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
+  geom_violin(color = "red") +
+  geom_boxplot(alpha = 0.3, fill = "red") +
+  labs(title = "Distribución de temperaturas mínimas durante la borrasca Filomena",
+       x = "Fecha", y = "Temperatura mínima (°C)")
+
+boxplot_inicial
+```
+
+
+## Simplificación
+
+Eliminamos elementos innecesarios del gráfico para que el enfoque esté en los datos clave.
+
+```{r}
+ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
+  geom_violin(color = "red") +
+  labs(title = "Distribución de temperaturas mínimas durante la borrasca Filomena",
+       x = "Fecha", y = "Temperatura mínima (°C)")
+```
+
+
+
+## Destacar
+
+Usamos colores y anotaciones para resaltar las temperaturas extremas.
+
+```{r}
+ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
+  geom_violin(color = "red") +
+  geom_jitter(width = 0.1, alpha = 0.5, col = "blue") +
+  labs(title = "Distribución de temperaturas mínimas durante la borrasca Filomena",
+       x = "Fecha", y = "Temperatura mínima (°C)")
+```
+
+
+
+## Diseño
+
+Aseguramos que el diseño sea limpio y fácil de entender, utilizando un tema claro y legible.
+
+```{r}
+boxplot_final<- ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
+  geom_violin(color = "red") +
+  geom_boxplot(alpha = 0.3, fill = "red") +
+  geom_jitter(width = 0.1, alpha = 0.5, col = "blue") +
+  theme_minimal() +
+  labs(title = "Distribución de temperaturas mínimas durante la borrasca Filomena",
+       x = "Fecha", y = "Temperatura mínima (°C)")
+
+boxplot_final
+```
+
+
+
+# Tu turno
+
+Seleccionamos un día de los afectados por la borrasca Filomena, el 6 de enero, y visualizamos las temperaturas mínimas en un mapa para ver las zonas más afectadas.
+
+```{r}
+tmin_6enero <- tmin_sf |> 
+  filter(fecha == "2021-01-06")
+
+mapa_inicial <- ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_6enero, aes(color = tmin)) +
+  theme_dark()
+
+mapa_inicial 
+```
+Aplica los principios de storytelling para mejorar la visualización:
+
+1.  **Contexto**
+2.  **Simplificación**
+3.  **Destacar**
+4.  **Diseño**
+
+
+::: {.callout-warning}
+
+## Objetivo
+
+Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado propuesto.
+:::
+
+
+
+```{r }
+#| echo: false 
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
+  theme_dark() +
+  labs(title = "Temperaturas mínimas en España el 6 de enero de 2021",
+       subtitle = "Borrasca Filomena",
+       color = "Temp. mínima (°C)")
+```
+
+::: {.callout-tip}
+
+## Objetivo 1
+:::
+
+```{r }
+#| eval: false 
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = _________, aes(color = tmin), size = 3, alpha = 0.7) +
+  theme_dark() +
+  labs(title = "__________",
+       _______ = "Borrasca Filomena",
+       color = "Temp. mínima (°C)")
+```
+
+
+
+```{r }
+#| echo: false
+mapa_final <- ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
+  scale_color_viridis_c() +
+  theme_minimal() +   
+  labs(title = "Temperaturas mínimas en España el 6 de enero de 2021",
+       subtitle = "Borrasca Filomena",
+       color = "Temp. mínima (°C)")
+
+mapa_final
+```
+
+::: {.callout-tip}
+
+## Objetivo 2
+:::
+
+
+```{r }
+#| eval: false
+ggplot() +
+  geom_xxxf(data = esp, fill = "grey95") +
+  geom_xxx(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
+  scale_color_viridis_c() +
+  theme_xxx() +   
+  labs(title = "Temperaturas mínimas en España el 6 de enero de 2021",
+       subtitle = "Durante la Borrasca Filomena",
+       color = "Temp. mínima (°C)")
+```
+
+
+¿Por qué no un gráfico espacio-temporal?
+
+```{r }
+#| echo: false
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
+  facet_wrap(vars(fecha), ncol = 3) +
+  scale_color_viridis_c() +
+  theme_light() +
+  labs(title = "Temperaturas mínimas en España durante Filomena",
+       subtitle = "Del 6 al 10 de enero de 2021",
+       color = "Temp. mínima (°C)") +
+  theme(legend.position = "bottom")
+```
+
+::: {.callout-tip}
+
+## Objetivo 3
+:::
+
+
+```{r }
+#| eval: false
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
+  facet_xxx(vars(fecha), ncol = 3) +
+  scale_color_xxxxxx() +
+  theme_light() +
+  labs(title = "Temperaturas mínimas en España durante Filomena",
+       subtitle = "Del 6 al 10 de enero de 2021",
+       color = "Temp. mínima (°C)") +
+  theme(legend.position = "_______")
+```
+
+
+::: {.callout-tip}
+
+## Objetivo 4
+:::
+
+Realizamos ajustes finales para mejorar la claridad y el impacto visual.
+
+```{r }
+# echo: false
+cortes <- c(-Inf, seq(-20, 20, 2.5), Inf)
+colores <- hcl.colors(15, "PuOr", rev = TRUE)
+
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
+  facet_wrap(vars(fecha), ncol = 3) +
+  scale_color_gradientn(colours = colores, breaks = cortes, 
+                        labels = ~ stringr::str_c(. , "º"), 
+                        guide = "legend") +
+  theme_light() +
+  labs(title = "Temperaturas mínimas en España durante Filomena",
+       subtitle = "Del 6 al 10 de enero de 2021",
+       color = "Temp. mínima (°C)")
+```

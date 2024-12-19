@@ -1,0 +1,585 @@
+---
+title: "La galería de los horrores ¿o errores?"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+#date: "`r Sys.Date()`"
+# bibliography: biblio.bib
+format:
+  revealjs:
+    theme: dark
+    scrollable: true
+    toc-title: Index
+    toc: false
+    slide-number: c/t
+    fig-align: center
+    show-slide-number: all
+    transition: fade
+    background-transition: fade
+    height: 900
+    width: 1600
+   # fontcolor: "#262d36"
+    highlight-style: ayu-mirage
+    multiplex: true
+    embed-resources: true
+    code-overflow: scroll
+    code-fold: true
+    code-tools: true
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    out-width: "50%"
+code-link: true
+execute:
+  code-overflow: scroll
+  echo: true
+  freeze: auto
+  eval: true
+  fig-height: 6
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+---
+
+
+```{r}
+#| echo: false
+library(scales)
+library(knitr)
+library(kableExtra)
+options(dplyr.print_min = 6, dplyr.print_max = 6)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
+```
+
+
+
+
+## ¿Qué opinais?
+
+![](img/error_votos_maduro.png){width="60%"}
+
+
+## ¿Por qué debemos ordenar los datos? {.smaller}
+
+::: {.panel-tabset}
+
+### Antes  
+
+```{r }
+# Libraries
+library(tidyverse)
+library(hrbrthemes)
+library(kableExtra)
+options(knitr.table.format = "html")
+
+# Load dataset from github
+data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum.csv", header=TRUE, sep=",")
+
+# Plot
+data %>%
+  filter(!is.na(Value)) %>%
+  ggplot( aes(x=Country, y=Value) ) +
+    geom_segment( aes(x=Country ,xend=Country, y=0, yend=Value), color="grey") +
+    geom_point(size=3, color="#69b3a2") +
+    coord_flip() +
+    theme_minimal() +
+    xlab("")
+```
+
+### Después
+
+```{r }
+ data %>%
+  filter(!is.na(Value)) %>%
+  arrange(Value) %>%
+  mutate(Country=factor(Country, Country)) %>%
+  ggplot( aes(x=Country, y=Value) ) +
+    geom_segment( aes(x=Country ,xend=Country, y=0, yend=Value), color="grey") +
+    geom_point(size=3, color="#69b3a2") +
+    coord_flip() +
+    theme_minimal() +
+    xlab("")
+```
+
+:::
+
+
+
+## Gráfico ilegibles: Spaghetti plots
+
+::: {.panel-tabset}
+
+### Antes  
+
+```{r }
+library(hrbrthemes)
+library(kableExtra)
+options(knitr.table.format = "html")
+library(babynames)
+# devtools::install_github("hrbrmstr/streamgraph")
+library(streamgraph)
+library(viridis)
+library(DT)
+library(plotly)
+
+# Load dataset from github
+data <- babynames %>%
+  filter(name %in% c("Mary","Emma", "Ida", "Ashley", "Amanda", "Jessica",    "Patricia", "Linda", "Deborah",   "Dorothy", "Betty", "Helen")) %>%
+  filter(sex=="F")
+
+# Plot
+data %>%
+  ggplot( aes(x=year, y=n, group=name, color=name)) +
+    geom_line() +
+    scale_color_viridis(discrete = TRUE) +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=14)
+    ) +
+    ggtitle("A spaghetti chart of baby names popularity")
+```
+
+
+### Target a specific group
+
+```{r }
+data %>%
+  mutate( highlight=ifelse(name=="Amanda", "Amanda", "Other")) %>%
+  ggplot( aes(x=year, y=n, group=name, color=highlight, size=highlight)) +
+    geom_line() +
+    scale_color_manual(values = c("#69b3a2", "lightgrey")) +
+    scale_size_manual(values=c(1.5,0.2)) +
+    theme(legend.position="none") +
+    ggtitle("Popularity of American names in the previous 30 years") +
+    geom_label( x=1990, y=55000, label="Amanda reached 3550\nbabies in 1970", size=4, color="#69b3a2") +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=14)
+)
+```
+
+### Usa un panel de gráficos
+
+```{r}
+data %>%
+  ggplot( aes(x=year, y=n, group=name, fill=name)) +
+    geom_area() +
+    scale_fill_viridis(discrete = TRUE) +
+    theme(legend.position="none") +
+    ggtitle("Popularity of American names in the previous 30 years") +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8),
+      plot.title = element_text(size=14)
+    ) +
+    facet_wrap(~name)
+```
+
+
+### Combina ambos
+
+```{r}
+tmp <- data %>%
+  mutate(name2=name)
+
+tmp %>%
+  ggplot( aes(x=year, y=n)) +
+    geom_line( data=tmp %>% dplyr::select(-name), aes(group=name2), color="grey", size=0.5, alpha=0.5) +
+    geom_line( aes(color=name), color="#69b3a2", size=1.2 )+
+    scale_color_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=14),
+      panel.grid = element_blank()
+    ) +
+    ggtitle("A spaghetti chart of baby names popularity") +
+    facet_wrap(~name)
+```
+
+:::
+
+
+## ¿Esconden los boxplot información?
+
+::: {.panel-tabset}
+
+### Antes  
+
+```{r }
+# Libraries
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(plotly)
+
+# create a dataset
+data <- data.frame(
+  name=c( rep("A",500), rep("B",500), rep("B",500), rep("C",20), rep('D', 100)  ),
+  value=c( rnorm(500, 10, 5), rnorm(500, 13, 1), rnorm(500, 18, 1), rnorm(20, 25, 4), rnorm(100, 12, 1) )
+)
+
+# Plot
+data %>%
+  ggplot( aes(x=name, y=value, fill=name)) +
+    geom_boxplot() +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("A somewhat misleading boxplot") +
+    xlab("")
+```
+
+
+### Añade jitter
+
+```{r }
+data %>%
+  ggplot( aes(x=name, y=value, fill=name)) +
+    geom_boxplot() +
+    scale_fill_viridis(discrete = TRUE) +
+    geom_jitter(color="grey", size=0.7, alpha=0.5) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("A boxplot with jitter") +
+    xlab("")
+```
+
+
+### Prueba un violin plot
+
+```{r }
+# sample size
+sample_size = data %>% group_by(name) %>% summarize(num=n())
+
+# Plot
+data %>%
+  left_join(sample_size) %>%
+  mutate(myaxis = paste0(name, "\n", "n=", num)) %>%
+  ggplot( aes(x=myaxis, y=value, fill=name)) +
+    geom_violin(width=1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("A violin plot") +
+    xlab("")
+```
+
+
+### Raincloud plot
+
+```{r }
+library(ggplot2)
+library(ggdist)
+library(hrbrthemes)
+library(dplyr)
+library(viridis)
+
+# Plot
+data %>%
+  ggplot(aes(x = factor(name), y = value, fill = factor(name))) +
+  
+  # Add half-violin from {ggdist} package
+  stat_halfeye(
+    adjust = 0.5,
+    justification = -0.2,
+    .width = 0,
+    point_colour = NA
+  ) +
+  
+  geom_boxplot(
+    width = 0.12,
+    outlier.color = NA,
+    alpha = 0.5
+  ) +
+  
+  stat_dots(
+    side = "left",
+    justification = 1.1,
+    binwidth = 0.25
+  ) +
+  
+  scale_fill_viridis(discrete = TRUE) +
+  theme_ipsum() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 11)
+  ) +
+  ggtitle("A raincloud plot example") +
+  xlab("")
+```
+
+:::
+
+
+## Demasiadas distribuciones para comparar
+
+::: {.panel-tabset}
+
+### Antes  
+
+```{r }
+#library
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(patchwork)
+
+
+# Load dataset from github
+data <- read.table("https://raw.githubusercontent.com/zonination/perceptions/master/probly.csv", header=TRUE, sep=",")
+data <- data %>%
+  gather(key="text", value="value") %>%
+  mutate(text = gsub("\\.", " ",text)) %>%
+  mutate(value = round(as.numeric(value),0))
+
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(x=value, color=text, fill=text)) +
+    geom_density(alpha=0.6) +
+    scale_fill_viridis(discrete=TRUE) +
+    scale_color_viridis(discrete=TRUE) +
+    theme_ipsum() +
+    theme(
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+    xlab("") +
+    ylab("Assigned Probability (%)")
+
+```
+
+
+### Boxplot
+
+```{r }
+
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(x=text, y=value, fill=text)) +
+    geom_boxplot() +
+    geom_jitter(color="grey", alpha=0.3, size=0.9) +
+    scale_fill_viridis(discrete=TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    ) +
+    coord_flip() +
+    xlab("") +
+    ylab("Assigned Probability (%)") 
+```
+
+### Violín  
+
+```{r }
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(x=text, y=value, fill=text, color=text)) +
+    geom_violin(width=2.1, size=0.2) +
+    scale_fill_viridis(discrete=TRUE) +
+    scale_color_viridis(discrete=TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    ) +
+    coord_flip() +
+    xlab("") +
+    ylab("Assigned Probability (%)")
+```
+
+
+### Ridgeline  
+
+```{r }
+library(ggridges)
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(y=text, x=value,  fill=text)) +
+    geom_density_ridges(alpha=0.6, bandwidth=4) +
+    scale_fill_viridis(discrete=TRUE) +
+    scale_color_viridis(discrete=TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+    xlab("") +
+    ylab("Assigned Probability (%)")
+```
+
+### Faceting  
+
+```{r }
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(x=value, color=text, fill=text)) +
+    geom_density(alpha=0.6) +
+    scale_fill_viridis(discrete=TRUE) +
+    scale_color_viridis(discrete=TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+    xlab("") +
+    ylab("Assigned Probability (%)") +
+    facet_wrap(~text, scale="free_y")
+```
+
+
+:::
+
+
+## ¿Cómo evitar la sobrecarga de información?
+
+::: {.panel-tabset}
+
+### Antes  
+
+```{r }
+# Libraries
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(patchwork)
+
+# Dataset:
+a <- data.frame( x=rnorm(20000, 10, 1.2), y=rnorm(20000, 10, 1.2), group=rep("A",20000))
+b <- data.frame( x=rnorm(20000, 14.5, 1.2), y=rnorm(20000, 14.5, 1.2), group=rep("B",20000))
+c <- data.frame( x=rnorm(20000, 9.5, 1.5), y=rnorm(20000, 15.5, 1.5), group=rep("C",20000))
+data <- do.call(rbind, list(a,b,c))
+
+data %>%
+  ggplot( aes(x=x, y=y)) +
+    geom_point(color="#69b3a2", size=2) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    )
+```
+
+### Disminuye el tamaño de los puntos
+
+```{r }
+# Plot with small dot size
+data %>%
+  ggplot( aes(x=x, y=y)) +
+    geom_point(color="#69b3a2", size=0.02) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    )
+```
+
+
+### ¿Datos agrupados?
+
+```{r }
+# Plot with small dot size
+data %>%
+  ggplot( aes(x=x, y=y, color=group)) +
+    geom_point( size=2, alpha=0.1) +
+    scale_color_viridis(discrete=TRUE) +
+    theme_ipsum()
+```
+
+### 2D density plot
+
+```{r }
+ggplot(data, aes(x=x, y=y) ) +
+  stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_viridis() +
+  theme(
+    legend.position='none'
+  )
+
+```
+
+
+### 3D density plot
+
+```{r }
+library(plotly)
+library(MASS)
+
+# Compute kde2d
+kd <- with(data, MASS::kde2d(x, y, n = 50))
+
+# Plot with plotly
+plot_ly(x = kd$x, y = kd$y, z = kd$z) %>% add_surface()
+```
+
+
+:::
+
+
+## Errores de cálculo
+
+::: {.panel-tabset}
+
+### Los porcentajes no suman el 100 \%
+
+![](img/error_no_suma_100.png){width="60%"}
+
+### Los valores no coinciden con la visualización
+
+
+
+:::
+
+
+## Grafico de burbujas, ¿área o radio propocional? 
+
+::: {.panel-tabset}
+
+### Antes  
+
+![](img/error_buble1.png){width="60%"}
+
+
+### Después
+
+![](img/error_buble2.png){width="60%"}
+
+:::
+
+
+## Menos es más
+
+::: {.panel-tabset}
+
+### Antes  
+
+![](img/error_menos_mas1.png){width="60%"}
+
+
+### Después
+
+![](img/error_menos_mas2.png){width="60%"}
+[Paso a paso](https://www.storytellingwithdata.com/blog/2017/3/29/declutter-this-graph)
+
+:::
+
+# ¡No olvidar! `r emo::ji("document")` {background-color="#AB5484"}

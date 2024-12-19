@@ -1,0 +1,193 @@
+---
+title: "Demografía"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
+format: html
+theme: cerulean
+highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+
+
+::: {.callout-note}
+Los datos que se utilizan en esta historia están disponibles en el repositorio GitHub From data to viz.
+
+:::
+
+
+
+
+```{r}
+# Load data
+demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
+
+colnames(demog_data) <- gsub("\\.", "_", colnames(demog_data))
+```
+
+
+# Scatterplot entre `Growth_rate` y `Life_expectancy`
+
+```{r}
+library(tidyverse)
+demog_data  |>
+  ggplot(aes(x = Growth_rate, y = Life_expectancy)) +
+  geom_point() +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
+## Estética 
+
+```{r}
+demog_data  |>
+  ggplot(aes(x = Growth_rate, y = Life_expectancy, size=Pop,  color=Continent)) +
+  geom_point(alpha=0.5) +
+  scale_size(range = c(.1, 20)) +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
+
+## Facetas
+
+```{r}
+demog_scatter <- ggplot(data = demog_data, # data
+              aes(x = Growth_rate, y = Life_expectancy, colour = Continent)) + #aesthetics
+    geom_point(alpha = 0.5) + #geometries
+    facet_wrap(~ Continent, scales = "free") + #facets
+    labs(title = "Life expectancy at birth vs. Per capita GDP", 
+         x = "Growth_rate", y = "Life_expectancy", colour = "Continent") + #labels
+    theme_light() #themes
+
+demog_scatter 
+```
+
+
+## Linea de suavizado
+
+```{r}
+demog_scatter + geom_smooth(method = NULL, se = T) 
+```
+
+
+## Scatterplot matrix
+
+```{r}
+library(GGally)
+
+demo_cuanti <- demog_data |>
+   select(Pop, Birth_rate, Mortality_rate, Life_expectancy, Infant_mortality, 
+         Children_per_woman,  Growth_rate, Population_aged_65_) |>
+   na.omit()
+
+demo_cuanti |> 
+   ggpairs()
+```
+
+
+## Correlation matrix
+
+```{r}
+library(corrplot)
+
+demo_cuanti |> 
+  cor() |> 
+  corrplot.mixed( order = 'AOE')
+```
+
+
+## Heatmap
+
+```{r}
+heatmap(as.matrix(scale(demo_cuanti)), col = topo.colors(256), cexCol =  0.5) 
+```
+
+## Cluster
+
+Prepara los datos
+
+```{r}
+cluster_data <- demog_data |>
+  select(Country) |>
+  # añade esta variable a las cuantitativas
+  cbind(demo_cuanti) |>
+  column_to_rownames(var = "Country")
+```
+
+
+Calcula la distancia
+
+```{r}
+library("factoextra")
+cluster_data_stand <- scale(cluster_data) # estandariza las variables
+d_euclidea <- get_dist(x = cluster_data_stand , method = "euclidea")
+fviz_dist(dist.obj = d_euclidea, lab_size = 5)
+```
+
+
+```{r}
+library("NbClust")
+set.seed(123)
+
+num_cluster <- NbClust(cluster_data_stand, distance = "euclidean", method = "ward.D2", min.nc = 2, max.nc = 10)
+
+num_cluster$Best.nc
+```
+
+
+Dendograma
+
+```{r}
+hc_ward <- hcut(cluster_data_stand , k = 5, hc_method = "ward.D2")
+fviz_dend(hc_ward, cex = 0.5, k = 5, main = "Cluster jerárquico simple")
+```
+¿Lo mejoramos?
+
+```{r}
+library("igraph")
+set.seed(5665)
+hc_ward <- hcut(cluster_data_stand, k = 7, hc_method = "ward.D2")
+
+fviz_dend(
+  x = hc_ward,
+  k = 7,
+  type = "circular",
+  cex=0.5
+)
+```
+
+
+### K-means
+
+```{r}
+set.seed(123)
+eclust(cluster_data_stand, "kmeans", k = 3)
+```
+
+
+
+

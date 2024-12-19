@@ -1,0 +1,175 @@
+---
+title: "¿Qué está pasando en la ciudad de Toledo?"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
+format: html
+theme: cerulean
+highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+# Se sospecha que un inidividuo está traficando con libros fotocopiados en la ciudad de Toledo. Para determinar qué está pasando, se ha obtenido información sobre las antenas de telefonía móvil a las que se ha conectado su teléfono móvil, así como los mensajes que ha enviado y recibido.
+
+
+# Cargamos los paquetes **R** necesarios para el análisis de los datos.
+
+```{r read-packages}
+library(tidyverse) # Para manipular los datos
+library(leaflet) # Para crear mapas interactivos
+library(leaflet.extras) # Para crear extesiones en mapas interactivos
+library(gstat) # Para realizar interpolaciones espaciales
+library(raster) # Para trabajar con datos raster
+library(igraph) # Para trabajar con grafos
+library(tm) # Para trabajar con texto
+library(wordcloud) # Para crear nubes de palabras
+```
+
+
+
+# Leemos los ficheros de datos y mostramos las primeras filas.
+
+```{r}
+antennas <- read_csv("data/book_antennas.csv")
+connections <- read_csv("data/book_connections.csv")
+messages <- read_csv("data/book_messages.csv")
+```
+
+
+# ¿Qué tipo de datos tenemos? ¿Cómo son las variables?
+
+```{r}
+head(antennas)
+head(connections)
+head(messages)
+```
+
+
+# Geolocalización de las antenas y conexiones del movil objeto de interés.
+
+```{r}
+leaflet() |>
+  addTiles() |>
+  addCircleMarkers(data = antennas, ~longitude, ~latitude, 
+                   color = "red", radius = ~ intensity / 10, 
+                   label = ~ paste("Antena", antenna_id)) |>
+  addCircleMarkers(data = connections, ~longitude, ~latitude, 
+                   color = "blue", radius = ~ intensity / 10, 
+                   label = ~ paste("Conexión", connection_id))
+```
+
+
+# Análisis espacial de la intensidad de las antenas. Localización y tipo de variable.
+
+```{r}
+leaflet() |>
+  addTiles() |>
+  addCircleMarkers(data = antennas, ~longitude, ~latitude, 
+                   color = "red", radius = ~ intensity / 5, 
+                   label = ~ paste("Antena", antenna_id))
+```
+
+
+# `Objetivo: mapa de cobertura.` Interpolación de la intensidad de las antenas para representar la cobertura de cada una de ellas. 
+
+```{r}
+# Crear un objeto SpatialPointsDataFrame
+coordinates(antennas) <- ~ longitude + latitude
+
+# Definir la proyección (WGS84)
+proj4string(antennas) <- CRS("+proj=longlat +datum=WGS84")
+
+# Crear una cuadrícula para la interpolación
+grd <- as.data.frame(spsample(antennas, "regular", n = 50000))
+coordinates(grd) <- ~ x1 + x2 # (x + y)
+gridded(grd) <- TRUE
+proj4string(grd) <- proj4string(antennas)
+
+# Realizar la interpolación IDW
+idw <- idw(intensity ~ 1, antennas, grd)
+
+# Convertir el resultado a un objeto raster para la visualización
+r <- raster(idw)
+
+# Cargo los datos porque he sobreescrito el objeto antennas
+antennas <- read_csv("data/book_antennas.csv")
+
+# superponer la interpolación llamada r en el mapa leaflet
+leaflet() |>
+  addTiles() |>
+  addRasterImage(r, colors = terrain.colors(10), opacity = 0.8) |>
+  addCircleMarkers(data = antennas, ~longitude, ~latitude, 
+                   color = "red", radius = ~ intensity / 5, 
+                   label = ~ paste("Antena", antenna_id)) # |>
+
+```
+
+
+# ¿Con quién se relaciona el sospechoso, que es conocido con el pseudónimo de **Laplace**?
+
+```{r}
+graph_data <- messages |>
+  dplyr::select(sender, receiver) |>
+  graph_from_data_frame(directed = TRUE)
+
+plot(graph_data, 
+     vertex.size = 10, 
+     vertex.label.cex = 0.8, 
+     edge.arrow.size = 0.5)
+```
+
+# ¿Y si mejoramos el grafo teniendo en cuenta la centraliada del nodo, es decir, la importancia de cada actor? 
+
+```{r}
+plot(graph_data, 
+     vertex.size = degree(graph_data), 
+     vertex.label.cex = 0.8, 
+     edge.arrow.size = 0.5)
+```
+
+# ¿De qué habla Laplace en sus mensajes de texto con el teléfono móvil?
+
+## Preparación del texto:
+
+```{r}
+corpus <- Corpus(VectorSource(messages$message))
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removeWords, stopwords("spanish"))
+corpus <- tm_map(corpus, stripWhitespace)
+
+dtm <- TermDocumentMatrix(corpus)
+matrix <- as.matrix(dtm)
+words <- sort(rowSums(matrix), decreasing = TRUE)
+df <- data.frame(word = names(words), freq = words)
+```
+
+## Nube de palabras:
+
+```{r}
+wordcloud(words = df$word, 
+          freq = df$freq, 
+          min.freq = 1, 
+          random.order = FALSE, 
+          colors = brewer.pal(8, "Dark2")
+          )
+```

@@ -1,0 +1,378 @@
+---
+title: "Trabajando con datos simulados: Toledo"
+author: "Gema Fernández-Avilés Calderón"
+format: html
+theme: cerulean
+highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+```{r}
+library(readxl)
+credito_hipotecario <- read_excel("data/credito_hipotecario.xlsx")
+head(credito_hipotecario)
+
+library(tidyverse)
+```
+
+
+
+
+# con los datos de credito_hipotecario.xlsx, quiero contar una historia para profesores de universidad. Quiero utilizar el esquema del libro Storytelling with Data de Cole Nussbaumer Knaflic.
+
+1. Understand the context  
+2. Choose an appropriate display  
+3. Eliminate clutter  
+4. Draw attention where you want it  
+5. Think like a designer  
+6. Tell a story  
+
+1. Understand the context: Los datos de la tabla credito_hipotecario.xlsx contienen información sobre la probabilidad de impago de un crédito hipotecario. La tabla contiene las siguientes variables:
+
+```{r}
+str(credito_hipotecario)
+```
+
+2. Choose an appropriate display. Son mis variables cualitativas o cuantitativas? Como es mi variable objetivo? 
+
+
+```{r}
+# Crear un resumen de los datos
+resumen <- credito_hipotecario |>
+  group_by(res) |>
+  summarise(imp_sol_medio = mean(imp_sol, na.rm = TRUE))
+
+# Crear el gráfico
+ggplot(resumen, aes(x = res, y = imp_sol_medio, fill = res)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Importe Solicitado Medio por Resultado de Solicitud",
+       x = "Resultado de la Solicitud",
+       y = "Importe Solicitado Medio") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("deneg" = "red", "aprob" = "green"))
+
+
+
+```
+
+
+POsteriormente, quiero hacer contar la historia con los datos de la concesión de crédito siguiedo el clásico esquema de:
+
+1. Plot
+2. Rising action
+3. Climax
+4. Falling action
+5. Resolution
+
+Por favor, ayudame a realizar el análisis de los datos siguiento estos dos esquemas. Puedo utilizar un logit para la deterninación de la probabilidad de impago en el crédito hipotecario y un modelo de regresión lineal para la determinación de la probabilidad de impago en la tarjeta de crédito y un cluster de clientes, para ver las características de los clientes que tienen más probabilidad de impago. En el cluster, fija el número de grupos a 3,
+
+Gracias por tu ayuda.
+
+
+
+
+
+
+
+
+
+
+### 1. Introducción
+**Contexto**: Queremos entender qué factores influyen en la aprobación de solicitudes de crédito hipotecario.
+
+### 2. Planteamiento del problema
+**Pregunta**: ¿Qué variables son más importantes para predecir si una solicitud será aprobada o denegada?
+
+### 3. Análisis exploratorio
+**Exploración**: Examinar algunas variables clave para ver cómo se distribuyen entre las solicitudes aprobadas y denegadas.
+
+
+
+### 4. Modelado
+**Análisis discriminante**: Ajustar un modelo discriminante para predecir la aprobación de la solicitud.
+
+```{r }
+# Ajustar el modelo de regresión logística
+modelo <- glm(res ~ imp_sol + edad + ing_anual + plazo + titul + est_civil + perfil + ant_lab,
+              data = credito_hipotecario, family = binomial)
+
+# Resumen del modelo
+summary(modelo)
+```
+
+### 5. Resultados
+**Interpretación**: Identificar las variables significativas y su impacto en la probabilidad de aprobación.
+
+```{r }
+# Extraer los resultados del modelo
+resultados <- tidy(modelo)
+
+# Filtrar las variables significativas
+significativas <- resultados |>
+  filter(p.value < 0.05)
+
+# Mostrar las variables significativas
+print(significativas)
+```
+
+### 6. Visualización
+**Visualización**: Crear gráficos para ilustrar los resultados del modelo.
+
+
+### 7. Conclusión
+**Conclusión**: Resumir los hallazgos y sugerir posibles acciones.
+
++ Las variables más significativas para predecir la aprobación de una solicitud de crédito hipotecario son:
+
+
+```{r}
+# Resumen de los hallazgos
+
+print(significativas$term)
+```
+
+
+Recomendaciones
+
+```{r}
+cat("\nRecomendaciones:\n")
+cat("- Enfocarse en mejorar los perfiles de los solicitantes en términos de ingresos anuales y estabilidad laboral.\n")
+cat("- Considerar políticas que favorezcan a solicitantes con mayores importes solicitados y plazos más largos.\n")
+```
+
+
+# Storytelling 
+
+Ahora cuenta la historia de una persona que va a solicitar un crédito hipotecario y el banco le pregunta por uns aerie de datos para determinar si es apto para recibir el crédito. Utiliza los datos de la persona y el modelo discriminante para predecir si su solicitud será aprobada o denegada. Además puedes utilizar una regresión logística. Puedes utilizar la función `predict()` para obtener la probabilidad de aprobación y tomar una decisión basada en esa información. Los puntos del storytelling son los siguientes:
+
+1. Plot
+2. Rising action
+3. Climax
+4. Falling action
+5. Resolution
+
+
+## 1. Plot
+
+Juan Pérez quiere solicitar un crédito hipotecario para comprar una casa. El banco le pide una serie de datos para determinar si es apto para recibir el crédito.
+
+
+```{r}
+# Simular los datos de Juan Pérez
+juan <- tibble(
+  id = 702,
+  res = NA,
+  imp_sol = 120000,
+  imp_inv = 130000,
+  plazo = 20,
+  titul = 2,
+  edad = 40,
+  est_civil = "cas",
+  perfil = "trab",
+  ant_lab = 15,
+  nacion = "esp",
+  tipo = "cv",
+  resid = "viv2",
+  aval = 0,
+  ing_anual = 100000,
+  muni = "madrid",
+  provi = "m",
+  cirbe = 500000,
+  tasa = 120000,
+  m2 = 80,
+  fecha = as.POSIXct("2024-12-13"),
+  cap_pago = 0.05
+)
+```
+
+
+## 2. Rising action
+
+Juan proporciona sus datos personales y financieros al banco. Utilizaremos estos datos para simular su perfil y realizar un análisis exploratorio.
+
+
+```{r}
+q_cred <- credito_hipotecario |>
+  select_if(is.numeric)
+
+credito_kmeans <- kmeans(q_cred, 3)
+q_cred$cluter <- credito_kmeans$cluster
+
+
+```
+
+
+```{r}
+# Cargar librerías necesarias
+library(tidyverse)
+
+# Cargar el dataset original
+library(readxl)
+credito_hipotecario <- read_excel("data/credito_hipotecario.xlsx")
+
+# Unir los datos de Juan con el dataset original
+credito_hipotecario_juan <- bind_rows(credito_hipotecario, juan)
+```
+
+
+
+
+```{r}
+# Análisis de la variable res con variables cuantitativas
+quantitative_vars <- c("imp_sol", "imp_inv", "plazo", "edad", "ant_lab", "ing_anual", "cirbe", "tasa", "m2", "cap_pago")
+
+# Crear gráficos de violín y jitter con colores personalizados y facet_wrap
+credito_hipotecario |>
+  pivot_longer(cols = all_of(quantitative_vars), names_to = "variable", values_to = "valor") |>
+  ggplot(aes(x = res, y=valor, color = res)) +
+  geom_violin() +
+  geom_jitter(width = 0.1, alpha = 0.5) +
+  scale_color_manual(values = c("deneg" = "red", "aprob" = "green")) +
+  facet_wrap(~ variable, scales = "free_y") +
+  labs(title = "Análisis de la variable res con variables cuantitativas",
+       x = "Resultado",
+       y = "Valor") +
+  theme_minimal()
+```
+
+
+
+```{r}
+# densidad
+
+# Crear gráficos de violín y jitter con colores personalizados y facet_wrap
+credito_hipotecario |>
+ pivot_longer(cols = all_of(quantitative_vars), names_to = "variable", values_to = "valor") |>
+  ggplot(aes(x = variable, fill=res, color = res)) +
+  geom_density(alpha = 0.3) +
+  #scale_color_manual(values = c("deneg" = "red", "aprob" = "green")) +
+  facet_wrap(~ variable, scales = "free_y") +
+  labs(title = "Análisis de la variable res con variables cuantitativas",
+       x = "Resultado",
+       y = "Valor") +
+  theme_minimal()
+```
+
+
+```{r}
+#alguna prueba individual
+# Crear gráficos de violín y jitter con colores personalizados y facet_wrap
+credito_hipotecario |>
+  ggplot(aes(x = ant_lab, fill=res, color = res)) +
+  geom_density(alpha = 0.3)
+
+```
+
+```{r}
+qualitative_vars <- credito_hipotecario|>  
+  select(- quantitative_vars) |>
+  mutate_if(is.character, as.factor)
+
+library(ggalluvial)
+
+credito_table <- qualitative_vars |>
+  group_by(est_civil, perfil, nacion, resid, res) |>
+  count()
+
+
+ggplot(credito_table,
+       aes(axis1 = est_civil,
+           axis2 = perfil,
+           axis3 = nacion,
+           axis4 = resid,
+           y = n)) +
+  geom_alluvium(aes(fill = res)) +
+  geom_stratum() +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+   # geom_text(stat = "stratum",
+  #          label.strata = TRUE) +
+  scale_x_discrete(limits = c("est_civil", "perfil", "nacion", "resid"),
+                   expand = c(.1, .1)) +
+  scale_fill_viridis_d() +
+  labs(title = "Crédito",
+       subtitle = "stratified by xxxxxxxxxx",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none") 
+```
+
+
+
+
+
+3. Climax
+
+El banco utiliza un análisis discriminarte para predecir si la solicitud de Juan será aprobada o denegada.
+
+
+
+```{r a_discriminante}
+set.seed(1980)
+x <- imp_sol + imp_inv,   "plazo"   , "titul" ,    "edad",      "est_civil", "perfil", "ant_lab", "nacion"  ,  "tipo"    ,  "resid" ,    "aval"  ,    "ing_anual",  "cirbe",  "tasa"  ,    "m2")
+
+library(MASS)
+lda_credito <- lda( res ~ imp_sol + imp_inv, 
+                    credito_hipotecario)
+juan_credito <- predict( lda_credito, juan)
+```
+
+
+
+4. Falling action
+El banco analiza los resultados del modelo y toma una decisión basada en el resultado.
+```{r}
+juan_credito
+```
+
+5. Resolution
+Juan recibe la decisión del banco sobre su solicitud de crédito.
+
+```{r}
+# Convertir la variable de respuesta a factor
+credito_hipotecario$res <- as.factor(credito_hipotecario$res)
+
+# Dividir los datos en entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(credito_hipotecario$res, p = .8, 
+                                  list = FALSE, 
+                                  times = 1)
+creditoTrain <- credito_hipotecario[ trainIndex,]
+creditoTest  <- credito_hipotecario[-trainIndex,]
+
+# Entrenar el modelo de regresión logística
+modelo <- train(res ~ edad + imp_sol, data = creditoTrain, method = "glm", family = "binomial")
+
+resultados <- recipes::tidy(modelo)
+# Filtrar las variables significativas
+significativas <- resultados |>
+  filter(p.value < 0.05)
+
+
+
+# Predecir la probabilidad de aprobación para Juan
+prediccion <- predict(modelo, newdata = juan, type = "prob")
+
+# Decisión basada en la probabilidad de aprobación
+decision <- ifelse(prediccion$aprob > 0.5, "aprobado", "denegado")
+
+
+```
+

@@ -1,34 +1,29 @@
 ---
-title: "Introducción a R para investigación y ciencia de datos"
-subtitle: "Pre-curso"
-author: "Gema Fernández-Avilés Calderón"
-date: "`r Sys.Date()`"
-format:
-  html:
-    theme: theme-dds.scss
-    transition: fade
-    background-transition: fade
-    height: 900
-    width: 1600
-    fontcolor: "#262d36"
-    highlight-style: ayu-mirage
-    multiplex: true
-    embed-resources: true
-  pdf:
-    toc: true
-    number-sections: true
-    colorlinks: true
+title: "Sesión 0: Storytelling with R"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
+format: html
+theme: cerulean
+highlight-style: ayu-mirage
+self-contained: true
+# date: "`r Sys.Date()`"
 code-link: true
+number-sections: true
 execute:
+  code-overflow: scroll
   echo: true
-  freeze: auto
   eval: true
-  fig-height: 4
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
   warning: false
   code-fold: true
-  code-overflow: scroll
+  comment: "#>"
   code-line-numbers: true
   code-copy: true
+#bibliography: biblio.bib
 ---
 
 

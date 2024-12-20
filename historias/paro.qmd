@@ -1,14 +1,35 @@
 ---
 title: "Impacto de las crisis en el paro de Castilla-La Mancha"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
 format: html
-editor: visual
+theme: cerulean
+highlight-style: ayu-mirage
 self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
 ---
 
 # Contexto
+
 En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de las crisis en las mujeres de la región.
 
-Hemos conseguido del paquete `CDR` un conjunto de datos con algunas variables interesantes: **sexo** y **edad** del parado y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.  
+Hemos conseguido del paquete `CDR` un conjunto de datos con algunas variables interesantes: **sexo** y **edad** del parado y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.
 
 ```{r}
 library(CDR)
@@ -20,8 +41,11 @@ data("parados_clm")
 parados_clm
 help(parados_clm)
 ```
+
 # Evolución del paro a lo largo del tiempo
+
 Podemos construir un gráfico lineal...
+
 ```{r}
 resumen <- parados_clm |>
      group_by(anyo) |>
@@ -58,6 +82,7 @@ graf
 En adelante, vamos a tomar como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue mucho mayor, multiplicándolo casi por 3.
 
 # Evolución del paro medio anual en función de la edad y el sexo
+
 Para ver simultáneamente una variable cuantitativa en función de otras dos variables, podemos usar un mapa de calor:
 
 ```{r}
@@ -77,6 +102,7 @@ graf <- ggplot(tabla, aes(x = sexo, y= edad, fill = parados)) +
           strip.text = element_text(size = 10, face = "bold"))
 graf
 ```
+
 Se puede apreciar que en los dos procesos críticos se ha producido un **desplazamiento del paro hacia los intervalos de mayor edad**, especialmente en las **mujeres**.
 
 El mapa de calor es muy útil para una primera impresión, pero ¿es la mejor visualización? Si nos fijamos, no se aprecia bien la forma de la distribución. Vamos a intentar mejorar el resultado:
@@ -96,6 +122,7 @@ ggplot(tabla, aes(x = edad, y = parados, col = anyo, fill = anyo)) +
 Ahora se ve mucho mejor que en 2007, antes de ambas crisis, los hombres parados presentan **dos máximos**, en torno a 25 y 60 años, mientras que las mujeres desempleadas tienen una distribución bastante centrada entre 30 y 40 años. En cambio, en 2019 y aún más en 2022 se aprecia el desplazamiento de la distribución de los parados de ambos sexos hacia los estratos de edad **mayores de 50 años**. Este desplazamiento es algo más intenso en las mujeres.
 
 # Evolución del paro femenino según el tiempo de búsqueda de empleo
+
 Hacemos lo mismo que con el sexo, pero incluimos la variable `t_bus_e_agr` (tiempo de búsqueda de empleo):
 
 ```{r}
@@ -119,5 +146,6 @@ ggplot(tabla, aes(x = edad, y = parados, col = anyo, fill = anyo)) +
 Se aprecia claramente que el tramo con mayor incremento de número de parados es el correspondiente a más de 24 meses de búsqueda de empleo (**paro de muy larga duración**), ya que la crisis financiera de 2008 les redujo su probabilidad de encontrar empleo. Se puede afirmar también que los dos períodos de crisis han provocado la creación de un **paro estructural de larga duración, y de más edad**. Este efecto es mayor en las mujeres.
 
 # Conclusiones
-La crisis de 2008 tuvo un gran impacto en el paro registrado de Castilla-La Mancha, multiplicándolo por un factor mayor de 3 desde 2007. Sin embargo, a partir del año 2013 el paro registrado inicia una tendencia a la baja muy pronunciada que aún hoy continúa, después de haber sufrido un rebote debido a la crisis de la COVID-19.  
+
+La crisis de 2008 tuvo un gran impacto en el paro registrado de Castilla-La Mancha, multiplicándolo por un factor mayor de 3 desde 2007. Sin embargo, a partir del año 2013 el paro registrado inicia una tendencia a la baja muy pronunciada que aún hoy continúa, después de haber sufrido un rebote debido a la crisis de la COVID-19.\
 La estructura interna de la población parada en la región ha cambiado sustancialmente atendiendo a las variables analizadas. En efecto, la población mayor de 45 años, las mujeres, los parados de larga duración son los grandes perjudicados por ambos procesos de crisis.

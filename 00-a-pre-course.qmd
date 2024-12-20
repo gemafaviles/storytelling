@@ -82,13 +82,16 @@ install.packages('scales')
 install.packages('kableExtra') 
 install.packages('knitr') 
 install.packages('learnr')
+install.packages("devtools")
 install.packages("remotes")
+remotes::install_github("cdr-book/CDR")
 remotes::install_github("rstudio/gradethis")
+install.packages("devtools")
+devtools::install_github("hadley/emo")
 install.packages('rio')
 install.packages('readxl')
 install.packages('fontawesome')
-install.packages("devtools")
-devtools::install_github("hadley/emo")
+
 ```
 
 

@@ -50,9 +50,7 @@ execute:
 
 <!-- background-image="img/r-giralda2.png" -->
 
-[Unidad 2]{.custom-title-1} [La importancia del contexto]{.custom-title-2} 
-<!-- [Gema Fernández-Avilés Calderón<br> Universidad de Castilla-La Mancha]{.custom-author} -->
-[La importancia del contexto]{.custom-author}
+[Unidad 2]{.custom-title-1} [La importancia del foco]{.custom-title-2} 
 
 ```{r}
 #| echo: false

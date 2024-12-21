@@ -45,14 +45,11 @@ execute:
   code-copy: true
 ---
 
-
 #  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
 
-<!-- background-image="img/r-giralda2.png" -->
+<!-- background-image="img/contexto.png" -->
 
-[Unidad 2]{.custom-title-1} [La importancia del contexto]{.custom-title-2} 
-<!-- [Gema Fernández-Avilés Calderón<br> Universidad de Castilla-La Mancha]{.custom-author} -->
-[La importancia del contexto]{.custom-author}
+[Unidad 2]{.custom-title-1} [El desorden es tu enemigo]{.custom-title-2}
 
 ```{r}
 #| echo: false
@@ -63,93 +60,106 @@ options(dplyr.print_min = 6, dplyr.print_max = 6)
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 ```
 
-
-
 # Agenda
 
 1.  Objetivos de aprendizaje
 
 2.  Resultados esperados
 
-3.  Conceptos clave 
+3.  Conceptos clave
 
 4.  ¿Qué hemos aprendido?
 
-
-
 # 1. Objetivos de aprendizaje `r emo::ji("hit")` {background-color="black"}
 
-- Saber .........
+-   Comprender la importancia de la simplicidad en la visualización
 
+-   Comprender que el exceso de información va en contra del mensaje
 
-- Recomendar biografía: 
+-   Identificar el desorden y corregirlo
 
-    + `r emo::ji("book")` @wickham2016r ........
- 
+-   Recomendar biografía:
 
+    -   `r emo::ji("book")` @knaflic2019storytelling
 
+# 2. Resultados esperados `r emo::ji("winner")` {background-color="#017eae"}
 
-
-# 2. Resultados esperados  `r emo::ji("winner")` {background-color="#017eae"}
-
-![**Interfaz gráfica de Rstudio**](img/04-rdo-esp.png){width="60%"}
-
+:::: {.columns}
+::: {.column width="40%"}
+![](img/04-desorden1.jpg){width="100%"}
+:::
+::: {.column width="20%"}
+![](img/04-flecha-derecha.png){width="134%"}
+:::
+::: {.column width="40%"}
+![](img/04-desorden2.jpg){width="103%"}
+:::
+::::
 
 # 3. Conceptos clave `r emo::ji("document")` {background-color="#AB5484"}
 
+## Desorden, exceso de información y carga cognitiva
 
-## xxxxxxxxxxxxxxx  
+Debemos siempre guiarnos por el principio de economía:
 
- 
+-   Cada elemento que añadimos a nuestros gráficos añade **carga cognitiva** y consume **capacidad intelectual** (la necesaria para procesar la información)
 
- 
+-   Debemos **echar un vistazo crítico y exigente** a lo que incluimos y **eliminar los elementos que no añaden valor informativo** para compensar su presencia
 
-# xxxxxxxxx: la clave `r emo::ji("document")` {background-color="#AB5484"}
+-   **Evitar las diagonales** casi siempre es una buena idea, por el esfuerzo añadido que suponen
+
+## Principios de la Gestalt
+
+-   Es una escuela teórica y experimental alemana centrada en el estudio de la percepción, y de su relación con el lenguaje y la cultura.
+
+-   Surgió en la disciplina de la psicología a principios del siglo XX
+
+-   La idea general es que nuestra mente percibe a través de las formas y su configuración, siendo el todo más que la suma de sus partes
+
+## Principios de la Gestalt
+
+![](img/04-Gestalt_Principles_Composition.jpg)
+
+## La Gestalt en los gráficos
+
+![](img/04-Gestalt.png)
 
 
-# RStudio {background-color="#017eae"}
-![**Fuente @ismay2019statistical**](img/04-open-rstudio.png){width="60%"}
+## "Menos es más": la clave `r emo::ji("document")` {background-color="#AB5484"}
+-   Frase atribuida erróneamente al arquitecto alemán Mies Van der Rohe
 
 
+## Volvamos al ejemplo del principio {.smaller background-color="#017eae"}
 
+:::: {.columns}
+::: {.column width="40%"}
+![](img/04-desorden1.jpg){width="100%"}
+:::
+::: {.column width="20%"}
+![](img/04-flecha-derecha.png){width="130%"}
+:::
+::: {.column width="40%"}
+![](img/04-desorden2.jpg){width="110%"}
+:::
+::::
 
-
-
-
-
-
-
-
+-   ¿Para qué los porcentajes?
+-   ¿Para qué las líneas de división principales?
+-   Un gráfico de líneas es más sencillo que uno de barras y más adecuado para una serie temporal
+-   ¿Para qué poner 2019 muchas veces?
+-   Hemos **añadido** la referencia de 90 días **porque aporta valor**
 
 
 # 4. ¿Qué hemos aprendido? `r emo::ji("book")` {background-color="black"}
 
-+ Lo básico de **R**.
+-   Menos es más
 
-+  ..............
+-   Mayor carga cognitiva requiere más capacidad intelectual
 
+-   Eliminar los elementos que no aportan información
 
+-   Gestalt: principios y ejemplos
 
-# Nuestra filosofía `r emo::ji("book")`: *learning by doing* {background-color="#AB5484"}
+## Referencias
 
-
-+ Recuerda que los ordenadores actualmente no son inteligentes.
-
-+ Filosofía: `copy, paste, and tweak`.
-
-+ La mejor forma de aprender código es haciéndolo.
-
-+ La práctica es la clave.
-
-
-
-## Referencias 
-
-
-
-```{r eval=FALSE, include=FALSE, echo=FALSE}
-knitr::purl("u2-imp-contexto.qmd")
-```
-
-
-
+`r emo::ji("book")` @knaflic2019storytelling

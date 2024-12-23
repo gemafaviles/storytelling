@@ -47,9 +47,7 @@ execute:
 
 #  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
 
-<!-- background-image="img/contexto.png" -->
-
-[Unidad 2]{.custom-title-1} [El desorden es tu enemigo]{.custom-title-2}
+[Unidad 4]{.custom-title-1} [El desorden es tu enemigo]{.custom-title-2}
 
 ```{r}
 #| echo: false

@@ -114,6 +114,10 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 
 ![](img/05-bosque.png){width="100%"}
 
+## ¿Estás usando bien los atributos preatentivos?
+
+![](img/05-check.png){width="100%"}
+
 ## Dependiendo del mensaje, hay que decidir donde dirigir el foco
 
 :::: {.columns}

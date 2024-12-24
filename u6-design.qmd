@@ -45,11 +45,6 @@ execute:
   code-copy: true
 ---
 
-
-#  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
-
-[Unidad 5]{.custom-title-1} [Enfoca la atención]{.custom-title-2} 
-
 ```{r}
 #| echo: false
 library(scales)
@@ -59,6 +54,9 @@ options(dplyr.print_min = 6, dplyr.print_max = 6)
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 ```
 
+#  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
+
+[Unidad 6]{.custom-title-1} [Piensa como un diseñador]{.custom-title-2} 
 
 
 # Agenda
@@ -75,11 +73,9 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 
 # 1. Objetivos de aprendizaje `r emo::ji("hit")` {background-color="black"}
 
--   Descubrir la importancia del punto de atención
+-   Entender los conceptos de facilidades, armonía, accesibilidad y aceptación
 
--   Saber dirigir la mirada de la audiencia según un orden y hacia un mensaje concreto
-
--   Aprender a usar los atributos preatentivos: color, tamaño, posición...
+-   Aprender a usar los elementos de diseño para mejorar nuestros gráficos
 
 -   Recomendar biografía: 
 
@@ -88,10 +84,46 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 
 # 2. Resultados esperados  `r emo::ji("winner")` {background-color="#017eae"}
 
-![](img/05-objetivo2.jpg){width="60%"}
+:::: {.columns}
+::: {.column width="33%"}
+![](img/06-disenyo1.png){width="100%"}
+:::
+::: {.column width="19%"}
+![](img/04-flecha-derecha.png){width="80%"}
+:::
+::: {.column width="48%"}
+![](img/06-disenyo2.png){width="200%"}
+:::
+::::
 
 
 # 3. Conceptos clave `r emo::ji("document")` {background-color="#AB5484"}
+
+:::: {.columns}
+:::{.column width="60%"}
+-   Facilidades: aspectos del diseño de un objeto que hacen **obvia** la manera de usarlo. En visualización son los "trucos" que podemos usar para dirigir el foco, facilitando el procesamiento visual:
+:::
+:::{.column width="40%"}
+![](img/06-facilidades.png){width="70%"}
+:::
+::::
+
+-   Accesibilidad: un gráfico debe ser **fácilmente legible**, **nítido**, **sencillo**. Tenemos que **eliminar la complejidad innecesaria**
+
+-   Armonía y aceptación: los diseños más **estéticos** son más fáciles de usar y se aceptan mejor (color no excesivo, alineación, espacio negativo...)
+
+:::: {.columns}
+:::{.column width="50%"}
+**¿Es necesario que un gráfico sea bonito?**
+:::
+:::{.column width="20%"}
+![](img/06-yes.png){width="60%"}
+:::
+
+:::{.column width="30%"}
+
+:::
+::::
 
 ## Herramientas disponibles: atributos preatentivos
 
@@ -179,9 +211,11 @@ En este caso, usan el texto para remarcar, con concordancia del color con las ca
 :::
 ::::
 
-# Dirigir el foco con toda la intención al mensaje que queremos dar: la clave `r emo::ji("document")` {background-color="#AB5484"}
+# La perfección no se alcanza cuando no hay nada más que añadir, sino cuando no hay nada más que quitar: la clave `r emo::ji("document")` {background-color="#AB5484"}
 
 
+
+-   La frase es de Antoine de Saint-Exupéry
 
 
 # 4. ¿Qué hemos aprendido? `r emo::ji("book")` {background-color="black"}

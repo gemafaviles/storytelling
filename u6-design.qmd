@@ -125,106 +125,44 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
 :::
 ::::
 
-## Herramientas disponibles: atributos preatentivos
-
-![](img/05-preatentivos.png){width="100%"}
-
-## Los imprescindibles
-
-![](img/05-imprescindibles.png){width="100%"}
-
-## ¿Cómo funcionan los atributos preatentivos? (I)
-
-![](img/05-senyal.png){width="100%"}
-
-## ¿Cómo funcionan los atributos preatentivos? (II)
-
-![](img/05-coche.png){width="100%"}
-
-
-## ¿Cómo funcionan los atributos preatentivos? (III)
-
-![](img/05-bosque.png){width="100%"}
-
-## Dependiendo del mensaje, hay que decidir donde dirigir el foco
+## Herramientas disponibles: uso del texto
 
 :::: {.columns}
-
-::: {.column width="50%"}
-![](img/05-graph1.png){width="100%"}
+::: {.column width="41%"}
+![](img/06-texto1.png){width="100%"}
 :::
-
-:::{.column width="50%"}
-
-
-¿Qué le pasa a este gráfico?
-
-
-No le sobra nada, es limpio y elegante:
-
-  - sin líneas de división molestas
-      
-  - porcentajes claros, sin decimales
-
-  - el título está a la izquierda
-
-Pero le falta algo:
-
--   Una cosa es no abusar del color...
-
-    ... y otra no usarlo
-
--   No tiene punto de atención
+::: {.column width="20%"}
+![](img/04-flecha-derecha-azul.png){width="80%"}
 :::
-
-::::
-
-## Podría interesarnos el descenso del grupo "Lifestyle"
-
-![](img/05-graph2.png){width="100%"}
-
-## O la mejora general del grupo "Feline"
-
-![](img/05-graph3.png){width="100%"}
-
-## O los descensos en general, resaltando los peores
-
-![](img/05-graph4.png){width="100%"}
-
-
-## ¿Y los descensos y ascensos simultánamente?
-
-:::: {.columns}
-
-::: {.column width="60%"}
-![](img/05-graph5.png){width="100%"}
-:::
-
-::: {.column width="40%"}
-En este caso, usan el texto para remarcar, con concordancia del color con las categorías, **pero**:
-
--   hay un exceso de información
-
--   no existe punto de atención
-
--   sería mejor dividir por un lado las peores y por otro las mejores categorías
+::: {.column width="39%"}
+![](img/06-texto2.png){width="100%"}
 :::
 ::::
 
-# La perfección no se alcanza cuando no hay nada más que añadir, sino cuando no hay nada más que quitar: la clave `r emo::ji("document")` {background-color="#AB5484"}
+## Incorporar la imagen corporativa: diseña la tuya (I)
 
+![](img/06-corporativa1.png){width="50%"}
 
+## Incorporar la imagen corporativa: diseña la tuya (II)
 
--   La frase es de Antoine de Saint-Exupéry
+![](img/06-corporativa2.png){width="50%"}
+
+## Incorporar la imagen corporativa: diseña la tuya (III)
+
+![](img/06-corporativa3.png){width="50%"}
+
+# Un gráfico debe ser bonito: la clave `r emo::ji("document")` {background-color="#AB5484"}
 
 
 # 4. ¿Qué hemos aprendido? `r emo::ji("book")` {background-color="black"}
 
--   La importancia del punto de atención en un gráfico
+-   Conceptos nuevos: facilidades, armonía, accesibilidad y aceptación
 
--   Dirigir el foco al mensaje que queremos transmitir con el gráfico
+-   La importancia de la estética en un gráfico
 
--   Aprender a usar los atributos preatentivos, especialmente el color, el tamaño, y la posición
+-   Saber incorporar los elementos de diseño corporativos como parte de la estética
+
+-   Proporcionar armonía y coherencia con nuestra imagen corporativa
 
 
 ## Referencias 

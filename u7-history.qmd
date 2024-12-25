@@ -1,0 +1,153 @@
+---
+title: "Storytelling visual con R"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+#date: "`r Sys.Date()`"
+bibliography: biblio.bib
+format:
+  revealjs:
+    theme: theme-dds.scss
+    scrollable: true
+    toc-title: Index
+    toc: false
+    slide-number: c/t
+    fig-align: center
+    show-slide-number: all
+    transition: fade
+    background-transition: fade
+    height: 900
+    width: 1600
+    fontcolor: "#262d36"
+    highlight-style: ayu-mirage
+    multiplex: true
+    embed-resources: true
+    code-overflow: scroll
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    out-width: "50%"
+code-link: true
+execute:
+  code-overflow: scroll
+  echo: true
+  freeze: auto
+  eval: true
+  fig-height: 6
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+---
+
+```{r}
+#| echo: false
+library(scales)
+library(knitr)
+library(kableExtra)
+options(dplyr.print_min = 6, dplyr.print_max = 6)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 18))
+```
+
+#  {#title-slide data-menu-title="Storytelling con R" aria-label="dddd."}
+
+[Unidad 7]{.custom-title-1} [Cuenta una historia]{.custom-title-2} 
+
+
+# Agenda
+
+1.  Objetivos de aprendizaje
+
+2.  Resultados esperados
+
+3.  Conceptos clave 
+
+4.  ¿Qué hemos aprendido?
+
+
+
+# 1. Objetivos de aprendizaje `r emo::ji("hit")` {background-color="black"}
+
+-   Conocer las formas de narrar una historia
+
+-   Aprender las fases del arco narrativo
+
+-   Conocer las diferencias entre un informe y una presentación
+
+-   Recomendar biografía: 
+
+    + `r emo::ji("book")` @knaflic2019storytelling
+
+
+# 2. Resultados esperados  `r emo::ji("winner")` {background-color="#017eae"}
+
+![](img/07-narrativa.png){width="100%"}
+
+# 3. Conceptos clave `r emo::ji("document")` {background-color="#AB5484"}
+
+-   Título declarativo
+
+-   Orden narrativo: cronológicamente o a la inversa
+
+-   Arco narrativo: trama - creciente - clímax - decreciente - mensaje
+
+-   Diferencias entre informe y presentación
+
+
+## La fuerza de un título declarativo
+
+-   En un gráfico es la clave para trasladar el mensaje principal
+
+-   Compara este ejemplo:
+
+      - "Evolución del PIB en 2024 y previsiones para el 2025"
+        
+      - "El PIB se mantiene en 2024. Grandes esperanzas en 2025"
+
+## El orden
+
+Básicamente hay dos formas de contar una historia:
+    
+      - cronológica: contexto - datos - soluciones - llamada a la acción
+    
+      - impactante: llamada a la acción - puntos de apoyo sucesivos
+
+
+![](img/07-orden.png){width="100%"} 
+
+## El arco narrativo
+
+![](img/07-narrativa.png){width="100%"}   
+
+## ¿Informe o presentación?
+
+-   **Prohibido el "slideument"** (diapo y documento a la vez). **Hay que decidirse**: o diapos, o informe detallado.
+
+-   Si decidimos hacer una presentación con diapositivas:
+
+      -   Deben tener claridad, sencillez y foco (lecciones aprendidas)
+
+      -   Como mucho, se permite la **última diapo con anotaciones**
+
+-   Si decidimos hacer un informe, su objetivo es profundizar en los detalles
+
+# Usar el arco narrativo y un título declarativo: la clave `r emo::ji("document")` {background-color="#AB5484"}
+
+
+# 4. ¿Qué hemos aprendido? `r emo::ji("book")` {background-color="black"}
+
+-   Distinguir el diferente objetivo de una presentación y un informe
+
+-   La importancia de un buen título declarativo
+
+-   Usar el arco narrativo como guía
+
+
+## Referencias 
+
+`r emo::ji("book")` @knaflic2019storytelling

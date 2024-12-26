@@ -1,8 +1,8 @@
 ---
 title: "Impacto de las crisis en el paro de Castilla-La Mancha"
 author: 
-  - Gema Fernández-Avilés 
-  - Isidro Higalgo
+  - Gema Fernández-Avilés (Gema.FAviles@uclm)
+  - Isidro Hidalgo (Isidro.Hidalgo@uclm)
 format: html
 theme: cerulean
 highlight-style: ayu-mirage
@@ -27,9 +27,9 @@ execute:
 
 # Contexto
 
-En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de las crisis en las mujeres de la región.
+En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de ambas crisis en las mujeres de la región.
 
-Hemos conseguido del paquete `CDR` un conjunto de datos con algunas variables interesantes: **sexo** y **edad** del parado y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.
+Hemos conseguido del paquete `CDR` un conjunto de datos con, entre otras, algunas variables interesantes: **sexo** y **edad** del parado y **tiempo de búsqueda de empleo**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.
 
 ```{r}
 library(CDR)
@@ -42,9 +42,9 @@ parados_clm
 help(parados_clm)
 ```
 
-# Evolución del paro a lo largo del tiempo
+# Impacto de las crisis en la evolución global del paro
 
-Podemos construir un gráfico lineal...
+Podemos construir un gráfico lineal para empezar viendo la evolución...
 
 ```{r}
 resumen <- parados_clm |>
@@ -60,26 +60,97 @@ puntos <- data.frame(anyos, paro_anyos)
 ggplot(resumen, aes(anyo, parados)) + geom_line()
 ```
 
-El gráfico no tiene una escala de ordenadas realista, y es muy simple. Podemos mejorarlo un poco...
+El gráfico no tiene una escala de ordenadas realista, y es muy simple. No tiene título. Vamos a mejorarlo un poco...
 
 ```{r}
 graf <- ggplot(resumen, aes(anyo, parados)) +
-     geom_line(linewidth = 2, col = paleta_lineas[1], alpha = 0.5) +
-     xlab("")+ ylab("") +
-     geom_point(puntos, mapping = aes(x = anyos, y = parados,
-          shape = "circle filled", size = 1, fill = paleta_lineas[1],
-          alpha = 0.5)) +
+     geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
+     xlab("")+ ylab("número de parados") +
+     geom_point(puntos, mapping = aes(x = anyos, y = parados),
+          shape = "circle filled", size = 2.5, fill = paleta_lineas[1],
+          alpha = 0.8) +
      theme(legend.position = "none",
-          axis.title = element_text(size = 10),
           axis.text = element_text(size = 10),
+          axis.title.y = element_text(hjust = 1),
           strip.text = element_text(size = 9)) +
      scale_y_continuous(labels = function(x) format(x, big.mark = ".",
-          scientific = FALSE), limits = c(0, 300000)) +
-  ggtitle("Evolución del número de parados en Castilla-La Mancha")
+          decimal.mark = ",", scientific = FALSE),
+          limits = c(0, 300000)) +
+  ggtitle("Impacto de las crisis en el paro de Castilla-La Mancha")
 graf
 ```
 
 En adelante, vamos a tomar como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue mucho mayor, multiplicándolo casi por 3.
+
+Bien, pero trabajamos para el Instituto de la mujer... ¡hay que separar por sexo!:
+
+```{r}
+resumen_sexo <- parados_clm |>
+     group_by(anyo, sexo) |>
+     summarise(parados = sum(parados)) |>
+     mutate(anyo = as.numeric(as.character(anyo)))
+paro_anyos <- resumen_sexo |>
+     filter(anyo %in% anyos) |>
+     select(sexo, parados) |>
+     mutate(parados = round(parados, 0))
+puntos <- data.frame(anyos = rep(anyos, each = 2),
+                     sexo = paro_anyos$sexo,
+                     parados = paro_anyos$parados)
+
+graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
+     geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
+     xlab("")+ ylab("número de parados") +
+     facet_wrap("sexo") +
+     geom_point(puntos, mapping = aes(x = anyos, y = parados),
+          shape = "circle filled", size = 2.5, fill = paleta_lineas[1],
+          alpha = 0.8) +
+     theme(legend.position = "none",
+          axis.text = element_text(size = 10),
+          axis.title.y = element_text(hjust = 1),
+          strip.text = element_text(size = 9)) +
+     scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+          decimal.mark = ",", scientific = FALSE),
+          limits = c(0, 300000)) +
+  ggtitle("Las mujeres se han recuperado peor de la crisis de 2007")
+graf
+```
+
+¿Lo podemos hacer mejor?: sí, uniendo los gráficos, para que se aprecie mejor...
+
+```{r}
+graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
+  geom_line(data = resumen_sexo[resumen_sexo$sexo == "hombre",],
+           linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
+  geom_line(data = resumen_sexo[resumen_sexo$sexo == "mujer",],
+           linewidth = 1, col = paleta_lineas[2], alpha = 0.5) +
+  xlab("")+ ylab("número de parados") +
+  # geom_point(puntos[puntos$sexo == "hombre" & puntos$anyos == 2022,],
+  #           mapping = aes(x = anyos, y = parados),
+  #     shape = "circle filled", size = 2.5, fill = paleta_lineas[1],
+  #     col = paleta_lineas[1], alpha = 0.8) +
+  # geom_point(puntos[puntos$sexo == "mujer" & puntos$anyos == 2022,],
+  #           mapping = aes(x = anyos, y = parados),
+  #     shape = "circle filled", size = 2.5, fill = paleta_lineas[2],
+  #     col = paleta_lineas[2], alpha = 0.8) +
+  annotate(geom = "text", label = "hombres", col = paleta_lineas[1],
+           x = 2021,
+           y = puntos$parados[puntos$sexo == "hombre" &
+                                puntos$anyos == 2022]) +
+  annotate(geom = "text", label = "mujeres", col = paleta_lineas[2],
+           x = 2021, 
+           y = puntos$parados[puntos$sexo == "mujer" &
+                                puntos$anyos == 2022]) +
+  theme(axis.title.y = element_text(hjust = 1),
+        panel.background = element_rect(fill = "white"),
+        axis.line = element_line(color = "lightgrey"),
+        panel.grid = element_line(color = rgb(.95,.95,.95,1))) +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+      decimal.mark = ",", scientific = FALSE),
+      limits = c(0, 150000)) +
+  ggtitle("Las mujeres se han recuperado peor de la crisis de 2007")
+graf
+```
+En este caso, como ya hemos marcado los puntos de giro en el gráfico del total, hemos preferido quitarlos, porque no nos gustan estéticamente, pero aprovechamos el último valor para colocar la etiqueta de la serie, mucho mejor que en una leyenda...
 
 # Evolución del paro medio anual en función de la edad y el sexo
 

@@ -28,11 +28,13 @@ execute:
 
 ::: {.callout-note}
 Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
-que puede instalarse con el siguiente comando:
+que puede instalarse con el siguiente comando (se comprueba si no lo está):
 
-```r
-install.packages("remotes")
-remotes::install_github("cdr-book/CDR")
+```{r}
+if (!require(CDR)){
+  if (!require(remotes)) {install.packages("remotes")}
+  remotes::install_github("cdr-book/CDR")
+  }
 ```
 
 Los datos referentes a la evolución del paro en Castilla-La Mancha se encuentran en el objeto `parados_clm`.
@@ -48,7 +50,7 @@ Los datos referentes a la evolución del paro en Castilla-La Mancha se encuentra
 
 En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de ambas crisis en las mujeres de la región.
 
-Hemos conseguido del paquete `CDR` un conjunto de datos con, entre otras, algunas variables interesantes: **sexo** y **edad** del parado, **tiempo de búsqueda de empleo** y **sector de procedencia**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.
+Hemos conseguido del paquete `CDR` un conjunto de datos con algunas variables interesantes: **sexo** y **edad** del parado, **tiempo de búsqueda de empleo** y **sector de procedencia**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.
 
 ```{r}
 #| code-summary: Configuración inicial
@@ -98,15 +100,17 @@ puntos <- data.frame(anyos, paro_anyos)
 
 ```{r}
 #| code-summary: Creación del gráfico lineal
+
 ggplot(resumen, aes(anyo, parados)) +
   geom_line()+
   theme_bw()
 ```
 
-El gráfico no tiene una escala de ordenadas realista, y es muy simple. No tiene título. Vamos a mejorarlo un poco...
+El gráfico no tiene una escala de ordenadas realista (la variación queda algo exagerada porque el eje `y` no empieza en `0`), y es muy simple. No tiene título... Vamos a mejorarlo un poco...
 
 ```{r}
 #| code-summary: Creación del gráfico lineal mejorado
+
 graf <- ggplot(resumen, aes(anyo, parados)) +
   geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
   xlab("") +
@@ -133,17 +137,6 @@ graf
 
 En adelante, vamos a tomar como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue mucho mayor, multiplicándolo casi por 3.
 
-
-
-
-# Eliminar el desorden
-
-::: {.callout-tip}
-
-## Simplificación de gráficos eliminando elementos innecesarios.
-:::
-
-
 Bien, pero trabajamos para el Instituto de la mujer... ¡hay que separar por sexo!:
 
 ```{r}
@@ -167,6 +160,7 @@ puntos <- data.frame(
 
 ```{r}
 #| code-summary: Gráfico de lineas por sexo
+
 graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
   geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
   xlab("") +
@@ -187,16 +181,23 @@ graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
     limits = c(0, 300000)
   ) +
   ggtitle("Las mujeres se han recuperado peor de la crisis de 2007") + 
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.title.y = element_text(hjust = 1))
 
 graf
 ```
 
+# Eliminar el desorden
+
+::: {.callout-tip}
+## Simplificación de gráficos eliminando elementos innecesarios.
 
 ¿Lo podemos hacer mejor?: sí, uniendo los gráficos, para mejorar la comparación, añadiendo color y otros formatos...
+:::
 
 ```{r}
 #| code-summary: Gráfico de lineas por sexo mejorado
+
 graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
   geom_line(
     data = resumen_sexo[resumen_sexo$sexo == "hombre", ],
@@ -230,12 +231,13 @@ graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
     limits = c(0, 150000)
   ) +
   ggtitle("Las mujeres se han recuperado peor de la crisis de 2007") +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.title.y = element_text(hjust = 1))
 
 graf
 ```
 
-En este caso, como ya habíamos marcado los puntos de giro en el gráfico del paro total, hemos preferido quitarlos, porque no nos gustan estéticamente, pero aprovechamos el último valor para colocar la etiqueta de la serie, mucho mejor que en una leyenda... ¡y más visible!
+En este caso, como ya habíamos marcado los puntos de giro en el gráfico del paro total, hemos preferido quitarlos, porque no nos gustan estéticamente, pero aprovechamos el último punto para colocar la etiqueta de la serie, mucho mejor que en una leyenda... ¡y más visible!
 
 
 ## Evolución del paro medio anual en función de la edad y el sexo
@@ -244,6 +246,7 @@ Para ver simultáneamente una variable cuantitativa en función de otras dos var
 
 ```{r}
 #| code-summary: Preparación de los datos. Selección de variables y años
+
 tabla <- parados_clm |>
   select(anyo, sexo, edad, parados) |>
   filter(anyo %in% c(2007, 2019, 2022))
@@ -255,12 +258,14 @@ tabla <- tabla |>
 
 ```{r}
 #| code-summary: Heatmap por sexo, edad y año
+
 graf <- ggplot(tabla, aes(x = sexo, y = edad, fill = parados)) +
   geom_raster() +
   scale_fill_gradientn(colours = paleta_heatmaps) +
   facet_wrap(~anyo) +
-  labs(x = "", y = "") +
-  theme_bw()
+  labs(x = "", y = "edad") +
+  theme_bw() +
+  theme(axis.title.y = element_text(hjust = 1))
  
 graf
 ```
@@ -284,23 +289,22 @@ ggplot(tabla, aes(
       big.mark = ".", decimal.mark = ",", scientific = FALSE
     )
   }) +
-  theme_bw() 
+  theme_bw() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
 ```
 
 Ahora se ve mucho mejor que en 2007, antes de ambas crisis, los parados presentan **dos máximos**, en torno a 25 y 60 años, mientras que las desempleadas tienen una distribución bastante centrada entre 30 y 40 años. En cambio, en 2019 y aún más en 2022 se aprecia el desplazamiento de la distribución de los parados de ambos sexos hacia los estratos de edad **mayores de 50 años**. Este desplazamiento es algo más intenso en las mujeres.
 
 
-
 # Enfocar la atención donde importa: estamos trabajando para el Instituto de la mujer
 
-
 ::: {.callout-tip}
-
-## Técnicas para destacar los puntos clave en tus visualizaciones.
+## Técnicas para destacar los puntos clave en tus visualizaciones:
+-   Los formatos.
+-   Colocación de los textos (etiquetas de los ejes).
+-   La elegancia de la sencillez... ¡permite resaltar lo importante!
 :::
-
-
-
 
 ## Evolución del paro femenino según el tiempo de búsqueda de empleo
 
@@ -308,6 +312,7 @@ Hacemos lo mismo que con el sexo, pero incluimos la variable `t_bus_e_agr` (tiem
 
 ```{r}
 #| code-summary: Preparación de los datos. Selección de variables y años
+
 tabla <- parados_clm |>
   filter(anyo %in% c(2007, 2019, 2022)) |>
   select(anyo, sexo, t_bus_e_agr, edad, parados)
@@ -316,9 +321,9 @@ tabla <- tabla |>
   summarise(parados = sum(parados))
 ```
 
-
 ```{r}
 #| code-summary: Gráfico de facetas por sexo, sector económico, edad y año
+
 ggplot(tabla, aes(
   x = edad, y = parados,
   col = anyo, fill = anyo
@@ -332,8 +337,10 @@ ggplot(tabla, aes(
       big.mark = ".", decimal.mark = ",", scientific = FALSE
     )
   }) +
-  ggtitle("Se dispara el paro de larga duración") +
-  theme_bw()
+  ggtitle("Se dispara el paro de larga duración, sobre todo en las mujeres") +
+  theme_bw() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
 ```
 
 Se aprecia claramente que el tramo con mayor incremento de número de parados es el correspondiente a más de 24 meses de búsqueda de empleo (**paro de muy larga duración**), ya que la crisis financiera de 2008 les redujo su probabilidad de encontrar empleo. Se puede afirmar también que los dos períodos de crisis han provocado la creación de un **paro estructural de larga duración, y de más edad**. Este efecto es mayor en las mujeres.
@@ -344,6 +351,7 @@ Si repetimos el gráfico según el sector de procedencia, tenemos:
 
 ```{r}
 #| code-summary: Preparación de datos. Selección de variables y años
+
 tabla <- parados_clm |>
   filter(anyo %in% c(2007, 2019, 2022)) |>
   select(anyo, sexo, sector, edad, parados)
@@ -352,9 +360,9 @@ tabla <- tabla |>
   summarise(parados = sum(parados))
 ```
 
-
 ```{r}
 #| code-summary: Gráfico de facetas por sexo, sector, edad y año
+
 ggplot(tabla, aes(
   x = edad, y = parados,
   col = anyo, fill = anyo
@@ -369,28 +377,27 @@ ggplot(tabla, aes(
     )
   }) +
   ggtitle("El sector servicios acapara el mayor aumento de paro") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
 ```
-
-
 
 # Contar una historia
 
 ::: {.callout-tip}
-
 ## Cómo narrar una historia convincente con tus datos.
+
+Hasta ahora hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para el Instituto de la Mujer de Castilla-La Mancha, nos interesa el paro femenino especialmente, por razones obvias...
+
+El análisis exploratorio de las variables, de forma aislada o combinada, nos introduce en la **trama**, donde descubrimos aspectos interesantes de nuestros datos: las mujeres se han recuperado peor, especialmente en el sector servicios. También hemos visto como el conjunto del paro ha envejecido...
+
+Pero sin lugar a dudas, lo más importante es el **desenlace**, donde le estamos dando a nuestra Directora las claves que necesita:
+
+-   Un resumen de lo que ha pasado con el gráfico de evolución por sexo: la crisis de 2008 tuvo un gran impacto en el paro registrado de Castilla-La Mancha, multiplicándolo por un factor mayor de 3 desde 2007. Sin embargo, a partir del año 2013 el paro registrado inicia una tendencia a la baja muy pronunciada que aún hoy continúa, después de haber sufrido un rebote debido a la crisis de la COVID-19. Sin embargo, **el paro femenino ha descendido con menor intensidad**.
+
+-   Gráficos de distribución (podemos omitir los mapas de calor) con una frase contundente: la **población mayor de 45 años**, el **sector servicios** y los **parados de larga duración** son los grandes perjudicados por ambos procesos de crisis, siendo este **impacto mucho mayor en las mujeres**.
 :::
 
-## Inicio
+## Para pensar:
 
-ssssssssssssssss
-
-## Trama 
-
-ssssssssssssssss
-
-## Desenlace
-
-La crisis de 2008 tuvo un gran impacto en el paro registrado de Castilla-La Mancha, multiplicándolo por un factor mayor de 3 desde 2007. Sin embargo, a partir del año 2013 el paro registrado inicia una tendencia a la baja muy pronunciada que aún hoy continúa, después de haber sufrido un rebote debido a la crisis de la COVID-19.
-
-La **población mayor de 45 años**, el **sector servicios** y los **parados de larga duración** son los grandes perjudicados por ambos procesos de crisis, siendo este **impacto mucho mayor en las mujeres**.
+En este caso, estamos haciendo visualización para un alto cargo de la JCCM, capaz de interpretar los gráficos. ¿Usaríamos los mismos gráficos para una charla de la Directora del Instituto de la Mujer a la población en general?

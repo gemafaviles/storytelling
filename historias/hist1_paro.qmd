@@ -27,10 +27,9 @@ execute:
 ---
 
 ::: {.callout-note}
-Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
-que puede instalarse con el siguiente comando (se comprueba si no lo está):
+Los datos que se utilizan en esta historia están disponibles en el paquete `CDR` que puede instalarse con el siguiente comando (se comprueba si no lo está):
 
-```{r}
+``` {r}
 if (!require(CDR)){
   if (!require(remotes)) {install.packages("remotes")}
   remotes::install_github("cdr-book/CDR")
@@ -46,14 +45,15 @@ Los datos referentes a la evolución del paro en Castilla-La Mancha se encuentra
 ::: {.callout-tip}
 
 ## Cómo definir el propósito y la audiencia de tu análisis
-:::
+
 
 En los últimos 15 años el mundo ha sufrido dos grandes periodos de **crisis económica**: en **2008**, de tipo financiero; y en **2020**, a causa de la pandemia de **COVID-19**. La Directora del Instituto de la Mujer de Castilla-La Mancha quiere que mi equipo analice el impacto de ambas crisis en las mujeres de la región.
 
 Hemos conseguido del paquete `CDR` un conjunto de datos con algunas variables interesantes: **sexo** y **edad** del parado, **tiempo de búsqueda de empleo** y **sector de procedencia**. El conjunto de datos utilizado comprende la **media anual del paro registrado en la comunidad autónoma de Castilla-La Mancha** desagregado según estas variables, a lo largo de los años que van desde 2007 a 2022.
+:::
 
 ```{r}
-#| code-summary: Configuración inicial
+#| code-summary: Configuración inicial y datos
 
 library(CDR)
 library(tidyverse)
@@ -67,8 +67,6 @@ data("parados_clm")
 parados_clm
 help(parados_clm)
 ```
-
-
 
 # Elegir una visualización adecuada
 

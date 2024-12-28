@@ -26,89 +26,105 @@ execute:
 #bibliography: biblio.bib
 ---
 
-
-# ¿Qué pasa con la renta municipal en España antes de la pandemia de coronavirus?
-
-Trabajo en una compañía privada que quiere introducir un producto de alta gama, y me ha pedido el jefe que le haga un informe sobre la renta municipal en España de los últimos años, porque el CEO quiere ampliar el mercado a determinados tramos de renta, y necesita localizar caladeros de negocio. Me ha dicho que los datos los puedo sacar del paquete `CDR`. También me ha dicho que están limpios, pero no me fío.
-
-## Contexto
-
-¿Por qué es importante? Porque no da lo mismo analizar la renta como administración que como empresario que busca oportunidades de negocio. En el primer caso, se busca entender la distribución de la renta para poder diseñar políticas públicas que reduzcan la desigualdad. Probablemente, no estamos tan interesados en los municipios más ricos, sino en los más desiguales. Pero como somos gente de empresa, buscamos identificar segmentos de mercado con capacidad de compra para ofrecer un producto de alta gama, por lo que nos interesa saber dónde vive la gente con más dinero.
-
-En cualquiera de los dos casos, lo primero es hacer un análisis exploratorio para ver si hay algo raro en los datos y analizar mínimamente las variables de interés. Y después, le vamos a preparar al jefe un par de gráficos para que vea que somos unos cracks **aportándole conocimiento**.
-
-
 ::: {.callout-note}
-Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
-que puede instalarse con el siguiente comando:
+Los datos que se utilizan en esta historia están disponibles en el paquete `CDR` que puede instalarse con el siguiente comando (se comprueba si no lo está):
 
 ``` {r}
 if (!require(CDR)){
   if (!require(remotes)) {install.packages("remotes")}
   remotes::install_github("cdr-book/CDR")
-}
+  }
 ```
 
-Renta Neta per cápita por municipios (en euros), distritos y secciones censales. Esta información se ha extraído del Atlas de distribución de renta de los hogares proporcionado por el Instituno Nacional de Estadística y ha sido procesada para faciliar el análisis.
-
+Renta Neta per cápita (en euros) por municipios, distritos y secciones censales. Esta información se ha extraído del Atlas de distribución de renta de los hogares proporcionado por el Instituno Nacional de Estadística y ha sido procesada para facilitar el análisis. Se encuentran en el objeto `renta_municipio_data`.
 :::
 
+# ¿Qué pasa con la renta municipal en España antes de la pandemia de coronavirus?
 
-Un poco de información básica sobre los datos cargados:
+Trabajo en una compañía privada que quiere introducir un producto de alta gama, y me ha pedido el jefe que le haga un informe sobre la renta municipal en España de los últimos años, porque el CEO quiere ampliar el mercado a determinados tramos de renta, y necesita localizar caladeros de negocio. Me ha dicho que los datos los puedo sacar del paquete `CDR`. También me ha dicho que están limpios, pero no me fío.
 
-```{r hist-prep}
+## Entender el contexto:
+
+::: {.callout-tip}
+
+## Cómo definir el propósito y la audiencia de tu análisis
+
+¿Por qué es importante? Porque no da lo mismo analizar la renta municipal como administración que como empresario que busca oportunidades de negocio. En el primer caso, se busca entender la distribución de la renta para poder diseñar políticas públicas que reduzcan la desigualdad. Probablemente, no estamos tan interesados en los municipios más ricos, sino en los más pobres. Pero como somos gente de empresa, buscamos identificar segmentos de mercado con capacidad de compra para ofrecer un producto de alta gama, por lo que nos interesa saber dónde vive la gente con más dinero.
+
+En cualquiera de los dos casos, lo primero es hacer un análisis exploratorio para ver si hay algo raro en los datos y analizar mínimamente las variables de interés. Y después, le vamos a preparar al jefe un par de gráficos para que vea que somos unos cracks **aportándole conocimiento**.
+:::
+
+```{r}
+#| code-summary: Configuración inicial y datos
+
+library(CDR)
+library(tidyverse)
+library(summarytools)
+library(patchwork)
+library(sf)
+library(classInt)
+
 head(renta_municipio_data)
 help(renta_municipio_data)
 str(renta_municipio_data)
 ```
 
-Vemos que hay mezcla de secciones censales y municipios. Vamos a quedarnos solo con los municipios (ya sabía yo que habría que hacer un poco de limpieza)...
+## Limpieza
+
+Vemos que hay mezcla de secciones censales, distritos y municipios. Vamos a quedarnos solo con los municipios (ya sabía yo que habría que hacer un poco de limpieza, ¡no me libro de la ciberescoba ni a tiros!)...
 
 ```{r municipios}
 renta_municipio_data <- renta_municipio_data[substr(
-  renta_municipio_data$Unidad, 6, 6) == " ",
-]
+  renta_municipio_data$Unidad, 6, 6) == " ",]
 ```
 
 ::: {#exr-1}
-
 ¿Que hacemos con los datos faltantes? En este análisis eliminarlos.
 :::
 
-```{r hist-prep2}
-library(tidyverse)
+```{r}
 renta <- renta_municipio_data |>
    drop_na()
-
 head(renta)
 ```
 
-¡Esto ya es otra cosa! Ahora sí que podemos empezar a trabajar con datos limpios (los ingleses les llaman "tidy data").
+¡Esto ya es otra cosa! Ahora sí que podemos empezar a trabajar con datos limpios (los ingleses los llaman "tidy data").
+
+# Elegir una visualización adecuada
+
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos.
+:::
 
 ## Análisis exploratorio de la renta municipal en España
 
 ::: {#exr-2}
-
 ¿Cuál es la renta per cápita media de los municipios españoles en 2019?
 :::
 
 ```{r}
 summary(renta$`2019`)
 ```
+::: {.callout-tip}
+La renta municipal de los municipios menores de 100 habitantes es la media por provincia de todos ellos, por eso se repiten muchos valores
 
+```{r}
+valores <- renta$`2019` |>
+  table() |>
+  max()
+```
+
+:::
 
 ::: {#exr-2}
-
 ¿Es la renta media la misma en todos los municipios?
 :::
 
 ```{r}
-library("summarytools")
 renta |>
   select(`2019`) |>
   descr()
 ```
-
 
 ¡Qué lio! Mejor un gráfico que una tabla (J. Tukey)
 
@@ -124,11 +140,9 @@ ggplot(data = renta, aes(x=`2019`)) +
 Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado propuesto.
 :::
 
-
-
-
 ```{r renta-hist-beauty-hw}
 #| eval: false
+
 p_renta_2019 <- ggplot(renta, aes(`2019`)) +
   geom_xxxxxx(col = "darkred",
                  fill = "bisque", 
@@ -152,6 +166,7 @@ p_renta_2019
 
 ```{r renta-hist-beauty}
 #| echo: false
+
 p_renta_2019 <- ggplot(renta, aes(`2019`)) +
   geom_histogram(col = "darkred",
                  fill = "bisque", 
@@ -172,15 +187,12 @@ p_renta_2019 <- ggplot(renta, aes(`2019`)) +
 p_renta_2019 
 ```
 
-
 ::: {#exr-2}
-
 ¿Sería mejor tener un gráfico de densidad? ¿Cómo se interpretaría?
 ¿Qué diferencias hay respecto al histograma?
 :::
 
-
-```{r renta-density}
+```{r}
 p_renta_2019_density <- ggplot(renta, aes(`2019`)) +
   geom_density(fill = "bisque",
                alpha= 0.4,
@@ -202,12 +214,9 @@ p_renta_2019_density <- ggplot(renta, aes(`2019`)) +
 p_renta_2019_density
 ```
 
-
 ::: {#exr-2}
-
 ¿Cuál me gusta más? ¿Histograma o densidad? ¿Juntos?
 :::
-
 
 ```{r renta-density2}
 p_renta_2019_density + 
@@ -217,12 +226,9 @@ p_renta_2019_density +
                  alpha = 0.4)
 ```
 
-
 ::: {#exr-2}
-
 ¿Por qué no tener un 5-summary plot? ¿Qué nos dice?
 :::
-
 
 ```{r}
 p <- renta |>
@@ -235,16 +241,12 @@ boxplot <- p +
 violin <- p + geom_violin(color = "darkred", fill = "bisque") +
   theme_minimal()
 
-library(patchwork)
 boxplot + violin
 ```
 
-
 ::: {#exr-2}
-
 ¿En los años anteriores la renta ha sido similar?
 :::
-
 
 ```{r}
 p <- renta |>
@@ -270,12 +272,9 @@ p + geom_violin( ) +
           y = "Renta per cápita (euros)")
 ```
 
-
 ::: {#exr-2}
-
 ¿Es necesario el color? ¿Queremos ver también la evolución a lo largo del tiempo? Pues quizá podemos matar dos pájaros de un tiro... veamos...
 :::
-
 
 ```{r}
 medias <- renta |>
@@ -313,15 +312,11 @@ p + geom_violin( ) +
        y = "Renta per cápita (euros)")
 ```
 
-
 ::: {#exr-2}
-
 ¿Son los municipios de norte más ricos que los del sur de España en 2019?
 :::
 
-
 ```{r}
-library("sf")
 help(municipios)
 
 munis_renta <- municipios |>
@@ -339,7 +334,6 @@ ggplot(munis_renta) +
   theme_minimal()
 ```
 
-
 ## Que no nos mientan con la estadística (ni con la visualización)
 
 ```{r}
@@ -347,7 +341,6 @@ munis_renta_clean <- munis_renta |>
   filter(!is.na(`2019`))
 
 # crea Fisher-Jenks clases
-library(classInt)
 fisher <- classIntervals(munis_renta_clean$`2019`,
                          style = "fisher",
                          n = 10)
@@ -361,7 +354,6 @@ ggplot(munis_renta_clean) +
 ```
 
 ::: {#exr-2}
-
 ¿Cuál es la provincia con mayor renta media municiapal en 2019? ¿Y la que menos renta media tiene?
 :::
 

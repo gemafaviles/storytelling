@@ -1,5 +1,5 @@
 ---
-title: "Titanic"
+title: "¿Quién sobrevivió en el Titanic?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)

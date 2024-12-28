@@ -3,9 +3,6 @@ title: "Impacto de las crisis en el paro femenino de Castilla-La Mancha"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
-author:
-  - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
-  - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
 format: html
 theme: cerulean
 highlight-style: ayu-mirage

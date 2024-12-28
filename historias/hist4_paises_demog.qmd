@@ -30,21 +30,23 @@ execute:
 Los datos que se utilizan en esta historia están disponibles en el repositorio GitHub From data to viz.
 :::
 
-
-
-
 ```{r}
+library(tidyverse)
+library(GGally)
+library(NbClust)
+library(igraph)
+library(factoextra)
+library(corrplot)
+
 # Load data
 demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
 
 colnames(demog_data) <- gsub("\\.", "_", colnames(demog_data))
 ```
 
-
 # Scatterplot entre `Growth_rate` y `Life_expectancy`
 
 ```{r}
-library(tidyverse)
 demog_data  |>
   ggplot(aes(x = Growth_rate, y = Life_expectancy)) +
   geom_point() +
@@ -67,7 +69,6 @@ demog_data  |>
   theme_minimal()
 ```
 
-
 ## Facetas
 
 ```{r}
@@ -82,19 +83,15 @@ demog_scatter <- ggplot(data = demog_data, # data
 demog_scatter 
 ```
 
-
 ## Linea de suavizado
 
 ```{r}
 demog_scatter + geom_smooth(method = NULL, se = T) 
 ```
 
-
 ## Scatterplot matrix
 
 ```{r}
-library(GGally)
-
 demo_cuanti <- demog_data |>
    select(Pop, Birth_rate, Mortality_rate, Life_expectancy, Infant_mortality, 
          Children_per_woman,  Growth_rate, Population_aged_65_) |>
@@ -104,12 +101,9 @@ demo_cuanti |>
    ggpairs()
 ```
 
-
 ## Correlation matrix
 
 ```{r}
-library(corrplot)
-
 demo_cuanti |> 
   cor() |> 
   corrplot.mixed( order = 'AOE')
@@ -138,7 +132,6 @@ cluster_data <- demog_data |>
 Calcula la distancia
 
 ```{r}
-library("factoextra")
 cluster_data_stand <- scale(cluster_data) # estandariza las variables
 d_euclidea <- get_dist(x = cluster_data_stand , method = "euclidea")
 fviz_dist(dist.obj = d_euclidea, lab_size = 5)
@@ -146,7 +139,6 @@ fviz_dist(dist.obj = d_euclidea, lab_size = 5)
 
 
 ```{r}
-library("NbClust")
 set.seed(123)
 
 num_cluster <- NbClust(cluster_data_stand, distance = "euclidean", method = "ward.D2", min.nc = 2, max.nc = 10)
@@ -164,7 +156,6 @@ fviz_dend(hc_ward, cex = 0.5, k = 5, main = "Cluster jerárquico simple")
 ¿Lo mejoramos?
 
 ```{r}
-library("igraph")
 set.seed(5665)
 hc_ward <- hcut(cluster_data_stand, k = 7, hc_method = "ward.D2")
 

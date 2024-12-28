@@ -1,5 +1,5 @@
 ---
-title: "Contaminación en el aire en la ciudad de Madrid"
+title: "¿Qué pasa con la renta municipal?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
@@ -33,18 +33,20 @@ Trabajo en una compañía privada que quiere introducir un producto de alta gama
 
 ## Contexto
 
-¿Por qué es importante? Porque no da lo mismo analizar la renta como administración que como empresario que busca oportunidades de negocio. En el primer caso, se busca entender la distribución de la renta para poder diseñar políticas públicas que reduzcan la desigualdad. Probablemente, no estamos tan interesados en los municipios más ricos, sino en los más desiguales. Pero como somos gente de empresa, buscamos identificar segmentos de mercado con capacidad de compra para ofrecer un producto, por lo que nos interesa saber dónde vive la gente con más dinero.
+¿Por qué es importante? Porque no da lo mismo analizar la renta como administración que como empresario que busca oportunidades de negocio. En el primer caso, se busca entender la distribución de la renta para poder diseñar políticas públicas que reduzcan la desigualdad. Probablemente, no estamos tan interesados en los municipios más ricos, sino en los más desiguales. Pero como somos gente de empresa, buscamos identificar segmentos de mercado con capacidad de compra para ofrecer un producto de alta gama, por lo que nos interesa saber dónde vive la gente con más dinero.
 
-En cualquiera de los dos casos, lo primero es hacer un análisis exploratorio para ver si hay algo raro en los datos y analizar mínimamente las variables de interés. Y después, le vamos a preparar al jefe un par de gráficos para que vea que soy un crack **aportándole conocimiento**.
+En cualquiera de los dos casos, lo primero es hacer un análisis exploratorio para ver si hay algo raro en los datos y analizar mínimamente las variables de interés. Y después, le vamos a preparar al jefe un par de gráficos para que vea que somos unos cracks **aportándole conocimiento**.
 
 
 ::: {.callout-note}
 Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
 que puede instalarse con el siguiente comando:
 
-```r
-install.packages("remotes")
-remotes::install_github("cdr-book/CDR")
+``` {r}
+if (!require(CDR)){
+  if (!require(remotes)) {install.packages("remotes")}
+  remotes::install_github("cdr-book/CDR")
+}
 ```
 
 Renta Neta per cápita por municipios (en euros), distritos y secciones censales. Esta información se ha extraído del Atlas de distribución de renta de los hogares proporcionado por el Instituno Nacional de Estadística y ha sido procesada para faciliar el análisis.
@@ -55,7 +57,6 @@ Renta Neta per cápita por municipios (en euros), distritos y secciones censales
 Un poco de información básica sobre los datos cargados:
 
 ```{r hist-prep}
-library(CDR)
 head(renta_municipio_data)
 help(renta_municipio_data)
 str(renta_municipio_data)

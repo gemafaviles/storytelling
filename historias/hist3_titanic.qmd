@@ -26,61 +26,47 @@ execute:
 #bibliography: biblio.bib
 ---
 
-
-
-
 ::: {.callout-note}
-Titanic dataset de kaggel
-
+Titanic dataset de kaggle
 :::
-
-
-
 
 ```{r}
 library(titanic)
 library(tidyverse)
-head(titanic_train)
-datos_titanic <- titanic_train
-```
+library(ggmosaic)
+library(explore)
+library(ggplot2)
+library(ggalluvial)
+library(caret)
 
+head(titanic_train)
+```
 
 
 ```{r}
-library(explore)
 titanic <- use_data_titanic(count = TRUE)
- titanic |> explore(Class, n = n)
- titanic |> describe(Class, n = n)
-
+titanic |> explore(Class, n = n)
+titanic |> describe(Class, n = n)
 titanic |> explore(Class, target = Survived, n = n, split = TRUE)
 ```
-
 
 Todas
 ```{r}
 titanic |> explore_all(n = n)
 ```
 
-
-
-```{r titanic }
-
-## ........................ TITANIC
-
-datos_titanic<- datos_titanic
+```{r}
 skimr::skim(datos_titanic)
 ```
 
-
-Mosaico: las dos variables cualitativas
+# Mosaico: las dos variables cualitativas
 
 Un diagrama de mosaico es un método gráfico para visualizar datos de dos o más variables cualitativas. Ofrece una visión general de los datos y permite reconocer relaciones entre diferentes variables cualitativas.
 
 Veamos la supervivencia o no de los pasajeros del Titanic en función del Sexo (ambas variables cualitativas)
+
 ```{r mosaico-superviencia-sexo}
 #| eval: false
-
-library(ggmosaic)
 
 g_mosaico= ggplot(data = datos_titanic) +
    geom_mosaic(aes(x = product(`Survived`, `Sex`),
@@ -91,29 +77,23 @@ g_mosaico= ggplot(data = datos_titanic) +
 g_mosaico
 ```
 
-
-### Mosaico: las tres variables cualitativas 
+## Mosaico: las tres variables cualitativas 
 
 Avanzamos un poco más con los gráficos de mosaico, representando tres variables cualitativas.
 
 Veamos la supervivencia o no de los pasajeros del Titanic en función del Sexo y la clase (todas las variables cualitativas)
+
 ```{r mosaico_superviencia_sexo_clase}
 #| eval: false
-
-library(ggplot2)
-library(ggmosaic)
 
 ggplot(data = datos_titanic) +
    geom_mosaic(aes(x = product(`Survived`, `Sex`, `Pclass` ),
                    fill=`Survived`)) +
    theme(axis.text.y = element_text(size = 5))     +
    labs(title=' ')
-
 ```
 
-
-
-### Diagramas de flujo
+## Diagramas de flujo
 
 Un diagrama de flujo es un gráfico que muestra los pasos de un proceso de una manera visual y fácil de entender, por tanto, este tipo de gráficos permitirán  visualizar el flujo de los datos en el plot. Véase como mejora la interpretabilidad de los datos cualitativos respecto al mosaico con tres variables variables cualitativas.
 
@@ -122,12 +102,9 @@ Analizamos las mismas variables cualitativas: supervivencia, sexo y clase, pero 
 ```{r flujo_superviencia_sexo_clase }
 #| eval: false
 
-library(ggalluvial)
-
 titanic_table <- datos_titanic |>
   group_by(Pclass, Sex, Survived) |>
   count()
-
 
 ggplot(titanic_table,
        aes(axis1 = Pclass,
@@ -149,7 +126,6 @@ ggplot(titanic_table,
   theme(legend.position = "none") 
 ```
 
-
 https://cran.r-project.org/web/packages/explore/vignettes/explore-titanic.html
 
 ```{r}
@@ -166,19 +142,12 @@ Sex = Female & Class <> 3rd: 93% survived (12% of all observations)
 titanic |> explore(Age, target = Class, n = n)
 ```
 
-
-
 # logit
 
-
 ```{r}
-## Load Titanic library to get the dataset
-library(titanic)
-
 ## Load the datasets
 data("titanic_train")
 data("titanic_test")
-
 
 ## Setting Survived column for test data to NA
 titanic_test$Survived <- NA
@@ -188,13 +157,7 @@ complete_data <- rbind(titanic_train, titanic_test)
 
 ## Check data structure
 str(complete_data)
-
-
 ```
-
-
-
-
 
 ```{r}
 ## Missing values imputation
@@ -202,7 +165,6 @@ complete_data$Embarked[complete_data$Embarked==""] <- "S"
 complete_data$Age[is.na(complete_data$Age)] <- median(complete_data$Age,na.rm=T)
 
 ## Removing Cabin as it has very high missing values, passengerId, Ticket and Name are not required
-library(dplyr)
 titanic_data <- complete_data %>% select(-c(Cabin, PassengerId, Ticket, Name))
 
 ## Converting "Survived","Pclass","Sex","Embarked" to factors
@@ -211,7 +173,6 @@ for (i in c("Survived","Pclass","Sex","Embarked")){
 }
 
 ## Create dummy variables for categorical variables sin el plaquete dummies Pclass","Sex","Embarked"
-
 ```
 
 
@@ -242,7 +203,7 @@ result <- predict(model, newdata= test, type='response')
 result <- ifelse(result > 0.5,1,0)
 
 ## Confusion matrix and statistics
-library(caret)
+
 #confusionMatrix(data=result, reference=test$Survived)
 ```
 

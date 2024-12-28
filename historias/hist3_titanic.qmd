@@ -1,8 +1,8 @@
 ---
 title: "Titanic"
-author: 
-  - Gema Fernández-Avilés 
-  - Isidro Higalgo
+author:
+  - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
+  - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
 format: html
 theme: cerulean
 highlight-style: ayu-mirage

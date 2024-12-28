@@ -1,8 +1,8 @@
 ---
 title: "La borrasca Filomena"
-author: 
-  - Gema Fernández-Avilés 
-  - Isidro Higalgo
+author:
+  - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
+  - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
 format: html
 theme: cerulean
 highlight-style: ayu-mirage
@@ -25,9 +25,6 @@ execute:
   code-copy: true
 #bibliography: biblio.bib
 ---
-
-
-
 
 ::: {.callout-note}
 Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`

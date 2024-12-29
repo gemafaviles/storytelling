@@ -3,15 +3,20 @@ title: "¿Qué pasa con la renta municipal en España?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
-format: html
-theme: cerulean
-highlight-style: ayu-mirage
-self-contained: true
-date: "`r Sys.Date()`"
-code-link: true
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    date: "`r Sys.Date()`"
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
 number-sections: true
 execute:
-  code-overflow: scroll
   echo: true
   eval: true
   output: true
@@ -19,11 +24,10 @@ execute:
   freeze: auto
   fig-height: 5
   warning: false
-  code-fold: true
   comment: "#>"
   code-line-numbers: true
   code-copy: true
-#bibliography: biblio.bib
+  code-overflow: scroll
 ---
 
 ::: {.callout-note}
@@ -43,7 +47,7 @@ Renta Neta per cápita (en euros) por municipios, distritos y secciones censales
 
 Trabajo en una compañía privada que quiere introducir un producto de alta gama, y me ha pedido el jefe que le haga un informe sobre la renta municipal en España de los últimos años, porque el CEO quiere ampliar el mercado a determinados tramos de renta, y necesita localizar caladeros de negocio. Me ha dicho que los datos los puedo sacar del paquete `CDR`. También me ha dicho que están limpios, pero no me fío.
 
-## Entender el contexto:
+# Entender el contexto
 
 ::: {.callout-tip}
 
@@ -107,7 +111,7 @@ renta |> explore_all()
 ## Selección de gráficos y visualizaciones que mejor representen tus datos.
 :::
 
-## Análisis exploratorio de la renta municipal en España
+## Renta municipal media en España
 
 ::: {#exr-2}
 ¿Cuál es la renta per cápita media de los municipios españoles del último año disponible (2019)?
@@ -125,6 +129,8 @@ valores <- renta$`2019` |>
 head(valores[order(valores, decreasing = TRUE)], 20)
 ```
 :::
+
+## Distribución de la renta por municipios
 
 ::: {#exr-2}
 ¿Es la renta media la misma en todos los municipios?
@@ -250,7 +256,7 @@ p_renta_2019_density +
                  color= rellenos,
                  alpha = 0.4)
 ```
-
+En 
 ::: {#exr-2}
 ¿Por qué no tener un 5-summary plot? ¿Qué nos dice?
 :::
@@ -269,6 +275,7 @@ violin <- p + geom_violin(color = lineales, fill = rellenos,
 
 boxplot + violin
 ```
+## Evolución de la renta municipal
 
 ::: {#exr-2}
 ¿En los años anteriores la renta ha sido similar?
@@ -296,6 +303,8 @@ p + geom_violin(aes(fill = "2015")) +
   labs(title = "Distribución de la renta por municipios",
        x = "Año", y = "Renta per cápita (euros)")
 ```
+
+# Eliminar el desorden. Enfocar la atención
 
 ::: {#exr-2}
 ¿Es necesario el color? ¿Queremos ver también la evolución a lo largo del tiempo? Pues quizá podemos matar dos pájaros de un tiro... veamos:
@@ -330,12 +339,22 @@ p + geom_violin( ) +
             color = lineales) +
   scale_x_continuous(breaks = c(0, 1, 2, 3, 4),
                      labels = c("2015", "2016", "2017", "2018", "2019")) +
-  labs(title = "La renta per cápita sube cada año",
-       x = "", y = "Renta per cápita (euros)") +
+  scale_y_continuous(
+    labels = function(x) {
+      format(x,
+        big.mark = ".",
+        decimal.mark = ",", scientific = FALSE
+      )
+      }
+    ) +
+  labs(title = "La renta per cápita sube ligeramente cada año",
+       x = "", y = "Renta per cápita (€)") +
   theme_minimal() +
   theme(axis.title.x = element_text(hjust = 0),
         axis.title.y = element_text(hjust = 1))
 ```
+
+## Distribución geográfica de la renta municipal en España
 
 ::: {#exr-2}
 ¿Son los municipios de norte más ricos que los del sur de España en 2019?
@@ -353,30 +372,38 @@ munis_renta <- municipios |>
 ```{r}
 ggplot(munis_renta) +
   geom_sf(aes(fill = `2019`), color = NA) +
-  scale_fill_continuous(labels = scales::label_number(big.mark = ".",
-                                                      decimal.mark = ",",
-                                                      suffix = " €" )) +
+  scale_fill_continuous(labels = function(x) {
+    format(x, big.mark = ".", decimal.mark = ",",
+           scientific = FALSE, suffix = "€"
+    )
+    }
+    ) +
   theme_minimal()
 ```
+## De nuevo, cuidamos el enfoque
 
-## Que no nos mientan con la estadística (ni con la visualización)
+El gráfico anterior, debido a la escala de colores continua, tiende a uniformizar los municipios, por lo que podemos dar una idea equivocada... ¡no podemos "mentir" con nuestras visualizaciones!
+
+¿Cómo podemos arreglarlo? Usando el **método Fisher-Jenks** para optimizar la segmentación en clases, y transformar el gráfico usando una variable discreta.
 
 ```{r}
 munis_renta_clean <- munis_renta |>
   filter(!is.na(`2019`))
 
-# crea Fisher-Jenks clases
+# crea clases con Fisher-Jenks
 fisher <- classIntervals(munis_renta_clean$`2019`,
                          style = "fisher",
                          n = 10)
 ggplot(munis_renta_clean) +
   geom_sf(aes(fill = cut(`2019`, fisher$brks)), color = NA) +
-  scale_fill_viridis_d(option= "A",
+  scale_fill_viridis_d(option= "inferno", direction = -1,
                        labels= scales::label_number(suffix= "€")) +
   guides(fill = guide_colorsteps()) +
   labs(fill= "Fisher-Jenks") +
   theme_minimal()
 ```
+
+## Distribución por provincias
 
 ::: {#exr-2}
 ¿Cuál es la provincia con mayor renta media municipal en 2019? ¿Y la que menos renta media tiene?
@@ -392,8 +419,9 @@ munis_renta |>
   theme_minimal() +
   theme(legend.position = "none")
 ```
+## Una vez más, cuidamos el enfoque
 
-Mejor los ordenamos las provincias. Y de nuevo, ¿nos aporta el color?
+Mejor ordenamos las provincias. Y de nuevo, ¿nos aporta el color y la distribución o nos vale con un valor medio por provincia?
 
 ```{r}
 munis_renta2 <- munis_renta |>
@@ -418,3 +446,27 @@ munis_renta2_plot <- ggplot(munis_renta2, aes(y = pro2019,
   theme_minimal()
 munis_renta2_plot
 ```
+
+# Contar una historia
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hasta ahora hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para una empresa que quiere posicionar un producto de alta gama...
+
+El análisis exploratorio de las variables, de forma aislada o combinada, nos introduce en la **trama**, donde descubrimos aspectos interesantes de nuestros datos: la renta es asimétrica, con **municipios de más renta**, que es lo que nos interesa. Además, vemos que la **renta tiende a subir con los años**, lo que también nos viene de perlas.
+
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro jefe las claves que necesita:
+
+-   Con el gráfico de evolución de la distribución le damos 2 claves: **hay municipios de mayor renta**, y **la renta tiende a subir con el tiempo**.
+
+-   Gráficos de localización de los municipios de mayor renta: podríamos usar el **mapa de distribución de la renta en España** o el **lollipop de provincias ordenado por renta**.
+:::
+
+## Para pensar:
+
+Supongamos que el producto fuera de primera necesidad, su producción ligada al territorio y la renta no fuera la variable decisoria. ¿Qué visualización utilizarías en el desenlace, el lollipop de renta por provincias o el de distribución municipal por provincias?
+
+::: {.callout-pista}
+pista: logística
+:::

@@ -3,15 +3,20 @@ title: "La borrasca Filomena"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
-format: html
-theme: cerulean
-highlight-style: ayu-mirage
-self-contained: true
-date: "`r Sys.Date()`"
-code-link: true
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    date: "`r Sys.Date()`"
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
 number-sections: true
 execute:
-  code-overflow: scroll
   echo: true
   eval: true
   output: true
@@ -19,11 +24,10 @@ execute:
   freeze: auto
   fig-height: 5
   warning: false
-  code-fold: true
   comment: "#>"
   code-line-numbers: true
   code-copy: true
-#bibliography: biblio.bib
+  code-overflow: scroll
 ---
 
 ::: {.callout-note}

@@ -3,15 +3,20 @@ title: "¡Cuidado con el paro femenino!"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
-format: html
-theme: cerulean
-highlight-style: ayu-mirage
-self-contained: true
-date: "`r Sys.Date()`"
-code-link: true
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    date: "`r Sys.Date()`"
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
 number-sections: true
 execute:
-  code-overflow: scroll
   echo: true
   eval: true
   output: true
@@ -19,11 +24,10 @@ execute:
   freeze: auto
   fig-height: 5
   warning: false
-  code-fold: true
   comment: "#>"
   code-line-numbers: true
   code-copy: true
-#bibliography: biblio.bib
+  code-overflow: scroll
 ---
 
 ::: {.callout-note}
@@ -66,7 +70,7 @@ paleta_heatmaps <- c("#B3FF0080", "#213894FF")
 paleta_lineas <- c("blue4", "orange", "darkgreen")
 
 data("parados_clm")
-parados_clm
+head(parados_clm)
 help(parados_clm)
 
 # Siempre debemos echar un vistazo rápido a los datos:
@@ -141,7 +145,9 @@ graf
 
 En adelante, vamos a tomar como puntos de referencia los años previos a las crisis: 2007 y 2019, y el último año de datos, 2022. Se puede observar que la crisis de la **COVID-19** aumentó el paro en 2020, pero la **crisis de 2008** tuvo un impacto enorme y generalizado en toda la economía, por lo que su efecto en el paro registrado fue mucho mayor, multiplicándolo casi por 3.
 
-Bien, pero trabajamos para el Instituto de la mujer... ¡hay que separar por sexo!:
+# Eliminar el desorden. Enfocar la atención
+
+Vale, está bien la evolución general, pero trabajamos para el Instituto de la mujer... ¡hay que separar por sexo!:
 
 ```{r}
 #| code-summary: Resumen por sexo
@@ -190,8 +196,6 @@ graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
 
 graf
 ```
-
-# Eliminar el desorden
 
 ::: {.callout-tip}
 ## Simplificación de gráficos eliminando elementos innecesarios.
@@ -300,11 +304,8 @@ ggplot(tabla, aes(
 
 Ahora se ve mucho mejor que en 2007, antes de ambas crisis, los parados presentan **dos máximos**, en torno a 25 y 60 años, mientras que las desempleadas tienen una distribución bastante centrada entre 30 y 40 años. En cambio, en 2019 y aún más en 2022 se aprecia el desplazamiento de la distribución de los parados de ambos sexos hacia los estratos de edad **mayores de 50 años**. Este desplazamiento es algo más intenso en las mujeres.
 
-
-# Enfocar la atención donde importa: estamos trabajando para el Instituto de la mujer
-
 ::: {.callout-tip}
-## Técnicas para destacar los puntos clave en tus visualizaciones:
+¿Qué técnicas hemos usado para destacar los puntos clave en nuestras visualizaciones?:
 -   Los formatos.
 -   Colocación de los textos (etiquetas de los ejes).
 -   La elegancia de la sencillez... ¡permite resaltar lo importante!

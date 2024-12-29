@@ -34,6 +34,8 @@ execute:
 Los datos que se utilizan en esta historia están disponibles en el paquete `CDR` que puede instalarse con el siguiente comando (se comprueba si no lo está):
 
 ``` {r}
+#| code-summary: Instalación y/o carga del paquete `CDR`
+
 if (!require(CDR)){
   if (!require(remotes)) {install.packages("remotes")}
   remotes::install_github("cdr-book/CDR")

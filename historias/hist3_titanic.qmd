@@ -1,12 +1,12 @@
 ---
-title: "¿Quién sobrevivió en el Titanic?"
+title: "¿Quién sobrevivió al Titanic?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
 format:
   html:
     theme: cerulean
-    highlight-style: ayu-mirage
+    highlight-style: ayu-miredad
     self-contained: true
     date: "`r Sys.Date()`"
     embed-resources: true
@@ -31,130 +31,178 @@ execute:
 ---
 
 ::: {.callout-note}
-Titanic dataset de kaggle
+Los datos para esta historia están sacados de la competición de kaggle "Titanic - Machine Learning from Disaster": https://www.kaggle.com/competitions/titanic. Los datasets de entrenamiento y test se encuentran en el objeto `titanic` del paquete `titanic`.
+
+``` {r}
+#| code-summary: Instalación y/o carga del paquete `titanic`
+
+if (!require(titanic)){install.packedads("titanic")}
+```
 :::
 
+# ¿Quién sobrevivió al Titanic?
+
+Mi colega de departamento se ha picado con el departamento vecino, y se han apostado que ganaban el próximo datathon de GAIA-X. No pasaría nada, sería su problema, si no me hubiera pedido que le ayudara con el análisis exploratorio, que está mal de tiempo... lo de siempre... ¡¿Pero por qué no pueden dejarme tranquilo?!
+
+# Entender el contexto
+
+::: {.callout-tip}
+
+## Cómo definir el propósito y la audiencia de tu análisis
+
+En este caso, puesto que el objetivo de mi colega es la predicción, lo primero que vamos a hacer es un análisis exploratorio, para ver las relaciones entre las variables del conjunto de datos. Luego ya se apañará mi compañero para modeloizar... ¡a ver si se piensa que lo voy a hacer todo yo!
+:::
+
+
 ```{r}
+#| code-summary: Configuración inicial y datos
+
 library(titanic)
 library(tidyverse)
+library(skimr)
 library(ggmosaic)
 library(explore)
 library(ggplot2)
 library(ggalluvial)
 library(caret)
 
-head(titanic_train)
-```
-
-
-```{r}
-titanic <- use_data_titanic(count = TRUE)
-titanic |> explore(Class, n = n)
-titanic |> describe(Class, n = n)
-titanic |> explore(Class, target = Survived, n = n, split = TRUE)
-```
-
-Todas
-```{r}
-titanic |> explore_all(n = n)
+titanic <- titanic_train
+names(titanic)[1:6] <- c("id", "supervivencia", "clase", "nombre", "sexo", "edad")
+head(titanic)
 ```
 
 ```{r}
-skimr::skim(datos_titanic)
+#| code-summary: Exploramos variables del dataset de entrenamiento
+
+titanic_conteo <- use_data_titanic(count = TRUE) # más adelante no contaremos por variables, porque nos interesarán los datos "crudos"
+names(titanic_conteo) <- c("clase", "sexo", "edad", "supervivencia", "n")
+titanic_conteo |> explore(clase, n = n)
+titanic_conteo |> describe(clase, n = n)
+
+# ¿Cuántos sobrevivieron de cada clase?:
+titanic_conteo |> explore(clase,
+                          target = supervivencia,
+                          n = n, split = TRUE)
 ```
 
-# Mosaico: las dos variables cualitativas
+```{r}
+#| code-summary: También podemos explorar todas las variables del dataset de una forma más resumida
 
-Un diagrama de mosaico es un método gráfico para visualizar datos de dos o más variables cualitativas. Ofrece una visión general de los datos y permite reconocer relaciones entre diferentes variables cualitativas.
+titanic_conteo |> explore_all(n = n)
+```
 
-Veamos la supervivencia o no de los pasajeros del Titanic en función del Sexo (ambas variables cualitativas)
+```{r}
+#| code-summary: skimr es un paquete que conviene memorizar
+
+skim(titanic_conteo)
+```
+
+# Elegir una visualización adecuada
+
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos.
+:::
+
+## ¿Hombre o mujer?
+
+Hemos visto como se relaciona la supervivencia con la pertenencia a la tripulación o a una clase en concreto, pero ¿influyó el sexo?
+
+Si usamos un diagrama de mosaico, que es un método gráfico para visualizar datos de dos o más variables cualitativas, podemos tener una visión general de los datos y reconocer relaciones entre diferentes variables cualitativas.
+
+Veamos la `supervivencia` de los pasajeros del Titanic en función del `sexo` (ambas variables cualitativas)
 
 ```{r mosaico-superviencia-sexo}
 #| eval: false
 
-g_mosaico= ggplot(data = datos_titanic) +
-   geom_mosaic(aes(x = product(`Survived`, `Sex`),
-                   fill=`Survived`)) +
-   theme(axis.text.y = element_text(size = 5))     +
-   labs(title=' ')
+titanic <- use_data_titanic(count = FALSE) # ahora trabajamos con los datos "crudos"
+names(titanic) <- c("clase", "sexo", "edad", "supervivencia")
 
-g_mosaico
+mosaico2 <- ggplot(data = titanic) +
+  geom_mosaic(aes(x = product(supervivencia, sexo),
+                  fill = supervivencia))
+mosaico2
 ```
 
-## Mosaico: las tres variables cualitativas 
+## ¿A qué clase perteneces?¿Eres miembro de la tripulación? ¿Hombre o mujer?
 
 Avanzamos un poco más con los gráficos de mosaico, representando tres variables cualitativas.
 
-Veamos la supervivencia o no de los pasajeros del Titanic en función del Sexo y la clase (todas las variables cualitativas)
+Veamos la `supervivencia` de los pasajeros del Titanic en función del `sexo` y la `clase` (todas las variables cualitativas)
 
 ```{r mosaico_superviencia_sexo_clase}
 #| eval: false
 
-ggplot(data = datos_titanic) +
-   geom_mosaic(aes(x = product(`Survived`, `Sex`, `Pclass` ),
-                   fill=`Survived`)) +
-   theme(axis.text.y = element_text(size = 5))     +
-   labs(title=' ')
+mosaico3 <- ggplot(data = titanic) +
+  geom_mosaic(aes(x = product(supervivencia, sexo, clase), fill = supervivencia))
+mosaico3
 ```
+# Eliminar el desorden. Enfocar la atención
 
-## Diagramas de flujo
+El gráfico anterior es muy complicado de interpretar, a no ser que se exija una fuerte atención del lector. **¿Podemos facilitarle la vida?**, porque... ¡de eso se trata!
 
-Un diagrama de flujo es un gráfico que muestra los pasos de un proceso de una manera visual y fácil de entender, por tanto, este tipo de gráficos permitirán  visualizar el flujo de los datos en el plot. Véase como mejora la interpretabilidad de los datos cualitativos respecto al mosaico con tres variables variables cualitativas.
+## El diagrama de flujo
 
-Analizamos las mismas variables cualitativas: supervivencia, sexo y clase, pero ahora el plot es mucho más esclarecedor. 
+Un diagrama de flujo es un gráfico que muestra los pasos de un proceso de una manera visual y fácil de entender, por tanto, este tipo de gráficos permitirán visualizar el flujo de los datos a través de las variables que analizamos. Véase como mejora la interpretabilidad de los datos cualitativos respecto al mosaico con tres variables variables cualitativas.
+
+Analizamos las mismas variables cualitativas: `supervivencia`, `sexo` y `clase`, pero ahora **el gráfico es mucho más fácil de leer y, por tanto, estamos facilitando el mensaje**. En esto consiste eliminar el desorden.
 
 ```{r flujo_superviencia_sexo_clase }
 #| eval: false
 
-titanic_table <- datos_titanic |>
-  group_by(Pclass, Sex, Survived) |>
+tabla_titanic <- titanic |>
+  group_by(clase, sexo, supervivencia) |>
   count()
 
-ggplot(titanic_table,
-       aes(axis1 = Pclass,
-           axis2 = Sex,
-           axis3 = Survived,
+flujo <- ggplot(tabla_titanic,
+       aes(axis1 = clase,
+           axis2 = sexo,
+           axis3 = supervivencia,
            y = n)) +
-  geom_alluvium(aes(fill = Pclass)) +
+  geom_alluvium(aes(fill = clase)) +
   geom_stratum() +
-  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
-   # geom_text(stat = "stratum",
-  #          label.strata = TRUE) +
-  scale_x_discrete(limits = c("Pclass", "Sex", "Survived"),
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("clase", "sexo",
+                              "supervivencia"),
                    expand = c(.1, .1)) +
   scale_fill_viridis_d() +
-  labs(title = "Titanic data",
-       subtitle = "stratified by class, sex, and survival",
-       y = "Frequency") +
+  labs(title = "Las mujeres de primera clase tuvieron preferencia",
+       subtitle = "Estratificado según clase, sexo y supervivencia",
+       y = "Frecuencia") +
   theme_minimal() +
-  theme(legend.position = "none") 
+  theme(legend.position = "none",
+        axis.title.y = element_text(hjust = 1)) 
+flujo
 ```
 
-https://cran.r-project.org/web/packages/explore/vignettes/explore-titanic.html
+## Los diagramas de árboles
+
+Los diagramas de árbol permiten enfocar la atención y llegar a conclusiones interesantes de una forma rápida, ya que señalan las categorías más destacables en las variables. Además, combinan la visualización con la presentación de datos muy informativos...
 
 ```{r}
-titanic |> explain_tree(target = Survived, n = n)
+titanic_conteo |> explain_tree(target = supervivencia, n = n)
 ```
 
-We see that Sex and Class can give a good explanation who are more likely to survive.
+Vemos que el `sexo` y la `clase` pueden dar una buena pista de quién tiene más probabilidad de salvarse:
 
-Sex = Male: 21% survived (79% of all observations)
-Sex = Female & Class = 3rd: 46% survived (9% of all observations)
-Sex = Female & Class <> 3rd: 93% survived (12% of all observations)
+sexo = Male: 21% supervivencia (79% de las observaciones)
+sexo = Female & clase = 3rd: 46% supervivencia (9%)
+sexo = Female & clase <> 3rd: 93% supervivencia (12%)
 
 ```{r}
-titanic |> explore(Age, target = Class, n = n)
+titanic_conteo |> explore(edad, target = clase, n = n)
 ```
 
-# logit
+# Visualizaciones para modelos: potenciando la explicabilidad
 
 ```{r}
+#| eval: false
 ## Load the datasets
 data("titanic_train")
 data("titanic_test")
 
-## Setting Survived column for test data to NA
-titanic_test$Survived <- NA
+## Setting supervivencia column for test data to NA
+titanic_test$supervivencia <- NA
 
 ## Combining Training and Testing dataset
 complete_data <- rbind(titanic_train, titanic_test)
@@ -164,53 +212,77 @@ str(complete_data)
 ```
 
 ```{r}
+#| eval: false
 ## Missing values imputation
 complete_data$Embarked[complete_data$Embarked==""] <- "S"
-complete_data$Age[is.na(complete_data$Age)] <- median(complete_data$Age,na.rm=T)
+complete_data$edad[is.na(complete_data$edad)] <- median(complete_data$edad,na.rm=T)
 
 ## Removing Cabin as it has very high missing values, passengerId, Ticket and Name are not required
 titanic_data <- complete_data %>% select(-c(Cabin, PassengerId, Ticket, Name))
 
-## Converting "Survived","Pclass","Sex","Embarked" to factors
-for (i in c("Survived","Pclass","Sex","Embarked")){
+## Converting "supervivencia","Pclase","sexo","Embarked" to factors
+for (i in c("supervivencia","Pclase","sexo","Embarked")){
   titanic_data[,i]=as.factor(titanic_data[,i])
 }
 
-## Create dummy variables for categorical variables sin el plaquete dummies Pclass","Sex","Embarked"
+## Create dummy variables for categorical variables sin el plaquete dummies clase","sexo","Embarked"
 ```
 
-
-
 ```{r}
-## Splitting training and test data
+#| eval: false
+## Separando entrenamiento y test
 train <- titanic_data[1:667,]
 test <- titanic_data[668:889,]
 
-## Model Creation
-model <- glm(Survived ~.,family=binomial(link='logit'),data=train)
+## Creación del modelo
+modelo <- glm(supervivencia ~ .,
+             family = binomial(link ='logit'),
+             data = train)
 
-## Model Summary
-summary(model)
-
+## Resumen del modelo
+summary(modelo)
 ```
 
-
 ```{r}
-anova(model, test="Chisq")
+#| eval: false
+
+anova(modelo, test = "Chisq")
 ```
 
-
-
 ```{r}
-## Predicting Test Data
-result <- predict(model, newdata= test, type='response')
-result <- ifelse(result > 0.5,1,0)
+#| eval: false
+## Prediciendo el conjunto de test
+resultado <- predict(modelo, newdata = test,
+                     type = 'response')
+resultado <- ifelse(resultado > 0.5,1,0)
 
 ## Confusion matrix and statistics
+confusionMatrix(data = resultado,
+                reference = test$supervivencia)
 
-#confusionMatrix(data=result, reference=test$Survived)
+# curva auc
 ```
 
+# Contar una historia
 
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
 
-curva auc
+Hasta ahora hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para una empresa que quiere posicionar un producto de alta gama...
+
+El análisis exploratorio de las variables, de forma aislada o combinada, nos introduce en la **trama**, donde descubrimos aspectos interesantes de nuestros datos: la renta es asimétrica, con **municipios de más renta**, que es lo que nos interesa. Además, vemos que la **renta tiende a subir con los años**, lo que también nos viene de perlas.
+
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro jefe las claves que necesita:
+
+-   Con el gráfico de evolución de la distribución le damos 2 claves: **hay municipios de mayor renta**, y **la renta tiende a subir con el tiempo**.
+
+-   Gráficos de localización de los municipios de mayor renta: podríamos usar el **mapa de distribución de la renta en España** o el **lollipop de provincias ordenado por renta**.
+:::
+
+## Para pensar:
+
+Supongamos que el producto fuera de primera necesidad, su producción ligada al territorio y la renta no fuera la variable decisoria. ¿Qué visualización utilizarías en el desenlace, el lollipop de renta por provincias o el de distribución municipal por provincias?
+
+::: {.callout-pista}
+pista: logística
+:::

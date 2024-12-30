@@ -6,7 +6,7 @@ author:
 format:
   html:
     theme: cerulean
-    highlight-style: ayu-miredad
+    highlight-style: ayu-mirage
     self-contained: true
     date: "`r Sys.Date()`"
     embed-resources: true
@@ -60,11 +60,9 @@ En este caso, puesto que el objetivo de mi colega es la predicción, lo primero 
 library(titanic)
 library(tidyverse)
 library(skimr)
-library(ggmosaic)
 library(explore)
 library(ggplot2)
-library(ggalluvial)
-library(caret)
+library(pROC)
 
 titanic <- titanic_train
 names(titanic)[1:6] <- c("id", "supervivencia", "clase", "nombre", "sexo", "edad")
@@ -138,7 +136,7 @@ mosaico3
 ```
 # Eliminar el desorden. Enfocar la atención
 
-El gráfico anterior es muy complicado de interpretar, a no ser que se exija una fuerte atención del lector. **¿Podemos facilitarle la vida?**, porque... ¡de eso se trata!
+El gráfico anterior es muy complicado de interpretar, a no ser que se exija una fuerte atención del lector. **¿Podemos facilitarle la vida?**, porque... ¡de eso se trata en visualización!
 
 ## El diagrama de flujo
 
@@ -166,9 +164,7 @@ flujo <- ggplot(tabla_titanic,
                               "supervivencia"),
                    expand = c(.1, .1)) +
   scale_fill_viridis_d() +
-  labs(title = "Las mujeres de primera clase tuvieron preferencia",
-       subtitle = "Estratificado según clase, sexo y supervivencia",
-       y = "Frecuencia") +
+  labs(title = "Las mujeres de primera clase tuvieron preferencia", y = "Frecuencia") +
   theme_minimal() +
   theme(legend.position = "none",
         axis.title.y = element_text(hjust = 1)) 
@@ -180,7 +176,7 @@ flujo
 Los diagramas de árbol permiten enfocar la atención y llegar a conclusiones interesantes de una forma rápida, ya que señalan las categorías más destacables en las variables. Además, combinan la visualización con la presentación de datos muy informativos...
 
 ```{r}
-titanic_conteo |> explain_tree(target = supervivencia, n = n)
+titanic_conteo |> explain_tree(target = supervivencia, n = n, out = "model")
 ```
 
 Vemos que el `sexo` y la `clase` pueden dar una buena pista de quién tiene más probabilidad de salvarse:
@@ -189,53 +185,44 @@ sexo = Male: 21% supervivencia (79% de las observaciones)
 sexo = Female & clase = 3rd: 46% supervivencia (9%)
 sexo = Female & clase <> 3rd: 93% supervivencia (12%)
 
-```{r}
-titanic_conteo |> explore(edad, target = clase, n = n)
-```
+# Una modelización muy sencilla
 
-# Visualizaciones para modelos: potenciando la explicabilidad
+Como somos muy buenos colegas, y ponemos mucho interés en lo que hacemos, vamos a hacer un modelo logit sencillo, para ver si ratifica nuestros hallazgos con la fase de visualización previa.
 
 ```{r}
 #| eval: false
-## Load the datasets
-data("titanic_train")
-data("titanic_test")
+## Cargamos los conjuntos de datos
+head(titanic_train)
+sum(is.na(titanic_train))
 
-## Setting supervivencia column for test data to NA
-titanic_test$supervivencia <- NA
-
-## Combining Training and Testing dataset
-complete_data <- rbind(titanic_train, titanic_test)
-
-## Check data structure
-str(complete_data)
 ```
 
 ```{r}
-#| eval: false
-## Missing values imputation
-complete_data$Embarked[complete_data$Embarked==""] <- "S"
-complete_data$edad[is.na(complete_data$edad)] <- median(complete_data$edad,na.rm=T)
+#| code-summary: limpieza del conjunto de datos de entrenamiento
 
-## Removing Cabin as it has very high missing values, passengerId, Ticket and Name are not required
-titanic_data <- complete_data %>% select(-c(Cabin, PassengerId, Ticket, Name))
+# Valores faltantes todos en la edad:
+colSums(apply(titanic_train, 2, is.na))
+# La edad es muy importante en el modelo, por lo que solo nos quedamos con los registros completos:
+titanic_data <- titanic_train[complete.cases(titanic_train),]
 
-## Converting "supervivencia","Pclase","sexo","Embarked" to factors
-for (i in c("supervivencia","Pclase","sexo","Embarked")){
-  titanic_data[,i]=as.factor(titanic_data[,i])
+## Convertimos "Survived", "Pclass", "Sex" y "Embarked" a factores
+for (i in c("Survived", "Pclass", "Sex", "Embarked")){
+  titanic_data[,i] = as.factor(titanic_data[,i])
 }
 
-## Create dummy variables for categorical variables sin el plaquete dummies clase","sexo","Embarked"
+# Nos quedamos con las variables útiles
+titanic_data <- titanic_data |>
+  select(-c(PassengerId, Name, Ticket, Cabin))
 ```
 
 ```{r}
 #| eval: false
 ## Separando entrenamiento y test
-train <- titanic_data[1:667,]
-test <- titanic_data[668:889,]
+train <- titanic_data[1:535,] # 75%
+test <- titanic_data[536:714,]
 
 ## Creación del modelo
-modelo <- glm(supervivencia ~ .,
+modelo <- glm(Survived ~ .,
              family = binomial(link ='logit'),
              data = train)
 
@@ -252,15 +239,17 @@ anova(modelo, test = "Chisq")
 ```{r}
 #| eval: false
 ## Prediciendo el conjunto de test
-resultado <- predict(modelo, newdata = test,
+resultado <- predict(modelo, newdata = test[,-1],
                      type = 'response')
-resultado <- ifelse(resultado > 0.5,1,0)
+resultado_factor <- as.factor(ifelse(resultado > 0.5,1,0))
 
 ## Confusion matrix and statistics
-confusionMatrix(data = resultado,
-                reference = test$supervivencia)
+confusionMatrix(data = resultado_factor,
+                reference = test$Survived)
 
-# curva auc
+## Curva ROC
+auc = roc(test$Survived, resultado) # puntuación AUC
+plot(auc, main ="Curva ROC. Regresión logística")
 ```
 
 # Contar una historia
@@ -268,21 +257,17 @@ confusionMatrix(data = resultado,
 ::: {.callout-tip}
 ## Cómo narrar una historia convincente con tus datos.
 
-Hasta ahora hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para una empresa que quiere posicionar un producto de alta gama...
+Hasta ahora hemos visto el **planteamiento**, en el que proporcionamos el contexto: un colega de departamento nos ha pedido ayuda. Si es científico, como nosotros, podemos utilizar todo nuestro arsenal gráfico sin problemas. Como quiere hacer predicción, está interesado en ver la influencia de las variables en la `supervivencia`.
 
-El análisis exploratorio de las variables, de forma aislada o combinada, nos introduce en la **trama**, donde descubrimos aspectos interesantes de nuestros datos: la renta es asimétrica, con **municipios de más renta**, que es lo que nos interesa. Además, vemos que la **renta tiende a subir con los años**, lo que también nos viene de perlas.
+El análisis exploratorio nos introduce de lleno en la **trama**, donde descubrimos que la `edad`, el `sexo` y la `clase` tienen influencia en la variable `supervivencia`.
 
-Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro jefe las claves que necesita:
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro colega las claves que necesita:
 
--   Con el gráfico de evolución de la distribución le damos 2 claves: **hay municipios de mayor renta**, y **la renta tiende a subir con el tiempo**.
+-   Con el gráfico de flujo va a ver claramente como el sexo, la edad y la clase los tiene que tener en cuenta en el modelo: **la tercera clase tuvo un ratio de supervivencia claramente menor al contrario que las mujeres y los niños**.
 
--   Gráficos de localización de los municipios de mayor renta: podríamos usar el **mapa de distribución de la renta en España** o el **lollipop de provincias ordenado por renta**.
+-   Un simple modelo `logit` nos hace encontrar otra variable: un **número de hermanos y esposas** mayor, aumenta la `supervivencia`.
 :::
 
 ## Para pensar:
 
-Supongamos que el producto fuera de primera necesidad, su producción ligada al territorio y la renta no fuera la variable decisoria. ¿Qué visualización utilizarías en el desenlace, el lollipop de renta por provincias o el de distribución municipal por provincias?
-
-::: {.callout-pista}
-pista: logística
-:::
+Si se hundiera hoy en día el Titanic, ¿habría cambiado la influencia de alguna variable en el modelo? ¿Tendríamos una visualización más confusa en el gráfico de flujo?

@@ -1,0 +1,104 @@
+---
+title: "Tu turno: Mi primera historia con datos en R"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
+format: html
+theme: superhero
+#highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+
+# Tu turno
+  
+Vas a crear tu primer documento reproducible del curso. Para ello, debes seguir los siguientes pasos:
+
+1. Crea un proyecto `quarto` en RStudio.
+
+2. Utiliza el `YAML` del enunciado u otro que te guste y personalizalo con tus datos.
+
+::: {.callout-tip}
+
+## Todo lo que necesitas saber sobre `quarto` puedes encontarlo en el siguiente enlace:
+
+[https://quarto.org/](https://quarto.org/)
+
+:::
+
+
+3. Presenta la información organizando el documento con apartados en varios niveles (sección, subsección, ...).
+
+4. El documento debe incluir la descripción de un científico relevante, incluyendo (al menos) los sigiuientes apartados:
+
+-	Una imagen.
+
+-	Una breve reseña de su vida personal (utiliza **negrita** y *cursiva*).
+
+-	Sus principales aportaciones (ponerlo en forma de bullet points).
+
+-	Una ecuación relacionada con el personaje y sus aportaciones a la ciencia.
+
+5. Añade un apartado con un gráfico, no es necesario que el gráfico este relacionado con el científico, dependerá del personaje que elijas y los datos que tengas. La idea que que realices un primer gráfico en **R** y configures los elementos básicos. Si los datos son tuyos, con los que trabajas o has trabajado, mucho mejor.  
+
+Si no tienes datos en ente momento, te mostramos algunas ideas que puedes utilizar:
+
+  - `HistData`
+  - `gapminder`
+  - `ggplot2`
+
+::: {.callout-warning}
+
+## `HistData`
+
+El paquete de R `HistData` contiene un conjunto de datos históricos que pueden ser útiles para la realización de esta tarea. Puedes instalarlo con el siguiente comando:
+
+```r
+install.packages("HistData")
+```
+:::
+
+
+
+::: {.callout-warning}
+
+## Datos para el gráfico
+
+Otros datasets que pueden ser útiles para la realización del gráfico en **R** son están contenidos en el paquete `ggplot2` y puedes acceder a ellos haciendo:
+
+- `data("diamonds")`
+
+:::
+
+
+::: {.callout-warning}
+
+## `gapminder`
+
+El paquete de R `gapminder` contiene un extracto de los datos de Gapminder sobre esperanza de vida, PIB per cápita y población por países.
+
+```r
+install.packages("gapminder")
+```
+:::
+
+
+

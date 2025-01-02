@@ -1,0 +1,40 @@
+---
+title: "Mi historia en 3 minutos"
+author: 
+  - Gema Fernández-Avilés 
+  - Isidro Higalgo
+format: html
+theme: superhero
+#highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+
+# Tu turno
+  
+Con las herramientas mostradas en el curso prepara una historia individualmente sobre alguna de tus lineas de investigación, un tema de clase o cualquier otro tema que te interese.
+
+Esta historia debe tener una duración de 3 minutos y nos la contarás en clase en la última sesión del curso.
+
+
+
+
+

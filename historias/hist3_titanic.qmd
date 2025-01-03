@@ -50,7 +50,7 @@ Mi colega de departamento se ha picado con el departamento vecino, y se han apos
 
 ## Cómo definir el propósito y la audiencia de tu análisis
 
-En este caso, puesto que el objetivo de mi colega es la predicción, lo primero que vamos a hacer es un análisis exploratorio, para ver las relaciones entre las variables del conjunto de datos. Luego ya se apañará mi compañero para modeloizar... ¡a ver si se piensa que lo voy a hacer todo yo!
+En este caso, puesto que el objetivo de mi colega es la predicción, lo primero que vamos a hacer es un análisis exploratorio, para ver las relaciones entre las variables del conjunto de datos. Luego ya se apañará mi compañero para modelizar... ¡a ver si se piensa que lo voy a hacer todo yo!
 :::
 
 

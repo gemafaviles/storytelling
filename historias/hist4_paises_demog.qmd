@@ -31,22 +31,48 @@ execute:
 ---
 
 ::: {.callout-note}
-Los datos que se utilizan en esta historia están disponibles en el repositorio GitHub From data to viz.
+Los datos que se utilizan en esta historia están disponibles en el repositorio GitHub "From data to viz": https://github.com/holtzy/data_to_viz.
+:::
+
+# ¡Nos vamos a Noruega!
+
+Mi jefe quiere que le haga un análisis exploratorio (eso dice, pero siempre quiere gráficos guays con conclusiones...) de unos datos demográficos por países. Lo peor es que quiere que le acompañe a Noruega, que hay un workshop "fantástico" [sic]...
+
+Con el frío que hace ahora en Noruega... Pero este hombre, ¿por qué no elige estas cosas con más criterio y me envía a Hawai? ¡Por ejemplo!
+
+# Entender el contexto
+
+::: {.callout-tip}
+
+## Cómo definir el propósito y la audiencia de tu análisis
+
+En este caso, puesto que lo que me pide el jefe es un análisis exploratorio, se trata simplemente de encontrar relaciones interesantes entre variables, mirar su evolución, por si se ven cosas interesantes, etc.
 :::
 
 ```{r}
+#| code-summary: Configuración inicial y datos
+
 library(tidyverse)
 library(GGally)
 library(NbClust)
 library(igraph)
 library(factoextra)
 library(corrplot)
+library(explore)
 
 # Load data
 demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
 
 colnames(demog_data) <- gsub("\\.", "_", colnames(demog_data))
+names(demog_data)[9] <- "Population_aged_65"
+head(demog_data)
 ```
+
+```{r}
+summary(demog_data)
+demog_data |> explore_all()
+```
+
 
 # Scatterplot entre `Growth_rate` y `Life_expectancy`
 

@@ -15,6 +15,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
+    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -28,6 +29,7 @@ execute:
   code-line-numbers: true
   code-copy: true
   code-overflow: scroll
+  code-fold: true
 ---
 
 ::: {.callout-note}
@@ -63,6 +65,7 @@ library(skimr)
 library(explore)
 library(ggplot2)
 library(pROC)
+library(visdat)
 
 titanic <- titanic_train
 names(titanic)[1:6] <- c("id", "supervivencia", "clase", "nombre", "sexo", "edad")
@@ -194,7 +197,7 @@ Como somos muy buenos colegas, y ponemos mucho interés en lo que hacemos, vamos
 ## Cargamos los conjuntos de datos
 head(titanic_train)
 sum(is.na(titanic_train))
-
+vis_miss(titanic_train)
 ```
 
 ```{r}

@@ -15,6 +15,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
+    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -28,6 +29,7 @@ execute:
   code-line-numbers: true
   code-copy: true
   code-overflow: scroll
+  code-fold: true
 ---
 
 ::: {.callout-note}
@@ -80,6 +82,8 @@ demog_data |> explore_all()
 ::: {.callout-tip}
 ## Selección de gráficos y visualizaciones que mejor representen tus datos.
 :::
+
+## Matriz de puntos
 
 Podemos comenzar por una matriz de puntos de las variables cuantitativas. El paquete `GGally` ofrece una visualización muy elaborada para un primer vistazo con la función `ggpairs()`...
 
@@ -181,7 +185,7 @@ Exacto: las escalas. Pero hemos dicho "podría", no que tenga un problema en sí
 
 Pero muchas veces es muy importante, cuando usamos facetas, que podamos comparar los diferentes grupos entre sí. En este caso, es imprescindible usar la misma escala en todas las facetas. Para ello, hay que especificar los límites de las escalas de los ejes.
 
-¿Existe una forma fácil de saber cuáles poner? Claro, con un `summary()` de las variables, tal como indicamos a continuación:
+¿Existe una forma fácil de saber cuáles poner? Claro, con un `summary()` de las variables, tal como indicamos a continuación, vemos rápidamente el valor mínimo y máximo de las variables que nos interesan:
 
 ```{r}
 #| code-summary: mejoramos la escala para comparar facetas
@@ -215,7 +219,9 @@ A veces, si hay una tendencia evidente, es conveniente usar una línea de suaviz
 demog_scatter + geom_smooth(method = NULL, se = TRUE) 
 ```
 
-## Técnicas de segmentación: clusters
+## Técnicas de segmentación:
+
+### Cluster jerarquizado
 
 Una forma de usar las variables en el análisis exploratorio es agrupar los registros haciendo segmentación. Los clusters se prestan a visualizaciones muy sofisticadas, pero hay que tener cuidado de simplificarlas, porque si no el desorden puede estropear el mensaje. Veamos qué podemos hacer...
 
@@ -259,12 +265,16 @@ cluster_data_group <- demog_data |>
   mutate(across(where(is.numeric), mean)) |>
   unique()
 
+cluster_data_group <- data.frame(cluster_data_group,
+                                 row.names = 1)
 
 cluster_data_group_stand <- scale(cluster_data_group)
 d_euclidea_group <- get_dist(x = cluster_data_group_stand,
                        method = "euclidea")
 fviz_dist(dist.obj = d_euclidea_group, lab_size = 5)
 ```
+
+El resultado es mucho más claro pero, lógicamente, a costa de perder información. En este caso, probablemente se pueda hacer un filtrado de países por grupo, descartando los que nos interesan menos; o centrarnos en una zona geográfica que nos interese más.
 
 ```{r}
 #| code-summary: estimación del k óptimo
@@ -278,35 +288,62 @@ head(num_cluster$Best.partition)
 table(num_cluster$Best.partition)
 ```
 
-
-
+El codo del gráfico se sitúa en k = 6, por lo que usaremos una segmentación de 6 grupos.
 
 ```{r}
 hc_ward <- hcut(cluster_data_stand , k = 6, hc_method = "ward.D2")
 fviz_dend(hc_ward, cex = 0.5, k = 6, main = "Cluster jerárquico simple")
 ```
-¿Lo mejoramos?
+Ya lo habíamos advertido: cuando usamos segmentaciones, normalmente tenemos muchos registros que clasificar. La principal consecuencia es que es inevitable el exceso de información. ¿Lo podemos mejorar? Hay a quien le gustan los gráficos de segmentación circulares. Si es tu caso, esta es una forma de conseguirlo, pero desde el punto de vista de la visualización no creemos que mejore la interpretabilidad de la información:
 
 ```{r}
 set.seed(5665)
 hc_ward <- hcut(cluster_data_stand, k = 6, hc_method = "ward.D2")
-
-fviz_dend(
-  x = hc_ward,
-  k = 7,
-  type = "circular",
-  cex=0.5
-)
+fviz_dend(x = hc_ward, k = 6, type = "circular", cex=0.5)
 ```
-
 
 ### K-means
 
+El paquete `factoextra` ofrece la función `eclust`, que nos permite visualizar un k-means instantáneamente.
+
 ```{r}
 set.seed(123)
-eclust(cluster_data_stand, "kmeans", k = 3)
+eclust(cluster_data_stand, "kmeans", k = 6)
 ```
 
+Volvemos a tener el mismo problema: las etiquetas de 201 países son demasiada información para presentarla gráficamente.
 
+# Contar una historia
 
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para un jefe que nos ha pedido algo muy concreto: un análisis exploratorio (y sabemos que lo quiere con conclusiones)...
+
+El análisis exploratorio podemos usarlo para ir introduciendo la **trama**, donde vemos enseguida relaciones interesantes entre algunas parejas de variables... Solo hemos analizado la esperanza de vida al nacer respecto a la tasa de crecimiento, pero en la matriz de puntos hemos visto muchas, por lo que el jefe estará feliz.
+
+La segmentación también nos ha proporcionado agrupaciones de países, aunque visualmente son difíciles de interpretar, por lo que lo más lógico sería seleccionar un conjunto de países de interés, que consiga un análisis (y su visualización) más interesante.
+
+Como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro jefe las claves que necesita:
+
+-   La matriz de puntos es vital, si nuestro superior está habituado al análisis, porque **se aprecia un número importante de relaciones claras entre variables**.
+
+-   En cada variable **podemos usar la estética y las facetas para potenciar la visualización**, determinando las variables que suministran información en las relaciones encontradas.
+
+Finalmente, hemos visto que, cuando tenemos un número elevado de información, tenemos que adoptar una decisión equilibrada entre la información que suministramos en nuestros gráficos y nuestra habilidad para eliminar el desorden y enfocar la mirada del espectador a lo que nos interesa más. Para el caso que nos ocupa, podemos:
+
+-   Usar la agrupación previa por zonas geográficas, como hemos hecho antes.
+
+-   Restringir la visualización a una zona geográfica concreta.
+
+-   Filtrar determinados países para quedarnos con los que nos interesa comparar.
+
+-   Directamente usar una tabla, relacionando todos los países de interés.
+:::
+
+# Para pensar:
+
+::: {.callout}
+A veces no tenemos más remedio que proporcionar una visualización con mucha información, si ésta es clave para nuestro propósito.
+:::
 

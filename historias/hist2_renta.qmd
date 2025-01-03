@@ -15,6 +15,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
+    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -28,6 +29,7 @@ execute:
   code-line-numbers: true
   code-copy: true
   code-overflow: scroll
+  code-fold: true
 ---
 
 ::: {.callout-note}
@@ -70,6 +72,7 @@ library(explore)
 library(patchwork)
 library(sf)
 library(classInt)
+library(visdat)
 
 rellenos <- "azure3"
 lineales <- "darkblue"
@@ -97,6 +100,10 @@ renta_municipio_data <- renta_municipio_data[substr(
 ```{r}
 #| code-summary: Eliminamos registros con datos faltantes
 
+# Forma rápida y visual con el paquete visdat
+vis_miss(renta_municipio_data)
+
+# Forma más artesanal, pero más precisa:
 apply(renta_municipio_data, 1, function(x) sum(is.na(x))) |>
   table()
 # Podríamos imputar con la mediana y salvar los registros de los municipios con 1 ó 2 faltantes, pero para visualización, ya tenemos más de 6.000 y no merecen la pena 205 más, así que eliminamos los municipios con datos faltantes:

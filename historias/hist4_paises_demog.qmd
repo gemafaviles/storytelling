@@ -36,9 +36,9 @@ Los datos que se utilizan en esta historia están disponibles en el repositorio 
 
 # ¡Nos vamos a Noruega!
 
-Mi jefe quiere que le haga un análisis exploratorio (eso dice, pero siempre quiere gráficos guays con conclusiones...) de unos datos demográficos por países. Lo peor es que quiere que le acompañe a Noruega, que hay un workshop "fantástico" [sic]...
+Mi jefe quiere que le haga un análisis exploratorio (eso dice, pero siempre quiere gráficos guays con conclusiones interesantes...) de unos datos demográficos por países. Lo peor es que quiere que le acompañe a Noruega, que hay un workshop "fantástico" [sic]...
 
-Con el frío que hace ahora en Noruega... Pero este hombre, ¿por qué no elige estas cosas con más criterio y me envía a Hawai? ¡Por ejemplo!
+Con el frío que hace ahora en Noruega... Pero este hombre, ¿por qué no elige estas cosas con más criterio y nos vamos a Hawai? ¡Por ejemplo!
 
 # Entender el contexto
 
@@ -46,7 +46,7 @@ Con el frío que hace ahora en Noruega... Pero este hombre, ¿por qué no elige 
 
 ## Cómo definir el propósito y la audiencia de tu análisis
 
-En este caso, puesto que lo que me pide el jefe es un análisis exploratorio, se trata simplemente de encontrar relaciones interesantes entre variables, mirar su evolución, por si se ven cosas interesantes, etc.
+En este caso, puesto que lo que me pide el jefe es un análisis exploratorio, se trata simplemente de encontrar relaciones interesantes entre variables, mirar su evolución, por si se ven cosas interesantes, y preparar gráficos que vayan al grano, como ya sabemos hacer... ¡Que para algo sirven los cursos de la UCLM!
 :::
 
 ```{r}
@@ -69,14 +69,25 @@ head(demog_data)
 ```
 
 ```{r}
+#| code-summary: Exploración básica
+
 summary(demog_data)
 demog_data |> explore_all()
 ```
 
+# Elegir una visualización adecuada
 
-# Scatterplot entre `Growth_rate` y `Life_expectancy`
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos.
+:::
+
+## Gráfico de puntos entre `Growth_rate` y `Life_expectancy`
+
+Podemos empezar por ver si la esperanza de vida está relacionada con la tasa de crecimiento, por ejemplo. Empecemos con un gráfico de puntos...
 
 ```{r}
+#| code-summary: gráfico de puntos
+
 demog_data  |>
   ggplot(aes(x = Growth_rate, y = Life_expectancy)) +
   geom_point() +
@@ -86,20 +97,36 @@ demog_data  |>
   theme_minimal()
 ```
 
-## Estética 
+# Eliminar el desorden. Enfocar la atención
+
+En el gráfico anterior no se ve casi nada... solo una ligera tendencia parabólica, pero no sabemos nada de los puntos, ese gráfico aporta poco.
+
+¿Qué herramientas tenemos a nuestro alcance para poner el foco sobre lo que nos interesa? Aquí podemos usar la estética y las facetas, para separar los puntos y dar más información a través de la visualización. Veamos...
+
+## Herramienta 1: la estética
 
 ```{r}
 demog_data  |>
-  ggplot(aes(x = Growth_rate, y = Life_expectancy, size=Pop,  color=Continent)) +
+  ggplot(aes(x = Growth_rate, y = Life_expectancy, size = Pop,
+             color = Continent)) +
   geom_point(alpha=0.5) +
   scale_size(range = c(.1, 20)) +
-  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+  labs(title = "De Europa a Norteamérica, Oceanía, Sudamérica y África, a través de Asia",
        x = "Tasa de crecimiento",
        y = "Esperanza de vida") +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
 ```
+Estamos usando **dos variables para enfocar la atención aportando información: el tamaño del país y el continente**. Solo con eso vemos enseguida por donde van los tiros: la mayor parte de los países de Europa tienen gran esperanza de vida y crecimiento moderado. Por el contrario, Sudamérica tiene tasas de crecimiento muy elevadas (son países en fases de expansión económica) y una menor esperanza de vida, a falta de consolidar sanidad y otros servicios en general.
 
-## Facetas
+También somos capaces de identificar China e India rápidamente, por su tamaño, y Japón arriba a la izquierda por su tamaño medio-grande y enorme esperanza de vida.
+
+Sin embargo, hay colores muy parecidos, que exigen demasiada atención. Podemos usar la siguiente herramienta...
+
+## Herramienta 2: facetas
+
+Otra forma de eliminar el desorden y enfocar la atención es usar facetas, separando el gráfico según una o más variables interesantes. En este caso usamos solo el continente:
 
 ```{r}
 demog_scatter <- ggplot(data = demog_data, # data
@@ -111,6 +138,37 @@ demog_scatter <- ggplot(data = demog_data, # data
     theme_light() #themes
 
 demog_scatter 
+```
+
+::: {#exr-1}
+¿Qué problema podría tener este gráfico?
+:::
+
+::: {.callout-pista}
+pista: fijaros en los ejes
+:::
+
+Exacto: las escalas. Pero hemos dicho "podría", no que tenga un problema en sí. Cuando nuestra intención es mirar dentro de cada faceta para ver la relación entre las variables, es posible que nos interese dejarlo como está.
+
+Pero muchas veces es muy importante, cuando usamos facetas, que podamos comparar los diferentes grupos entre sí. En este caso, es imprescindible usar la misma escala en todas las facetas. Para ello, hay que especificar los límites de las escalas de los ejes.
+
+¿Existe una forma fácil de tal como indicamos a continuación:
+
+```{r}
+demog_scatter_escala <- ggplot(data = demog_data,
+                               aes(x = Growth_rate,
+                                   y = Life_expectancy,
+                                   colour = Continent)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~ Continent, scales = "free") +
+  labs(title = "Esperanza de vida respecto al PIB per capita",
+       x = "Tasa de crecimiento", y = "Esperanza de vida",
+       colour = "Continent") +
+  scale_x_continuous(limits = c(-10, 40)) +
+  scale_y_continuous(limits = c(50, 85)) +
+  theme_light()
+
+demog_scatter_escala 
 ```
 
 ## Linea de suavizado

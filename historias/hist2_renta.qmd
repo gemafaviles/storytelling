@@ -84,6 +84,8 @@ str(renta_municipio_data)
 Vemos que hay mezcla de secciones censales, distritos y municipios. Vamos a quedarnos solo con los municipios (ya sabía yo que habría que hacer un poco de limpieza, ¡no me libro de la ciberescoba ni a tiros!)...
 
 ```{r municipios}
+#| code-summary: Eliminamos todo lo que no son municipios
+
 renta_municipio_data <- renta_municipio_data[substr(
   renta_municipio_data$Unidad, 6, 6) == " ",]
 ```
@@ -93,6 +95,8 @@ renta_municipio_data <- renta_municipio_data[substr(
 :::
 
 ```{r}
+#| code-summary: Eliminamos registros con datos faltantes
+
 apply(renta_municipio_data, 1, function(x) sum(is.na(x))) |>
   table()
 # Podríamos imputar con la mediana y salvar los registros de los municipios con 1 ó 2 faltantes, pero para visualización, ya tenemos más de 6.000 y no merecen la pena 205 más, así que eliminamos los municipios con datos faltantes:

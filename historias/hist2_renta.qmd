@@ -116,6 +116,17 @@ summary(renta)
 renta |> explore_all()
 ```
 
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `xxx` para obtener el resultado propuesto.
+:::
+
+```{r probl1}
+#| eval: FALSE
+
+vis_xxxx(renta_municipio_data)
+```
+
 ¡Esto ya es otra cosa! Ahora sí que podemos empezar a trabajar con datos limpios (los ingleses los llaman "tidy data").
 
 # Elegir una visualización adecuada
@@ -145,11 +156,26 @@ head(valores[order(valores, decreasing = TRUE)], 20)
 
 ## Distribución de la renta por municipios
 
-::: {#exr-2}
+::: {.callout-important title="Tu turno"}
+
+Completa las partes del código señaladas por `xxx` para obtener el resultado propuesto. Sólo tienes que especificar la función a utilizar.
+:::
+
+::: {#exr-3}
 ¿Es la renta media la misma en todos los municipios?
 :::
 
+```{r probl2}
+#| eval: false
+
+renta |>
+  select(`2019`) |>
+  xxxxx()
+```
+
 ```{r}
+#| echo: false
+
 renta |>
   select(`2019`) |>
   descr()
@@ -166,7 +192,7 @@ ggplot(data = renta, aes(x=`2019`)) +
 
 ::: {.callout-important title="Tu turno"}
 
-Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado propuesto.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
 :::
 
 ```{r renta-hist-beauty-hw}
@@ -229,7 +255,7 @@ p_renta_2019 <- ggplot(renta, aes(`2019`)) +
 p_renta_2019 
 ```
 
-::: {#exr-2}
+::: {#exr-4}
 ¿Sería mejor tener un gráfico de densidad? ¿Cómo se interpretaría?
 ¿Qué diferencias hay respecto al histograma?
 :::
@@ -258,7 +284,7 @@ p_renta_2019_density <- ggplot(renta, aes(`2019`)) +
 p_renta_2019_density
 ```
 
-::: {#exr-2}
+::: {#exr-5}
 ¿Cuál me gusta más? ¿Histograma o densidad? ¿Juntos?
 :::
 
@@ -269,12 +295,35 @@ p_renta_2019_density +
                  color= rellenos,
                  alpha = 0.4)
 ```
-En 
-::: {#exr-2}
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
+::: {#exr-6}
 ¿Por qué no tener un 5-summary plot? ¿Qué nos dice?
 :::
 
 ```{r}
+#| eval: false
+
+p <- renta |>
+  ggplot(aes(x = 0, y = `2019`)) 
+
+boxplot <- p + 
+  geom_xxxxxxx(color = lineales, fill = rellenos, alpha = 0.4) +
+  theme_minimal()
+
+violin <- p + geom_xxxxxx(color = lineales, fill = rellenos,
+                          alpha = 0.4) +
+  theme_minimal()
+
+boxplot + violin
+```
+
+```{r}
+#| echo: false
+
 p <- renta |>
   ggplot(aes(x=0, y= `2019`)) 
 
@@ -288,9 +337,10 @@ violin <- p + geom_violin(color = lineales, fill = rellenos,
 
 boxplot + violin
 ```
+
 ## Evolución de la renta municipal
 
-::: {#exr-2}
+::: {#exr-7}
 ¿En los años anteriores la renta ha sido similar?
 :::
 
@@ -319,7 +369,7 @@ p + geom_violin(aes(fill = "2015")) +
 
 # Eliminar el desorden. Enfocar la atención
 
-::: {#exr-2}
+::: {#exr-8}
 ¿Es necesario el color? ¿Queremos ver también la evolución a lo largo del tiempo? Pues quizá podemos matar dos pájaros de un tiro... veamos:
 :::
 
@@ -369,7 +419,7 @@ p + geom_violin( ) +
 
 ## Distribución geográfica de la renta municipal en España
 
-::: {#exr-2}
+::: {#exr-9}
 ¿Son los municipios de norte más ricos que los del sur de España en 2019?
 :::
 
@@ -393,6 +443,7 @@ ggplot(munis_renta) +
     ) +
   theme_minimal()
 ```
+
 ## De nuevo, cuidamos el enfoque
 
 El gráfico anterior, debido a la escala de colores continua, tiende a uniformizar los municipios, por lo que podemos dar una idea equivocada... ¡no podemos "mentir" con nuestras visualizaciones!
@@ -418,7 +469,7 @@ ggplot(munis_renta_clean) +
 
 ## Distribución por provincias
 
-::: {#exr-2}
+::: {#exr-10}
 ¿Cuál es la provincia con mayor renta media municipal en 2019? ¿Y la que menos renta media tiene?
 :::
 

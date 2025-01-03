@@ -120,7 +120,40 @@ ggplot(resumen, aes(anyo, parados)) +
 
 El gráfico no tiene una escala de ordenadas realista (la variación queda algo exagerada porque el eje `y` no empieza en `0`), y es muy simple. No tiene título... Vamos a mejorarlo un poco...
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
 ```{r}
+#| eval: false
+#| code-summary: Creación del gráfico lineal mejorado
+
+graf <- ggplot(resumen, aes(anyo, parados)) +
+  geom_xxxx(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
+  xlab("") +
+  ylab("número de parados") +
+  geom_xxxxx(puntos,
+    mapping = aes(x = anyos, y = parados),
+    shape = "circle filled", size = 2.5, fill = paleta_lineas[1],
+    alpha = ______
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      format(x,
+        big.mark = ".",
+        decimal.mark = ",", scientific = FALSE
+      )
+    },
+    limits = c(0, 300000)
+  ) +
+  ggtitle("Impacto de las crisis en el paro de Castilla-La Mancha") +
+  theme_minimal()
+
+graf
+```
+
+```{r}
+#| echo: false
 #| code-summary: Creación del gráfico lineal mejorado
 
 graf <- ggplot(resumen, aes(anyo, parados)) +
@@ -207,7 +240,54 @@ graf
 ¿Lo podemos hacer mejor?: sí, uniendo los gráficos, para mejorar la comparación, añadiendo color y otros formatos...
 :::
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
 ```{r}
+#| eval: false
+
+graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
+  geom_line(
+    data = resumen_sexo[resumen_sexo$sexo == "hombre", ],
+    linewidth = 1, col = paleta_lineas[1], alpha = 0.5
+  ) +
+  geom_line(
+    data = resumen_sexo[resumen_sexo$sexo == "mujer", ],
+    linewidth = 1, col = _______, alpha = 0.5
+  ) +
+  xlab("") +
+  ylab("número de parados") +
+  annotate(
+    geom = "text", label = "hombres", col = paleta_lineas[1],
+    x = 2021,
+    y = puntos$parados[puntos$sexo == "hombre" &
+      puntos$anyos == 2022]
+  ) +
+  annotate(
+    geom = "text", label = "mujeres", col = paleta_lineas[2],
+    x = 2021,
+    y = puntos$parados[puntos$sexo == "mujer" &
+      puntos$anyos == 2022]
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      format(x,
+        big.mark = ".",
+        decimal.mark = ",", scientific = FALSE
+      )
+    },
+    limits = c(0, 150000)
+  ) +
+  ggxxxxxx("Las mujeres se han recuperado peor de la crisis de 2007") +
+  theme_minimal() +
+  xxxxx(axis.title.y = element_text(hjust = 1))
+
+graf
+```
+
+```{r}
+#| echo: false
 #| code-summary: Gráfico de lineas por sexo mejorado
 
 graf <- ggplot(resumen_sexo, aes(anyo, parados)) +

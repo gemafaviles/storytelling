@@ -81,9 +81,34 @@ demog_data |> explore_all()
 ## Selección de gráficos y visualizaciones que mejor representen tus datos.
 :::
 
+Podemos comenzar por una matriz de puntos de las variables cuantitativas. El paquete `GGally` ofrece una visualización muy elaborada para un primer vistazo con la función `ggpairs()`...
+
+```{r}
+#| code-summary: matriz de puntos
+
+demo_cuanti <- demog_data |>
+   select(Pop, Birth_rate, Mortality_rate, Life_expectancy,
+          Infant_mortality, Children_per_woman,  Growth_rate,
+          Population_aged_65) |>
+   na.omit()
+
+demo_cuanti |> 
+   ggpairs(progress = FALSE)
+```
+
+Hay muchas asociaciones interesantes entre diferentes variables. Aquí ya vemos mucha tela que cortar. Por no extendernos, analizaremos una de las relaciones más adelante. Pero primero, es muy interesante ver la matriz de correlaciones que, aunque con `ggpairs()` teníamos ya una primera impresión, el paquete `corrplot` nos ofrece una visualización ideal con la función `corrplot.mixed()`:
+
+## Matriz de correlaciones
+
+```{r}
+demo_cuanti |> 
+  cor() |> 
+  corrplot.mixed( order = 'AOE')
+```
+
 ## Gráfico de puntos entre `Growth_rate` y `Life_expectancy`
 
-Podemos empezar por ver si la esperanza de vida está relacionada con la tasa de crecimiento, por ejemplo. Empecemos con un gráfico de puntos...
+Como ejemplo, vamos a ver la relación entre la esperanza de vida y la tasa de crecimiento, que ya hemos visto que existe. Empecemos con un gráfico de puntos...
 
 ```{r}
 #| code-summary: gráfico de puntos
@@ -106,6 +131,8 @@ En el gráfico anterior no se ve casi nada... solo una ligera tendencia paraból
 ## Herramienta 1: la estética
 
 ```{r}
+#| code-summary: gráfico de puntos mejorado por estética
+
 demog_data  |>
   ggplot(aes(x = Growth_rate, y = Life_expectancy, size = Pop,
              color = Continent)) +
@@ -129,6 +156,8 @@ Sin embargo, hay colores muy parecidos, que exigen demasiada atención. Podemos 
 Otra forma de eliminar el desorden y enfocar la atención es usar facetas, separando el gráfico según una o más variables interesantes. En este caso usamos solo el continente:
 
 ```{r}
+#| code-summary: gráfico de puntos mejorado por facetas
+
 demog_scatter <- ggplot(data = demog_data, # data
               aes(x = Growth_rate, y = Life_expectancy, colour = Continent)) + #aesthetics
     geom_point(alpha = 0.5) + #geometries
@@ -152,9 +181,14 @@ Exacto: las escalas. Pero hemos dicho "podría", no que tenga un problema en sí
 
 Pero muchas veces es muy importante, cuando usamos facetas, que podamos comparar los diferentes grupos entre sí. En este caso, es imprescindible usar la misma escala en todas las facetas. Para ello, hay que especificar los límites de las escalas de los ejes.
 
-¿Existe una forma fácil de tal como indicamos a continuación:
+¿Existe una forma fácil de saber cuáles poner? Claro, con un `summary()` de las variables, tal como indicamos a continuación:
 
 ```{r}
+#| code-summary: mejoramos la escala para comparar facetas
+
+summary(demog_data$Life_expectancy)
+summary(demog_data$Growth_rate)
+
 demog_scatter_escala <- ggplot(data = demog_data,
                                aes(x = Growth_rate,
                                    y = Life_expectancy,
@@ -164,8 +198,8 @@ demog_scatter_escala <- ggplot(data = demog_data,
   labs(title = "Esperanza de vida respecto al PIB per capita",
        x = "Tasa de crecimiento", y = "Esperanza de vida",
        colour = "Continent") +
-  scale_x_continuous(limits = c(-10, 40)) +
-  scale_y_continuous(limits = c(50, 85)) +
+  scale_x_continuous(limits = c(-10, 45)) +
+  scale_y_continuous(limits = c(45, 85)) +
   theme_light()
 
 demog_scatter_escala 
@@ -173,79 +207,89 @@ demog_scatter_escala
 
 ## Linea de suavizado
 
+A veces, si hay una tendencia evidente, es conveniente usar una línea de suavizado que la identifique. En este caso, no está nada clara, por lo que la podemos omitir. Y aquí sí es interesante dejar libre la escala, para maximizar la visualización de la tendencia, que es lo que nos interesa:
+
 ```{r}
-demog_scatter + geom_smooth(method = NULL, se = T) 
+#| code-summary: añadimos línea de suavizado
+
+demog_scatter + geom_smooth(method = NULL, se = TRUE) 
 ```
 
-## Scatterplot matrix
+## Técnicas de segmentación: clusters
+
+Una forma de usar las variables en el análisis exploratorio es agrupar los registros haciendo segmentación. Los clusters se prestan a visualizaciones muy sofisticadas, pero hay que tener cuidado de simplificarlas, porque si no el desorden puede estropear el mensaje. Veamos qué podemos hacer...
 
 ```{r}
-demo_cuanti <- demog_data |>
-   select(Pop, Birth_rate, Mortality_rate, Life_expectancy, Infant_mortality, 
-         Children_per_woman,  Growth_rate, Population_aged_65_) |>
-   na.omit()
+#| code-summary: preparamos los datos para el clúster
 
-demo_cuanti |> 
-   ggpairs()
-```
-
-## Correlation matrix
-
-```{r}
-demo_cuanti |> 
-  cor() |> 
-  corrplot.mixed( order = 'AOE')
-```
-
-
-## Heatmap
-
-```{r}
-heatmap(as.matrix(scale(demo_cuanti)), col = topo.colors(256), cexCol =  0.5) 
-```
-
-## Cluster
-
-Prepara los datos
-
-```{r}
 cluster_data <- demog_data |>
-  select(Country) |>
-  # añade esta variable a las cuantitativas
+  select(Country) |> # añade esta variable a las cuantitativas
   cbind(demo_cuanti) |>
   column_to_rownames(var = "Country")
+
+head(cluster_data)
 ```
 
-
-Calcula la distancia
+Ahora ya podemos empezar la segmentación. Lo primero es estandarizar las variables para impedir que las de mayor rango (distancia entre mínimo y máximo) acaparen demasiado protagonismo...
 
 ```{r}
-cluster_data_stand <- scale(cluster_data) # estandariza las variables
-d_euclidea <- get_dist(x = cluster_data_stand , method = "euclidea")
+#| code-summary: estandarizamos y calculamos las distancias
+
+cluster_data_stand <- scale(cluster_data)
+d_euclidea <- get_dist(x = cluster_data_stand,
+                       method = "euclidea")
 fviz_dist(dist.obj = d_euclidea, lab_size = 5)
 ```
 
+Se aprecian agrupaciones entre países, pero...
+
+::: {#exr-1}
+...aquí se ve muy poco, de tanta información que hay... ¿qué variable es la culpable?
+:::
+
+Aquí conviene hacerse una pregunta: ¿es suficiente agrupar los países por la variable `Group`, que va asociada a la ubicación del país? Si es así, calculamos las medias de las variables por grupo y simplificamos mucho la visualización. Si es imprescindible usar el país, hay que apechugar, porque no hay forma de evitar más de 200 registros...
 
 ```{r}
-set.seed(123)
+#| code-summary: probamos la segmentación por grupos de países
+
+cluster_data_group <- demog_data |>
+  select(Group) |> # añade esta variable a las cuantitativas
+  cbind(demo_cuanti) |>
+  group_by(Group) |>
+  mutate(across(where(is.numeric), mean)) |>
+  unique()
+
+
+cluster_data_group_stand <- scale(cluster_data_group)
+d_euclidea_group <- get_dist(x = cluster_data_group_stand,
+                       method = "euclidea")
+fviz_dist(dist.obj = d_euclidea_group, lab_size = 5)
+```
+
+```{r}
+#| code-summary: estimación del k óptimo
+
+set.seed(2025)
 
 num_cluster <- NbClust(cluster_data_stand, distance = "euclidean", method = "ward.D2", min.nc = 2, max.nc = 10)
 
 num_cluster$Best.nc
+head(num_cluster$Best.partition)
+table(num_cluster$Best.partition)
 ```
 
 
-Dendograma
+
 
 ```{r}
-hc_ward <- hcut(cluster_data_stand , k = 5, hc_method = "ward.D2")
-fviz_dend(hc_ward, cex = 0.5, k = 5, main = "Cluster jerárquico simple")
+hc_ward <- hcut(cluster_data_stand , k = 6, hc_method = "ward.D2")
+fviz_dend(hc_ward, cex = 0.5, k = 6, main = "Cluster jerárquico simple")
 ```
 ¿Lo mejoramos?
 
 ```{r}
 set.seed(5665)
-hc_ward <- hcut(cluster_data_stand, k = 7, hc_method = "ward.D2")
+hc_ward <- hcut(cluster_data_stand, k = 6, hc_method = "ward.D2")
 
 fviz_dend(
   x = hc_ward,

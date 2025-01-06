@@ -1,5 +1,5 @@
 ---
-title: "¡Al ladrón!"
+title: "Misterio en la Ciudad Imperial"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
@@ -15,6 +15,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
+    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -28,6 +29,7 @@ execute:
   code-line-numbers: true
   code-copy: true
   code-overflow: scroll
+  code-fold: true
 ---
 
 Se sospecha que un individuo está traficando con libros fotocopiados en la ciudad de Toledo. Para determinar qué está pasando, se ha obtenido información sobre las antenas de telefonía a las que se ha conectado su teléfono móvil, así como los mensajes que ha enviado y recibido.

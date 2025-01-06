@@ -1,5 +1,5 @@
 ---
-title: "¿Qué tipo de accidentes de tráfico hubo en Madrid en el 2020?"
+title: "Accidentes en Madrid: cómo y dónde"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
@@ -15,6 +15,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
+    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -28,6 +29,7 @@ execute:
   code-line-numbers: true
   code-copy: true
   code-overflow: scroll
+  code-fold: true
 ---
 
 ::: {.callout-note}
@@ -45,11 +47,10 @@ Accidentes de tráfico en la Ciudad de Madrid registrados por Policía Municipal
 
 
 
-# Importanica del contexto. 
+# Importancia del contexto. 
 
 
 ::: {#exr-1}
-
 ¿Dónde se han producido los accidentes de tráfico en Madrid en el 2020?
 :::
 

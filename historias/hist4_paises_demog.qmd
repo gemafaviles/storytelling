@@ -160,7 +160,6 @@ demog_data  |>
 
 ```{r}
 #| code-summary: hexbin plot
-#| echo: false
 
 demog_data  |>
   ggplot(aes(x = Growth_rate, y = Life_expectancy)) +

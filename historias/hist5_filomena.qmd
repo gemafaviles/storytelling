@@ -69,7 +69,6 @@ library(CDR)
 library(tidyverse)
 library(mapSpain)
 library(sf)
-
 library(GGally)
 library(NbClust)
 library(igraph)

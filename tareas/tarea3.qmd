@@ -32,7 +32,7 @@ execute:
   
 1. Trabaja en grupos de 2 - 4 personas.
 
-2. Explora los datos que se te proporcionan y piensa en una historia que puedas contar con ellos. Los datos están en el archivo [municipalities.RData](https://gemafaviles.github.io/storytelling/data/municipalities.RData) y la descripción en el documento [descrip_municipalities.pdf](https://gemafaviles.github.io/storytelling/data/descrip_municipalities.pdf).
+2. Explora los datos que se te proporcionan y piensa en una historia que puedas contar con ellos. Los datos están en el archivo [municipalities.RData](https://gemafaviles.github.io/storytelling/municipalities.RData) y la descripción en el documento [descrip_municipalities.pdf](https://gemafaviles.github.io/storytelling/descrip_municipalities.pdf).
 
 
 

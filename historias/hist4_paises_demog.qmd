@@ -142,6 +142,7 @@ demog_data  |>
   theme_minimal()
 ```
 
+
 ```{r}
 #| code-summary: gráfico de puntos
 #| echo: false
@@ -154,6 +155,22 @@ demog_data  |>
        y = "Esperanza de vida") +
   theme_minimal()
 ```
+
+
+
+```{r}
+#| code-summary: hexbin plot
+#| echo: false
+
+demog_data  |>
+  ggplot(aes(x = Growth_rate, y = Life_expectancy)) +
+  geom_hex() +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
 
 # Eliminar el desorden. Enfocar la atención
 

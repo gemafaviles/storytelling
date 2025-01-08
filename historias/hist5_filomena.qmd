@@ -106,9 +106,9 @@ ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
 
 ## Mejora tu visualización con las herramientas disponibles
 
-¿como podemos mejorar esta visualización? Ya hemos visto muchas:
+¿como podemos mejorar esta visualización? Ya hemos visto algunas:
 
--   usando violines
+-   gráficos de violines
 
 -   título y subtítulo declarativos
 
@@ -227,7 +227,7 @@ boxplot_inicial <- ggplot(tempmin_data,
 boxplot_inicial
 ```
 
-Se ve claramente que la cola del día 7 se debe casi exclusivamente a una estación, por lo que nuestra conclusión (y la que refleja la mediana) de etiquetar el día 6 como el peor, es acertada.
+Se ve claramente que las colas de los días 7 y 8 se deben casi exclusivamente a una estación, por lo que nuestra conclusión (y la que refleja la mediana) de etiquetar el día 6 como el peor, es acertada.
 
 ::: {.callout-tip}
 CUIDADO: es importante usar el argumento `size` en la función `geom_jitter` para hacer lo suficientemente pequeños los puntos y que no "molesten". Si se deja el valor por defecto (`size = 1`) aumentamos mucho el desorden.
@@ -250,37 +250,23 @@ mapa_inicial <- ggplot() +
 
 mapa_inicial 
 ```
-Aplica los principios de storytelling para mejorar la visualización:
 
-1.  **Contexto**
-2.  **Simplificación**
-3.  **Destacar**
-4.  **Diseño**
-
-
-::: {.callout-warning}
-
-## Objetivo
-
-Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado propuesto.
+::: {#exr-1}
+¿Qué podríamos hacer para mejorar esta visualización?
 :::
 
+Algunas cosas que se pueden hacer:
 
+-   añadir un título (y subtítulo) declarativo interesante
 
-```{r }
-#| echo: false 
-ggplot() +
-  geom_sf(data = esp, fill = "grey95") +
-  geom_sf(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
-  theme_dark() +
-  labs(title = "Temperaturas mínimas en España el 6 de enero de 2021",
-       subtitle = "Borrasca Filomena",
-       color = "Temp. mínima (°C)")
-```
+-   eliminar distracciones (por ejemplo el fondo)
 
-::: {.callout-tip}
+-   aumentar el tamaño de los puntos para que se aprecie mejor la gama de colores de la escala
 
-## Objetivo 1
+-   mejorar directamente los colores de la escala, para que se aprecien bien las diferencias
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
 :::
 
 ```{r }
@@ -294,45 +280,52 @@ ggplot() +
        color = "Temp. mínima (°C)")
 ```
 
-
-
 ```{r }
-#| echo: false
+#| echo: false 
+
 mapa_final <- ggplot() +
   geom_sf(data = esp, fill = "grey95") +
   geom_sf(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena (6 de enero de 2021)",
+       subtitle = "Las temperaturas mínimas fueron más bajas en la España interior y zonas de montaña",
+       color = "Temperatuta mínima (°C)") +
   scale_color_viridis_c() +
-  theme_minimal() +   
-  labs(title = "Temperaturas mínimas en España el 6 de enero de 2021",
-       subtitle = "Borrasca Filomena",
-       color = "Temp. mínima (°C)")
+  theme_minimal() +
+    theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
 
 mapa_final
 ```
 
-::: {.callout-tip}
+```{r }
+#| eval: false
 
-## Objetivo 2
+mapa_final <- ggplot() +
+  geom_xx(data = esp, fill = "grey95") +
+  geom_xx(data = ____________, aes(color = tmin), size = 3, alpha = 0.7) +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena (6 de enero de 2021)",
+       subtitle = "Las temperaturas mínimas fueron más bajas en la España interior y zonas de montaña",
+       color = "Temperatuta mínima (°C)") +
+  scale_color_XXXXXXX_c() +
+  theme_minimal() +
+    theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+mapa_final
+```
+
+### ¿Añadimos la dimensión temporal?
+
+Podemos empezar por usar facetas según el día en los que transcurrió la borrasca. Vamos a verlo.
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
 :::
 
 
 ```{r }
-#| eval: false
-ggplot() +
-  geom_xxxf(data = esp, fill = "grey95") +
-  geom_xxx(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
-  scale_color_viridis_c() +
-  theme_xxx() +   
-  labs(title = "Temperaturas mínimas en España el 6 de enero de 2021",
-       subtitle = "Durante la Borrasca Filomena",
-       color = "Temp. mínima (°C)")
-```
-
-
-¿Por qué no un gráfico espacio-temporal?
-
-```{r }
 #| echo: false
+
 ggplot() +
   geom_sf(data = esp, fill = "grey95") +
   geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
@@ -345,14 +338,9 @@ ggplot() +
   theme(legend.position = "bottom")
 ```
 
-::: {.callout-tip}
-
-## Objetivo 3
-:::
-
-
 ```{r }
 #| eval: false
+
 ggplot() +
   geom_sf(data = esp, fill = "grey95") +
   geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
@@ -365,13 +353,11 @@ ggplot() +
   theme(legend.position = "_______")
 ```
 
-
 ::: {.callout-tip}
-
-## Objetivo 4
+¿Qué os parece?¿Añade información interesante la dimensión temporal? ¿Y usando otra escala más acorde con nuestra idea de frío y calor?
 :::
 
-Realizamos ajustes finales para mejorar la claridad y el impacto visual.
+Fijémonos lo que se puede hacer con una buena elección de escala. ¿Mejora la claridad y el impacto visual? ¿Se aprecian las diferencias temporales?
 
 ```{r }
 # echo: false
@@ -390,3 +376,5 @@ ggplot() +
        subtitle = "Del 6 al 10 de enero de 2021",
        color = "Temp. mínima (°C)")
 ```
+
+

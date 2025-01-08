@@ -33,15 +33,18 @@ execute:
 ---
 
 ::: {.callout-note}
-Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
-que puede instalarse con el siguiente comando:
+Los datos que se utilizan en esta historia están disponibles en el paquete `CDR` que puede instalarse con el siguiente comando (se comprueba si no lo está):
 
-```r
-install.packages("remotes")
-remotes::install_github("cdr-book/CDR")
+``` {r}
+#| code-summary: Instalación y/o carga del paquete `CDR`
+
+if (!require(CDR)){
+  if (!require(remotes)) {install.packages("remotes")}
+  remotes::install_github("cdr-book/CDR")
+  }
 ```
-Son datos abiertos proporcionados por el portal [Portal de datos abiertos del Ayuntamiento de Madrid](https://datos.madrid.es/). Concretamente, los facilitados por [el Sistema Integral de la Calidad del Aire del Ayuntamiento de Madrid](https://www.mambiente.madrid.es/sica/scripts/index.php), que pone a disposición los datos de los contaminantes registrados por las estaciones de medición situadas en Madrid. Los datos son de frecuencia horaria por anualidades desde 2001 y los datos se actualizan de forma mensual.
 
+Son datos abiertos proporcionados por el [Portal de datos abiertos del Ayuntamiento de Madrid](https://datos.madrid.es/). Concretamente, los facilitados por el [Sistema Integral de la Calidad del Aire del Ayuntamiento de Madrid](https://www.mambiente.madrid.es/sica/scripts/index.php), que pone a disposición los datos de los contaminantes registrados por las estaciones de medición situadas en Madrid. Los datos son de frecuencia horaria por anualidades desde 2001 y se actualizan de forma mensual.
 :::
 
 

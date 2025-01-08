@@ -1,5 +1,5 @@
 ---
-title: "¿Dónde se ha sufrido más la borrasca Filomena"
+title: "¿Dónde se ha sufrido más la borrasca Filomena?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
@@ -376,5 +376,28 @@ ggplot() +
        subtitle = "Del 6 al 10 de enero de 2021",
        color = "Temp. mínima (°C)")
 ```
+
+# Contar una historia
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para el director de informativos de RTVE, que nos ha pedido un mapa para presentarlo en las noticias.
+
+El análisis exploratorio nos da una idea: el día más frío durante la borrasca Filomena fue el 6 de enero, por lo que ya tenemos qué información interesante podemos destacar.
+
+Pero como remarcamos siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro director lo que nos pide:
+
+-   Un mapa donde se aprecia el **diferente impacto de la borrasca según la zona de España**...
+
+-   ...introduciendo la **dimensión temporal** con facetas.
+
+:::
+
+# Para pensar:
+
+::: {.callout}
+En esta historia hemos visto lo importante que puede ser la **elección de una buena escala de colores**. Merece mucho la pena dedicar tiempo a la escala, ya que, especialmente cuando hay gradientes o categorías discretas, puede suponer acertar con la visualización o perder una buena oportunidad.
+:::
 
 

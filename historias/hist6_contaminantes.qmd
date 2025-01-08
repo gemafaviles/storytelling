@@ -159,10 +159,7 @@ plot_contam_mad <- contam_mad |>
   geom_line() +
   geom_smooth() +
   labs(x = "año", y = "media de las estaciones") +
-  scale_x_continuous(labels = function(x) {
-    format(x,
-      big.mark = ".", decimal.mark = ",", scientific = FALSE
-    )
+  scale_x_continuous(date_labels = "%y")
   }) +
   theme_minimal() +
   facet_wrap(~nom_mag, scales = "free_y")

@@ -47,34 +47,45 @@ if (!require(CDR)){
 Son datos abiertos proporcionados por el [Portal de datos abiertos del Ayuntamiento de Madrid](https://datos.madrid.es/). Concretamente, los facilitados por el [Sistema Integral de la Calidad del Aire del Ayuntamiento de Madrid](https://www.mambiente.madrid.es/sica/scripts/index.php), que pone a disposición los datos de los contaminantes registrados por las estaciones de medición situadas en Madrid. Los datos son de frecuencia horaria por anualidades desde 2001 y se actualizan de forma mensual.
 :::
 
+# Contaminación en el aire en la ciudad de Madrid
 
-Pasos:
+Mi primo se ha vuelto un radical: le ha dado por coger la bicicleta y quiere aprobar una oposición en el Ayuntamiento de Madrid porque "va a acabar con tanto coche en esta ciudad tan contaminada" [sic]. A ver, que yo lo entiendo, ¿eh? Es que el pobre tiene alergias de todas clases, pero las peores las tiene a los gases contaminantes, y ha llegado a una situación muy desesperada... ¡Da una pena!
 
-1. La importancia del contexto.  
-2. La elección de un gráfico efectivo. 
-3. El desorden es tu enemigo.  
-4. Centra la atención de tu audiencia.  
-5. Piensa como un diseñador. 
-6. Cuenta la historia de tus datos. El archo narrativo.
+Así que me he puesto a pensar y claro, por mi primo del alma tengo que hacer algo... Voy a ver si encuentro un sitio donde pueda vivir algo más despejado de contaminación mientras aprueba la oposición, sube en la carrera administrativa, llega a un puesto de responsabilidad y puede hacer algo por el asunto... porque hasta que lo consiga...
 
+# Entender el contexto
 
+::: {.callout-tip}
 
-
-# La importancia del contexto
+## Cómo definir el propósito y la audiencia de tu análisis
 
 Es crucial proporcionar el contexto adecuado para que los lectores comprendan de dónde provienen los datos y por qué son relevantes.
 
+Además, tenemos que saber muy bien qué es lo que queremos obtener como producto, en este caso para mi primo al que, aunque lo voy a hacer por amor al arte, tengo que ser capaz de localizarle sitios con menos contaminación.
+
+Estamos buscando un lugar, por lo que vamos a tratar los datos espacialmente.
+:::
+
+# Elegir una visualización adecuada
+
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos.
+:::
+
+
 ```{r}
-library(CDR) # Para los datos de temperatura
+#| code-summary: Configuración inicial y datos
+
+library(CDR)
+library(tidyverse)
+library(DT)
+
 head(contam_mad)
 str(contam_mad)
 
-library(tidyverse)
-
-library(DT)
 datatable(contam_mad[1:5, ])
 
-# Presentar las primeras líneas de los datos
+# Ver los primeros y últimos registros:
 head(contam_mad, 3) 
 tail(contam_mad, 3) 
 
@@ -88,21 +99,15 @@ dim(contam_mad)
 ## Complejidad de los datos
 
 Los conjuntos de datos de la **calidad de aire** son complejos y en algunos casos los datos no pueden utilizarse tal cual y pueden requerir consideraciones cuidadosas antes de llegar a cualquier conclusión. Debe prestarse atención a la existencia de subgrupos.
-
 :::
-
-# La elección de un gráfico efectivo
-
-## Análisis exploratorio de datos
-
 
 ::: {#exr-1}
-
-¿Cuál es el día con mayor y menor concentración de NOx de todo el periodo?.
+Vamos a empezar por el NOx... ¿Cuál es el día con mayor y menor concentración de NOx de todo el periodo?
 :::
 
-
 ```{r}
+#| code-summary: Análisis exploratorio de los datos de NOx
+
 contam_mad |> # Summary por grupo usando dplyr
   na.omit() |> # omitimos los NAs para el análisis
   filter(nom_abv == "NOx") |> # filtramos por NOx
@@ -111,15 +116,16 @@ contam_mad |> # Summary por grupo usando dplyr
   slice(which.max(mad_mean), which.min(mad_mean)) # seleccionamos el máximo y el mínimo
 ```
 
-El valor máximo, **415 µg/m3 de NOx**, se observa el 21 de diciembre de 2011 y el valor mínimo, **6,32 µg/m3 de NOx**, el 10 de mayo de 2020, en pleno estado de alarma.
+El valor máximo, **415,48 µg/m3 de NOx**, se observa el 21 de diciembre de 2011 y el valor mínimo, **6,32 µg/m3 de NOx**, el 10 de mayo de 2020, en pleno estado de alarma.
 
 
 ::: {#exr-2}
-
 ¿Cómo son los datos de PM2.5 en la ciudad de Madrid?
 :::
 
 ```{r}
+#| code-summary: Análisis exploratorio de los datos de PM2.5
+
 contam_mad |> # Summary por grupo usando dplyr
   na.omit() |> # omitimos los NAs para el análisis
   filter(nom_abv == "PM2.5") |> # filtramos por PM2.5
@@ -134,27 +140,16 @@ contam_mad |> # Summary por grupo usando dplyr
   )
 ```
 
-
-
-
 ::: {.callout-tip}
 ## Informes automáticos en R
-
-Existen paquetes comno, `skimr`, `DataExplorer` y `dlookr` que generan informes 
-automáticos con los principales descriptivos.
+Ya hemos visto paquetes como `skimr`, `DataExplorer` y `dlookr` que generan informes automáticos con los principales descriptivos. Son muy útiles y merece la pena conocerlos, porque vemos la estructura de los datos y la relación entre las variables mucho más deprisa.
 :::
 
-
-
-
-## ¿Cómo han evolucionado la concentración de contaminantes en la ciudad de Madrid?
+## ¿Cómo ha evolucionado la concentración de contaminantes en la ciudad de Madrid?
 
 ::: {#exr-3}
-
-Con las funciones del `tidyverse` represente la evolución de todos los contaminantes
-medidos por las estaciones de monitoreo de la ciudad de Madrid en el periodo (2011-200).
+Con las funciones del paquete `tidyverse` representa la evolución de todos los contaminantes medidos por las estaciones de monitoreo de la ciudad de Madrid en el periodo 2011-2020.
 :::
-
 
 ```{r evolución-contaminentes, out.width = "100%"}
 plot_contam_mad <- contam_mad |>
@@ -163,6 +158,12 @@ plot_contam_mad <- contam_mad |>
   ggplot(aes(x = fecha, y = media_estaciones)) +
   geom_line() +
   geom_smooth() +
+  labs(x = "año", y = "media de las estaciones") +
+  scale_x_continuous(labels = function(x) {
+    format(x,
+      big.mark = ".", decimal.mark = ",", scientific = FALSE
+    )
+  }) +
   theme_minimal() +
   facet_wrap(~nom_mag, scales = "free_y")
 
@@ -172,8 +173,7 @@ plot_contam_mad
 Vamos a mejorar el gráfico anterior para que sea más legible y efectivo.
 
 ::: {.callout-important title="Tu turno"}
-
-Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado propuesto.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
 :::
 
 ```{r evolución-contaminantes-personalizado-hw, out.width = "100%"}
@@ -197,10 +197,6 @@ contam_mad |>
   theme(legend.position = "none") +
   facet_wrap(~nom_mag, scales = "free_y")
 ```
-
-
-
-
 
 ```{r evolución-contaminantes-personalizado, out.width = "100%"}
 #| echo: false

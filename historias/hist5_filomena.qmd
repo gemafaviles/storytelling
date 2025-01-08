@@ -397,7 +397,7 @@ Pero como remarcamos siempre, lo más importante es el **desenlace**, donde le e
 # Para pensar:
 
 ::: {.callout}
-En esta historia hemos visto lo importante que puede ser la **elección de una buena escala de colores**. Merece mucho la pena dedicar tiempo a la escala, ya que, especialmente cuando hay gradientes o categorías discretas, puede suponer acertar con la visualización o perder una buena oportunidad.
+En esta historia hemos visto lo importante que puede ser la **elección de una buena escala de colores**. Merece mucho la pena dedicar tiempo a la escala (intervalos y gama de colores), ya que, especialmente cuando hay gradientes continuos convertibles en categorías discretas, puede suponer acertar con la visualización o perder una buena oportunidad.
 :::
 
 

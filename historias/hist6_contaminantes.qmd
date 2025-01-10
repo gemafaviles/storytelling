@@ -79,6 +79,7 @@ Estamos buscando un lugar, por lo que vamos a tratar los datos espacialmente.
 library(CDR)
 library(tidyverse)
 library(DT)
+library(scales)
 
 head(contam_mad)
 str(contam_mad)
@@ -98,7 +99,7 @@ dim(contam_mad)
 ::: {.callout-warning}
 ## Complejidad de los datos
 
-Los conjuntos de datos de la **calidad de aire** son complejos y en algunos casos los datos no pueden utilizarse tal cual y pueden requerir consideraciones cuidadosas antes de llegar a cualquier conclusión. Debe prestarse atención a la existencia de subgrupos.
+Los conjuntos de datos de la **calidad de aire** son complejos y en algunos casos los datos no pueden utilizarse tal cual y pueden requerir un pre-procesamiento cuidadoso antes de llegar a cualquier conclusión. Debe prestarse atención a la existencia de subgrupos.
 :::
 
 ::: {#exr-1}
@@ -141,8 +142,8 @@ contam_mad |> # Summary por grupo usando dplyr
 ```
 
 ::: {.callout-tip}
-## Informes automáticos en R
-Ya hemos visto paquetes como `skimr`, `DataExplorer` y `dlookr` que generan informes automáticos con los principales descriptivos. Son muy útiles y merece la pena conocerlos, porque vemos la estructura de los datos y la relación entre las variables mucho más deprisa.
+## Exploraciones automáticas de datos en R
+Ya hemos visto paquetes como `skimr`, `DataExplorer` (hay más: `dlookr`...) que generan resúmenes exploratorios automáticos con los principales descriptivos. Son muy útiles y merece la pena conocerlos, porque vemos la estructura de los datos y la relación entre las variables mucho más deprisa.
 :::
 
 ## ¿Cómo ha evolucionado la concentración de contaminantes en la ciudad de Madrid?
@@ -159,10 +160,8 @@ plot_contam_mad <- contam_mad |>
   geom_line() +
   geom_smooth() +
   labs(x = "año", y = "media de las estaciones") +
-  scale_x_continuous(date_labels = "%y")
-  }) +
   theme_minimal() +
-  facet_wrap(~nom_mag, scales = "free_y")
+  facet_wrap(~nom_mag, scales = "free_y") +
 
 plot_contam_mad
 ```
@@ -203,10 +202,10 @@ contam_mad |>
   summarise(media_estaciones = mean(daily_mean, na.rm = TRUE)) |>
   ggplot(aes(x = semana, y = media_estaciones)) +
   geom_line(aes(color = nom_mag)) +
-  geom_smooth(size = 0.5, color = "black") +
+  geom_smooth(linewidth = 0.5, color = "black") +
   scale_color_brewer(palette = "Paired") +
-  labs(
-    x = NULL, y = "(µg/m3)", title = "Evolución de partículas contaminantes en Madrid",
+  labs(x = NULL, y = "(µg/m3)",
+       title = "Evolución de partículas contaminantes en Madrid",
     subtitle = "Concentración media semanal en las estaciones de medición",
     caption = "Fuente: Portal de datos abiertos del Ayuntamiento de Madrid"
   ) +
@@ -214,6 +213,9 @@ contam_mad |>
   theme(legend.position = "none") +
   facet_wrap(~nom_mag, scales = "free_y")
 ```
+
+
+
 
 
 

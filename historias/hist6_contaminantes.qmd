@@ -223,6 +223,14 @@ contam_mad |>
   facet_wrap(~nom_mag, scales = "free_y")
 ```
 
+Aquí hemos visto que el color, aunque no es imprescindible para dar información en nuestra visualización, consigue una estética más agradable.
+
+Lo que está claro es que los contaminantes con mayor concentración son los óxidos de nitrógeno y las partículas <10µm.
+
+::: {.callout}
+Recuerda: ¿Un gráfico tiene que ser bonito? Sí
+:::
+
 ## Los datos faltantes
 
 Antes de continuar, no nos olvidemos de los datos faltantes, a veces un importante problema en ciencia de datos... ¿Son muchos? ¿Existe algún patrón en los NAs? ¿Están asociados a una o más variables?
@@ -236,7 +244,6 @@ sum(is.na(contam_mad))
 ```
 
 ::: {#exr-5}
-
 ¿Puedo visualizar dónde están los datos faltantes por estación de monitoreo a lo largo del tiempo?
 :::
 
@@ -362,6 +369,7 @@ calendar_plot |>
     caption = "Fuente: Red de Vigilancia de la Calidad del Aire del Ayto. de Madrid"
   )
 ```
+Ya le puedo decir algo a mi primo: cuidado con el NOx en los meses de invierno especialmente. Vamos a ver el otro contaminante importante de Madrid: las partículas menores de 10 µm.
 
 ```{r calendar-pm10, fig.align='center', fig.width=20, fig.height=20}
 #| eval: false
@@ -393,9 +401,10 @@ calendar_plot |>
     caption = "Fuente: Red de Vigilancia de la Calidad del Aire del Ayto. de Madrid"
   )
 ```
+Pufff, pues en las partículas <10µm no está tan definida la época de mayor contaminación...
 
 ::: {.callout-important title="Tu turno"}
-Completa las partes del código señaladas por `______` o `xxx` para obtener el calendario de PM10.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el calendario de PM10.
 :::
 
 ```{r calendar-pm10-hw, fig.align='center', fig.width=20, fig.height=20}
@@ -440,7 +449,7 @@ contam_mad_pm10_nox <- contam_mad |>
 ```
 
 ```{r pm10-nox-time-serie, out.width = "100%"}
-# echo: false
+#| echo: false
 
 plot_pm10_nox <- contam_mad_pm10_nox |>
   group_by(fecha, nom_mag) |>
@@ -460,7 +469,7 @@ plot_pm10_nox
 ```
 
 ::: {.callout-important title="Tu turno"}
-Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado deseado.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado.
 :::
 
 ```{r pm10-nox-time-serie-hw, out.width = "100%"}
@@ -485,18 +494,17 @@ plot_pm10_nox
 ```
 
 ::: {#exr-7}
-¿Por qué no hacer el anterior gráfico interactivo?
+¿Por qué no hacer el anterior gráfico interactivo? Le facilitaríamos mucho las cosas a mi primo...
 :::
 
-La función `ggplotly()` de la librería `plotly` permite hacer fácilmente gráficos 
-interactivos. 
+La función `ggplotly()` de la librería `plotly` permite hacer fácilmente gráficos interactivos. 
 
 ```{r pm10_nox_interactivo, out.width = "100%"}
 plotly::ggplotly(plot_pm10_nox)
 ```
 
 ::: {#exr-7}
-Algunas relaciones bi-variantes y n-variantes interesantes que se pueden establecer entre los contaminantes PM10 y NOx en el periodo del estado de alarma por la pandemia de COVID-19.
+¿Habrá algún tipo de relación entre los dos contaminantes? Vamos a ver si encontramos alguna durante el estado de alarma por la pandemia de COVID-19.
 :::
 
 ```{r}
@@ -526,9 +534,9 @@ pm10_nox_mad_alarma |>
 
 # Piensa como un diseñador
 
-Antes de avanzar vamos a poner a prueba lo aprendido hasta aquí. Para ello nos centraremos en el NOx.
+A ver, que igual hay alguna relación, pero no se ve claramente, y hay diferencias entre estaciones, por lo que no creo que sea de ayuda a mi primo. Nos centraremos en el NOx, a ver si veo algo más claro.
 
-```{r nox-viloin-zonas}
+```{r nox-violin-zonas}
 nox_madrid <- contam_mad |>
   na.omit() |>
   filter(nom_abv == "NOx") |>
@@ -536,10 +544,10 @@ nox_madrid <- contam_mad |>
 ```
 
 ::: {.callout-important title="Tu turno"}
-Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado deseado.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado.
 :::
 
-```{r nox-viloin-zonas-hw}
+```{r nox-violin-zonas-hw}
 #| eval: false
 
 nox_madrid |>
@@ -571,10 +579,10 @@ nox_madrid |>
   theme_minimal()
 ```
 
-Ahora con algunas estadísticas interesantes:
+¡Esto ya es otra cosa! En cuanto hemos introducido la dimensión espacial, tenemos resultados interesantes. Vamos a sacar algunas estadísticas:
 
 ::: {.callout-important title="Tu turno"}
-Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado deseado.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado.
 :::
 
 ```{r nox-violin-zoas-stat-hw}
@@ -587,7 +595,6 @@ ggbetweenstats(
 )
 ```
 
-
 ```{r nox-violin-zoas-stat}
 #| echo: false
 
@@ -597,7 +604,6 @@ ggbetweenstats(
   y = daily_mean
 )
 ```
-
 
 Ahora, utilizando la función `geom_density_ridges()` de la librería `ggridges` vamos a hacer un gráfico de densidad (Ridgeline) de `NOx` por `zona`.
  
@@ -615,21 +621,15 @@ nox_madrid |>
   theme_minimal()
 ```
 
-
+Igual que con los violines, se aprecia muy bien que la zona con menos concentración es el noroeste...
 
 ::: {#exr-8}
-
 ¿Cómo es la relación bivariante de estos dos contaminantes?
 :::
 
-
-
 ::: {#exer-anova .exercise name="ANOVA"}
-
-Compruebe con un Análisis de la Varianza si los niveles de concentración de NOx
-dependen de las variables tipo y zona
+Comprueba con un Análisis de la Varianza si los niveles de concentración de NOx dependen de las variables tipo y zona
 :::
-
 
 ```{r anova}
 contam_mad_anova <- contam_mad |>
@@ -638,10 +638,9 @@ contam_mad_anova <- contam_mad |>
 
 anova <- aov(data = contam_mad_anova, daily_mean ~ zona + tipo)
 summary(anova)
-
 ```
 
-
+Tanto la zona como el tipo de contaminante son significativos, lo que ya a priori tenía sentido. Vamos a representarlo, a ver si lo vemos mejor que con tanto número:
 
 ```{r anova-plot}
 ggplot(contam_mad_anova, aes(x = zona, y = daily_mean, fill = tipo)) +
@@ -653,14 +652,11 @@ ggplot(contam_mad_anova, aes(x = zona, y = daily_mean, fill = tipo)) +
   theme_minimal()
 ```
 
-
+Me estoy acordando de la calima de marzo de 2022, a mi primo casi le da algo. Voy a ver si le puedo dar alguna pista. En este caso es evidente que la subida en situaciones de calima es por las partículas pequeñas, por lo que nos centraremos en ellas.
 
 ::: {#exer-anova .exercise name="ANOVA"}
-
-¿Qué paso la semana de la calima de marzo de 2022 con el PM en la ciudad de Madrid?
+¿Qué paso la semana de calima de marzo de 2022 con las partículas <2.5µm y <10µm en la ciudad de Madrid?
 :::
-
-
 
 ```{r pm-max, out.width = "100%"}
 particulas <- c("Partículas < 2.5 µm", "Partículas < 10 µm")
@@ -670,7 +666,6 @@ calima <- contam_mad |>
     fecha %in% seq.Date(as.Date("2022-03-01"), by = "day", length.out = 31)) |>
   group_by(fecha, id, id_name, nom_mag, nom_abv, ud_med) |>
   summarize(valor_promedio = mean(daily_mean, na.rm = T))
-
 
 max_2.5 <- calima |>
   ungroup() |>
@@ -716,12 +711,11 @@ calima |>
   theme_minimal()
 ```
 
+# Visualizaciones animadas
 
-# Cuenta la historia de tus datos. Predicción espacial del PM10 (calima del 13-17 marzo)
+Para que flipe mi primo, le voy a hacer una animación para que vea cómo varió la concentración del PM10 durante la calima (del 13 al 17 de marzo).
 
 ```{r spatial, out.width = "100%"}
-# idw
-
 mad_sf <- esp_get_munic(munic = "^Madrid$", epsg = 4326)
 
 marzo_pm10 <- contam_mad |>
@@ -744,7 +738,7 @@ ggplot(madrid_estaciones_sf) +
     alpha = .7
   ) +
   labs(fill = "PM10") +
-  scale_fill_viridis_c() +
+  scale_fill_viridis_c(direction = -1) +
   theme_void() +
   labs(
     title = "PM10: {current_frame}"
@@ -763,5 +757,20 @@ ggplot(madrid_estaciones_sf) +
   )
 ```
 
+# Contar una historia
 
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
 
+¿Cuál ha sido el **planteamiento**? Como siempre, proporcionamos el contexto: mi primo es alérgico y le vendría saber dónde hay menos contaminación, para que viva mejor.
+
+El análisis exploratorio nos introduce de lleno en la **trama**, donde descubrimos que hay alguna relación entre contaminantes, pero él no está interesado en esta parte de nuestro análisis. A nuestro personaje le interesan concentraciones, periodos de contaminación y lugares.
+
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro querido primo la información que necesita:
+
+-   Con el gráfico de concentración de contaminantes, va a saber que lo que **tiene que vigilar son los óxidos de nitrógeno y las micropartículas**.
+
+-   Con el gráfico de violines por zonas, va a saber que **la mejor para un alérgico es el noroeste de Madrid**.
+
+-   También podemos enseñarle el gráfico de ´micropartículas, que le servirá para **tomar precauciones durante períodos de calima**.
+:::

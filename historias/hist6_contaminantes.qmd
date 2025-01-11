@@ -78,8 +78,15 @@ Estamos buscando un lugar, por lo que vamos a tratar los datos espacialmente.
 
 library(CDR)
 library(tidyverse)
+library(mapSpain)
+library(sf)
 library(DT)
 library(scales)
+library(visdat)
+library(ggstatsplot)
+library(gganimate)
+library(ggridges)
+library(ggrepel)
 
 head(contam_mad)
 str(contam_mad)
@@ -161,7 +168,7 @@ plot_contam_mad <- contam_mad |>
   geom_smooth() +
   labs(x = "año", y = "media de las estaciones") +
   theme_minimal() +
-  facet_wrap(~nom_mag, scales = "free_y") +
+  facet_wrap(~nom_mag, scales = "free_y")
 
 plot_contam_mad
 ```
@@ -186,7 +193,7 @@ contam_mad |>
     x = NULL, 
     y = "(µg/m3)", 
     ______ = "Evolución de partículas contaminantes en Madrid",
-    ______ = "Concentración media semanal en las estaciones de medición",
+    ______ = "La concentración media semanal disminuye desde 2011 en la mayoría de contaminantes",
     ______ = "Fuente: Portal de datos abiertos del Ayuntamiento de Madrid"
   ) +
   theme_xxxxx() +
@@ -206,42 +213,30 @@ contam_mad |>
   scale_color_brewer(palette = "Paired") +
   labs(x = NULL, y = "(µg/m3)",
        title = "Evolución de partículas contaminantes en Madrid",
-    subtitle = "Concentración media semanal en las estaciones de medición",
-    caption = "Fuente: Portal de datos abiertos del Ayuntamiento de Madrid"
+       subtitle = "La concentración media semanal disminuye desde 2011 en la mayoría de contaminantes",
+       caption = "Fuente: Portal de datos abiertos del Ayuntamiento de Madrid"
   ) +
   theme_bw() +
   theme(legend.position = "none") +
   facet_wrap(~nom_mag, scales = "free_y")
 ```
 
-
-
-
-
-
-
 ## Los datos faltantes
 
-Antes de continuar, no nos olvidemos de los datos faltantes, a veces
-un importante problema en ciencia de datos... ¿Existe algún patrón en los NAs?
-
+Antes de continuar, no nos olvidemos de los datos faltantes, a veces un importante problema en ciencia de datos... ¿Son muchos? ¿Existe algún patrón en los NAs? ¿Están asociados a una o más variables?
 
 ::: {#exr-4}
-
 ¿Cuántos `NAs` tengo en mi conjunto de datos `contam_mad`?
 :::
-
 
 ```{r sum-na}
 sum(is.na(contam_mad))
 ```
 
-
 ::: {#exr-5}
 
 ¿Puedo visualizar dónde están los datos faltantes por estación de monitoreo a lo largo del tiempo?
 :::
-
 
 ```{r na-where}
 na_table <- contam_mad |>
@@ -253,12 +248,9 @@ na_table <- contam_mad |>
 na_table
 ```
 
-
 ::: {#exr-6}
-
 ¿Qué hacemos con los `NAs`?
 :::
-
 
 **Opción 1: Eliminar los NAs**
 ```{r}
@@ -267,7 +259,6 @@ contam_mad_clean <- contam_mad |>
 
 summary(is.na(contam_mad_clean))
 ```
-
 
 **Opción 2: Imputar NAs con el día anterior**
 
@@ -286,25 +277,19 @@ contam_mad_mediana <- contam_mad |>
   fill(daily_mean, .direction = "updown")
 ```
 
-
 ::: {.callout-important title="Tu turno"}
-
 Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado esperado.
 :::
-
-
 
 ```{r}
 #| eval: false
 summary(____(contam_mad_mediana))
 ```
 
-
 ```{r}
 #| echo: false
 summary(is.na(contam_mad_mediana))
 ```
-
 
 # El desorden es tu enemigo: calendario de contaminantes 
 
@@ -344,12 +329,9 @@ calendar_plot <- calendar_plot |>
   mutate(wmonth = 1 + week - min(week))
 ```
 
-
 ::: {#exr-7}
-
 Calendar heatmap para el NOx
 :::
-
 
 ```{r calendar-nox, fig.align='center', fig.width=20, fig.height=20}
 i_mag <- "Óxidos de Nitrógeno"    # Seleccionar el contaminante
@@ -379,15 +361,11 @@ calendar_plot |>
   )
 ```
 
-
-
-
 ```{r calendar-pm10, fig.align='center', fig.width=20, fig.height=20}
 #| eval: false
 #| echo: false
 
 i_mag <- "Partículas < 10 µm"
-
 
 fill_title <- calendar_plot |>
   filter(nom_mag == i_mag & year >= 2011) |>
@@ -415,11 +393,8 @@ calendar_plot |>
 ```
 
 ::: {.callout-important title="Tu turno"}
-
 Completa las partes del código señaladas por `______` o `xxx` para obtener el calendario de PM10.
 :::
-
-
 
 ```{r calendar-pm10-hw, fig.align='center', fig.width=20, fig.height=20}
 #| eval: false
@@ -451,24 +426,16 @@ calendar_plot |>
   )
 ```
 
-
-
-
-
-
 # Centra la atención de tu audiencia
 
 ::: {#exr-7}
 Nos centramos en los dos contaminantes más problemáticos en la ciudad de Madrid (PM10 y NOx)
 :::
 
-
-
 ```{r seleccionar-variables, out.width = "100%"}
 contam_mad_pm10_nox <- contam_mad |>
   filter(nom_abv %in% c("PM10", "NOx"))
 ```
-
 
 ```{r pm10-nox-time-serie, out.width = "100%"}
 # echo: false
@@ -490,12 +457,9 @@ plot_pm10_nox <- contam_mad_pm10_nox |>
 plot_pm10_nox
 ```
 
-
 ::: {.callout-important title="Tu turno"}
-
 Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado deseado.
 :::
-
 
 ```{r pm10-nox-time-serie-hw, out.width = "100%"}
 #| eval: false
@@ -519,7 +483,6 @@ plot_pm10_nox
 ```
 
 ::: {#exr-7}
-
 ¿Por qué no hacer el anterior gráfico interactivo?
 :::
 
@@ -529,8 +492,6 @@ interactivos.
 ```{r pm10_nox_interactivo, out.width = "100%"}
 plotly::ggplotly(plot_pm10_nox)
 ```
-
-
 
 ::: {#exr-7}
 Algunas relaciones bi-variantes y n-variantes interesantes que se pueden establecer entre los contaminantes PM10 y NOx en el periodo del estado de alarma por la pandemia de COVID-19.
@@ -552,8 +513,6 @@ pm10_nox_mad_alarma |>
   geom_point()
 ```
 
-
-
 ```{r}
 pm10_nox_mad_alarma |>
   drop_na() |>
@@ -563,10 +522,7 @@ pm10_nox_mad_alarma |>
   facet_wrap(vars(estaciones))
 ```
 
-
-
 # Piensa como un diseñador
-
 
 Antes de avanzar vamos a poner a prueba lo aprendido hasta aquí. Para ello nos centraremos en el NOx.
 
@@ -577,10 +533,7 @@ nox_madrid <- contam_mad |>
   filter(between(fecha, left = as.Date("2022-03-01"), right = as.Date("2022-03-31")))
 ```
 
-
-
 ::: {.callout-important title="Tu turno"}
-
 Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado deseado.
 :::
 
@@ -600,8 +553,6 @@ nox_madrid |>
   theme_xxxxx()
 ```
 
-
-
 ```{r nox-viloin-zonas2}
 #| echo: false
 
@@ -620,15 +571,12 @@ nox_madrid |>
 
 Ahora con algunas estadísticas interesantes:
 
-
 ::: {.callout-important title="Tu turno"}
-
 Completa las partes del código señaladas por `______` o `xxx` para obtener el resultado deseado.
 :::
 
 ```{r nox-violin-zoas-stat-hw}
 #| eval: false
-library(ggstatsplot)
 
 ggbetweenstats(
   data = ______,
@@ -640,8 +588,6 @@ ggbetweenstats(
 
 ```{r nox-violin-zoas-stat}
 #| echo: false
-
-library(ggstatsplot)
 
 ggbetweenstats(
   data = nox_madrid,
@@ -655,7 +601,6 @@ Ahora, utilizando la función `geom_density_ridges()` de la librería `ggridges`
  
 
 ```{r nox-ggridges-densidad-zonas}
-library(ggridges)
 nox_madrid |>
   ggplot(aes(x = daily_mean, y = zona, fill = zona)) +
   geom_density_ridges() +
@@ -734,7 +679,6 @@ max_10 <- calima |>
   filter(nom_mag == particulas[2]) |>
   slice(which.max(valor_promedio))
 
-library(ggrepel)
 calima |>
   ggplot(aes(fecha, valor_promedio, colour = nom_mag)) +
   geom_jitter() +
@@ -775,8 +719,6 @@ calima |>
 
 ```{r spatial, out.width = "100%"}
 # idw
-library(mapSpain)
-library(sf)
 
 mad_sf <- esp_get_munic(munic = "^Madrid$", epsg = 4326)
 
@@ -789,7 +731,6 @@ madrid_estaciones_sf <- st_as_sf(marzo_pm10,
   crs = 4326
 )
 
-library(gganimate)
 ggplot(madrid_estaciones_sf) +
   geom_sf(
     data = mad_sf,

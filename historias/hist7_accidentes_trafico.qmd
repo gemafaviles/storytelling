@@ -32,6 +32,19 @@ execute:
   code-fold: true
 ---
 
+```{r}
+library(CDR)
+library(tidyverse)
+library(sf)
+library(mapSpain)
+library(data.table)
+library(gplots)
+library(RColorBrewer)
+library(leaflet)
+library(leaflet.extras)
+library(ggmosaic)
+```
+
 ::: {.callout-note}
 Los datos que se utilizan en esta historia están disponibles en el paquete `CDR`
 que puede instalarse con el siguiente comando:
@@ -43,21 +56,14 @@ remotes::install_github("cdr-book/CDR")
 Accidentes de tráfico en la Ciudad de Madrid registrados por Policía Municipal con víctimas y/o daños al patrimonio en el 2020. Los datos se han descargado del [Portal de datos abiertos del Ayuntamiento de Madrid.](https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=7c2843010d9c3610VgnVCM2000001f4a900aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default))
 :::
 
-
-
-
-
 # Importancia del contexto. 
-
 
 ::: {#exr-1}
 ¿Dónde se han producido los accidentes de tráfico en Madrid en el 2020?
 :::
 
-
 ```{r}
-library("CDR")
-library("tidyverse")
+
 ggplot(data = accidentes2020_data,
        aes(x = coordenada_x_utm, y = coordenada_y_utm)) + 
   geom_point() +
@@ -66,21 +72,19 @@ ggplot(data = accidentes2020_data,
 
 No tenemos información, solo unos datos represenados en un gráfico.
 
-
 # Elección de un gráfico efectivo
 
 ```{r}
-library("sf")
 accidentes2020_sf <- st_as_sf(accidentes2020_data,
   coords = c("coordenada_x_utm", "coordenada_y_utm"),
   crs = 25830 # proyección ETRS89/ UTM zone 30N. Área de uso: Europa  
   )  
 
-library("mapSpain")
+
 madrid <- esp_get_munic(munic = "^Madrid$") |>
   st_transform(25830) 
 
-# descara imagen de un de mapa estático de las carreteas de Madrid
+# descarga imagen de un de mapa estático de las carreteas de Madrid
 tile <- esp_getTiles(madrid, "IDErioja", zoommin = 2)  
 
 ggplot() +
@@ -107,16 +111,13 @@ ggplot(data = accidentes2020_data,
 
 # agrupar por hora y día de la semana para ver si hay un patrón ??
 ```{r}
-library(data.table)
 # Convertir la columna 'fecha' a formato Date
 accidentes2020_data[, fecha := as.Date(fecha, format = "%d/%m/%Y")]
-
 ```
 
 
 
 ::: {#exr-1}
-
 ¿De qué tipo son? 
 :::
 
@@ -138,15 +139,10 @@ accidentes2020_data |>
 ```
 
 ::: {#exr-1}
-
 ¿Existe asociación entre el sexo y el tipo de persona (conductor, pasajero, peaton) que sufre el accidente?
 :::
 
-
-
 ```{r}
-library("gplots")
-library(RColorBrewer)
 
 # accidentes2020_data_sin_na <- accidentes2020_data |>
 #  na.omit()
@@ -161,7 +157,7 @@ balloonplot(table(accidentes2020_data$sexo , accidentes2020_data$tipo_persona))
 
 
 ```{r}
-library("ggmosaic")
+
 accidentes2020_data |>
 ggplot() +
   geom_mosaic(aes(x = product(tipo_accidente, sexo), 
@@ -188,8 +184,7 @@ accidentes2020_data  |>
 
 ```{r}
 # con la librería leflet podemos crear un mapa interactivo
-library("leaflet")
-library("sf")
+
 
 utm_crs <- "+proj=utm +zone=30 +datum=WGS84 +units=m +no_defs"
 accidentes_sf <- st_as_sf(accidentes2020_data, 
@@ -209,8 +204,7 @@ leaflet(data = accidentes2020_data) %>%
 
 
 ```{r}
-library("leaflet")
-library("sf")
+
 
 accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)
 accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]
@@ -238,8 +232,6 @@ leaflet(data = accidentes2020_data) %>%
 
 ```{r}
 # ahora haz un mapa de calor
-
-library("leaflet.extras")
 leaflet(data = accidentes2020_data) %>%
   addTiles() %>%
   addHeatmap(lng = ~longitude, lat = ~latitude, blur = 20, max = 0.05)
@@ -257,7 +249,7 @@ leaflet(data = accidentes2020_data) %>%
 :::
 
 ```{r}
-library(data.table)
+
 
 # Convertir la columna 'fecha' a formato Date
 accidentes2020_data[, fecha := as.Date(fecha, format = "%d/%m/%Y")]

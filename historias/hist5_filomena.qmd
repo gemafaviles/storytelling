@@ -1,0 +1,403 @@
+---
+title: "¿Dónde se 'ha sufrido' más la borrasca Filomena?"
+author:
+  - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
+  - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    date: r Sys.Date()
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
+    code-fold: true
+number-sections: true
+execute:
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+  code-overflow: scroll
+  code-fold: true
+---
+
+::: {.callout-note}
+Los datos que se utilizan en esta historia están disponibles en el paquete `CDR` que puede instalarse con el siguiente comando (se comprueba si no lo está):
+
+``` {r}
+#| code-summary: Instalación y/o carga del paquete `CDR`
+
+if (!require(CDR)){
+  if (!require(remotes)) {install.packages("remotes")}
+  remotes::install_github("cdr-book/CDR")
+  }
+```
+
+Los datos referentes a la temperatura en España han sido recopilados por la Agencia Estatal de Meteorología (AEMET) y descargados en **R** con el paquete climatológico `climaemet`. Los mapas de España han sido procesados con el paquete `mapSpain`.
+:::
+
+# ¿Dónde se 'ha sufrido' más la borrasca Filomena?
+
+El director de informativos de RTVE nos ha pedido al equipo de visualización que le preparemos un mapa rebonico para Informe Semanal. Como siempre, de un día para otro... ¡Que estamos a viernes por la tarde y ya me iba a ir a casica, con mi batica de Albacete! Que ya se sabe: "¡Pijama y bata... calefacción barata!".
+
+# Entender el contexto
+
+::: {.callout-tip}
+## Cómo definir el propósito y la audiencia de tu análisis
+
+En este caso, está muy claro lo que nos piden: un mapa de España donde se pueda valorar fácilmente dónde ha sido más intensa la borrasca, por lo que directamente vamos a ir a visualizaciones basadas en el paquete `sf`, que nos permite usar geoestadística al más alto nivel y representar cualquier fenómeno espacialmente.
+
+Como siempre, vamos a empezar por explorar un poco los datos y después finalizaremos con la visualización espacial.
+:::
+
+
+```{r}
+#| code-summary: Configuración inicial y datos
+
+library(CDR)
+library(tidyverse)
+library(mapSpain)
+library(sf)
+library(GGally)
+library(NbClust)
+library(igraph)
+library(factoextra)
+library(corrplot)
+library(explore)
+
+esp <- esp_get_ccaa() |>
+  filter(ine.ccaa.name != "Canarias") # Filtramos las Islas Canarias
+
+head(tempmin_data)
+
+tmin_sf <- st_as_sf(tempmin_data, coords = c("longitud", "latitud"), crs = 4326)
+
+# Verificamos que los sistemas de coordenadas de la capa de mapas de España (paquete `mapspain`) y de la capa de temperaturas mínimas (paquete `CDR`) sean los mismos; si no lo son, transformamos uno para igualarlos.
+if (st_crs(tmin_sf) != st_crs(esp)) {
+  esp <- st_transform(esp, st_crs(tmin_sf))
+}
+```
+
+# Elegir una visualización adecuada
+
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos.
+:::
+
+# ¿Gráfico de cajas o de violines?
+
+Ambas soluciones son ideales para ver la distribución de las temperaturas mínimas. Recomendamos los violines porque son más informativos, ya que se ve mejor la distribución de las variables cuantitativas.
+
+```{r}
+ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
+  geom_boxplot(fill = "orange", alpha = 0.6)
+```
+
+## Mejora tu visualización con las herramientas disponibles
+
+¿como podemos mejorar esta visualización? Ya hemos visto algunas:
+
+-   gráficos de violines
+
+-   título y subtítulo declarativos
+
+-   estética: color, anotaciones
+
+Y por encima de todo: ¡simplicidad!
+
+```{r }
+boxplot_inicial <- ggplot(tempmin_data,
+                          aes(x = fecha, y = tmin)) +
+  geom_violin(color = "orange") +
+  geom_boxplot(alpha = 0.6, fill = "orange") +
+  labs(title = "La borrasca Filomena fue más intensa el 6 de enero",
+       x = "Fecha", y = "Temperatura mínima (°C)") +
+  theme_minimal() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+boxplot_inicial
+```
+
+## Simplificación
+
+Basta una primera mirada al gráfico para darnos cuenta de que las dos visualizaciones (caja y violín) aportan conjuntamente demasiada información. Por tanto, eliminamos elementos innecesarios del gráfico para enfocar la atención en lo que queremos destacar.
+
+Por eso, calculamos la mediana de las temperaturas y las conectamos temporalmente mediante un gráfico de línea, de forma que podamos indicar, no solo la distribución de la variable, sino también su evolución:
+
+```{r}
+medianas <- tempmin_data |>
+  select(fecha, tmin) |>
+  group_by(fecha) |>
+  mutate(mediana = median(tmin)) |>
+  select(fecha, mediana) |>
+  unique()
+medianas$pos <- 1:5
+
+boxplot_inicial <- ggplot(tempmin_data,
+                          aes(x = fecha, y = tmin)) +
+  geom_violin(color = "orange", fill = "orange", alpha = .7) +
+  geom_point(data = medianas, aes(x = fecha, y = mediana),
+             color = "darkblue") +
+  geom_line(data = medianas, aes(x = pos, y = mediana),
+            color = "darkblue") +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena",
+       subtitle = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)",
+       x = "Fecha", y = "Temperatura mínima (°C)") +
+  theme_minimal() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+boxplot_inicial
+```
+
+Aquí podríamos añadir los valores sobre el violín. En algunos casos, como cuando hay colas muy largas (aquí la inferior del día 7) es interesante ver si se debe a pocos valores o, por el contrario, hay que tenerlos en cuenta. Vamos a verlo:
+
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto. ¿Te acuerdas de las funciones para explorar todas las variables a la vez?
+:::
+
+```{r}
+#| eval: false
+
+medianas <- tempmin_data |>
+  select(fecha, tmin) |>
+  group_by(fecha) |>
+  mutate(mediana = median(______)) |>
+  select(fecha, mediana) |>
+  unique()
+medianas$pos <- 1:5
+
+boxplot_inicial <- ggplot(tempmin_data,
+                          aes(x = fecha, y = tmin)) +
+  geom_violin(color = "orange", fill = "orange", alpha = .7) +
+  geom_point(data = medianas, aes(x = fecha, y = _______),
+             color = "darkblue") +
+  geom_XXXX(data = medianas, aes(x = pos, y = mediana),
+            color = "darkblue") +
+  geom_jitter(size = .2, width = .2) +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena",
+       ________ = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)",
+       x = "Fecha", y = "Temperatura mínima (°C)") +
+  theme_minimal() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+boxplot_inicial
+```
+
+```{r}
+#| echo: false
+
+medianas <- tempmin_data |>
+  select(fecha, tmin) |>
+  group_by(fecha) |>
+  mutate(mediana = median(tmin)) |>
+  select(fecha, mediana) |>
+  unique()
+medianas$pos <- 1:5
+
+boxplot_inicial <- ggplot(tempmin_data,
+                          aes(x = fecha, y = tmin)) +
+  geom_violin(color = "orange", fill = "orange", alpha = .7) +
+  geom_point(data = medianas, aes(x = fecha, y = mediana),
+             color = "darkblue") +
+  geom_line(data = medianas, aes(x = pos, y = mediana),
+            color = "darkblue") +
+  geom_jitter(size = .2, width = .2) +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena",
+       subtitle = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)",
+       x = "Fecha", y = "Temperatura mínima (°C)") +
+  theme_minimal() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+boxplot_inicial
+```
+
+Se ve claramente que las colas de los días 7 y 8 se deben casi exclusivamente a una estación, por lo que nuestra conclusión (y la que refleja la mediana) de etiquetar el día 6 como el peor, es acertada.
+
+::: {.callout-tip}
+CUIDADO: es importante usar el argumento `size` en la función `geom_jitter` para hacer lo suficientemente pequeños los puntos y que no "molesten". Si se deja el valor por defecto (`size = 1`) aumentamos mucho el desorden.
+:::
+
+# Visualizaciones espaciales
+
+En visualización, usando técnicas espaciales tenemos claramente las de ganar, porque tienen una estética muy atractiva *per se*.
+
+Puesto que el día de mayor intensidad general fue el 6 de enero, vamos a trabajar con esas temperaturas mínimas, representándolas en un mapa para ver las zonas más afectadas.
+
+```{r}
+tmin_6enero <- tmin_sf |> 
+  filter(fecha == "2021-01-06")
+
+mapa_inicial <- ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_6enero, aes(color = tmin)) +
+  theme_dark()
+
+mapa_inicial 
+```
+
+::: {#exr-1}
+¿Qué podríamos hacer para mejorar esta visualización?
+:::
+
+Algunas cosas que se pueden hacer:
+
+-   añadir un título (y subtítulo) declarativo interesante
+
+-   eliminar distracciones (por ejemplo el fondo)
+
+-   aumentar el tamaño de los puntos para que se aprecie mejor la gama de colores de la escala
+
+-   mejorar directamente los colores de la escala, para que se aprecien bien las diferencias
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
+```{r }
+#| eval: false 
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = _________, aes(color = tmin), size = 3, alpha = 0.7) +
+  theme_dark() +
+  labs(title = "__________",
+       _______ = "Borrasca Filomena",
+       color = "Temp. mínima (°C)")
+```
+
+```{r }
+#| echo: false 
+
+mapa_final <- ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_6enero, aes(color = tmin), size = 3, alpha = 0.7) +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena (6 de enero de 2021)",
+       subtitle = "Las temperaturas mínimas fueron más bajas en la España interior y zonas de montaña",
+       color = "Temperatuta mínima (°C)") +
+  scale_color_viridis_c() +
+  theme_minimal() +
+    theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+mapa_final
+```
+
+```{r }
+#| eval: false
+
+mapa_final <- ggplot() +
+  geom_xx(data = esp, fill = "grey95") +
+  geom_xx(data = ____________, aes(color = tmin), size = 3, alpha = 0.7) +
+  labs(title = "Temperaturas mínimas durante la borrasca Filomena (6 de enero de 2021)",
+       subtitle = "Las temperaturas mínimas fueron más bajas en la España interior y zonas de montaña",
+       color = "Temperatuta mínima (°C)") +
+  scale_color_XXXXXXX_c() +
+  theme_minimal() +
+    theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
+
+mapa_final
+```
+
+### ¿Añadimos la dimensión temporal?
+
+Podemos empezar por usar facetas según el día en los que transcurrió la borrasca. Vamos a verlo.
+
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
+
+```{r }
+#| echo: false
+
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
+  facet_wrap(vars(fecha), ncol = 3) +
+  scale_color_viridis_c() +
+  theme_light() +
+  labs(title = "Temperaturas mínimas en España durante Filomena",
+       subtitle = "Del 6 al 10 de enero de 2021",
+       color = "Temp. mínima (°C)") +
+  theme(legend.position = "bottom")
+```
+
+```{r }
+#| eval: false
+
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
+  facet_xxx(vars(fecha), ncol = 3) +
+  scale_color_xxxxxx() +
+  theme_light() +
+  labs(title = "Temperaturas mínimas en España durante Filomena",
+       subtitle = "Del 6 al 10 de enero de 2021",
+       color = "Temp. mínima (°C)") +
+  theme(legend.position = "_______")
+```
+
+::: {.callout-tip}
+¿Qué os parece?¿Añade información interesante la dimensión temporal? ¿Y usando otra escala más acorde con nuestra idea de frío y calor?
+:::
+
+Fijémonos lo que se puede hacer con una buena elección de escala. ¿Mejora la claridad y el impacto visual? ¿Se aprecian las diferencias temporales?
+
+```{r }
+# echo: false
+cortes <- c(-Inf, seq(-20, 20, 2.5), Inf)
+colores <- hcl.colors(15, "PuOr", rev = TRUE)
+
+ggplot() +
+  geom_sf(data = esp, fill = "grey95") +
+  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
+  facet_wrap(vars(fecha), ncol = 3) +
+  scale_color_gradientn(colours = colores, breaks = cortes, 
+                        labels = ~ stringr::str_c(. , "º"), 
+                        guide = "legend") +
+  theme_light() +
+  labs(title = "Temperaturas mínimas en España durante Filomena",
+       subtitle = "Del 6 al 10 de enero de 2021",
+       color = "Temp. mínima (°C)")
+```
+
+# Contar una historia
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para el director de informativos de RTVE, que nos ha pedido un mapa para presentarlo en las noticias.
+
+El análisis exploratorio nos da una idea: el día más frío durante la borrasca Filomena fue el 6 de enero, por lo que ya tenemos qué información interesante podemos destacar.
+
+Pero como remarcamos siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro director lo que nos pide:
+
+-   Un mapa donde se aprecia el **diferente impacto de la borrasca según la zona de España**...
+
+-   ...introduciendo la **dimensión temporal** con facetas.
+
+:::
+
+# Para pensar:
+
+::: {.callout}
+En esta historia hemos visto lo importante que puede ser la **elección de una buena escala de colores**. Merece mucho la pena dedicar tiempo a la escala (intervalos y gama de colores), ya que, especialmente cuando hay gradientes continuos convertibles en categorías discretas, puede suponer acertar con la visualización o perder una buena oportunidad.
+:::
+
+

@@ -8,7 +8,9 @@ format:
     theme: cerulean
     highlight-style: ayu-mirage
     self-contained: true
-    date: "`r Sys.Date()`"
+    lang: es
+    date: 01/14/2025
+    date-format: long
     embed-resources: true
     toc-title: Summary
     toc: true

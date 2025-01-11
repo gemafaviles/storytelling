@@ -8,7 +8,9 @@ format:
     theme: cerulean
     highlight-style: ayu-mirage
     self-contained: true
-    date: r Sys.Date()
+    lang: es
+    date: 01/20/2025
+    date-format: long
     embed-resources: true
     toc-title: Summary
     toc: true
@@ -95,7 +97,7 @@ if (st_crs(tmin_sf) != st_crs(esp)) {
 ## Selección de gráficos y visualizaciones que mejor representen tus datos.
 :::
 
-# ¿Gráfico de cajas o de violines?
+## ¿Gráfico de cajas o de violines?
 
 Ambas soluciones son ideales para ver la distribución de las temperaturas mínimas. Recomendamos los violines porque son más informativos, ya que se ve mejor la distribución de las variables cuantitativas.
 
@@ -233,7 +235,7 @@ Se ve claramente que las colas de los días 7 y 8 se deben casi exclusivamente a
 CUIDADO: es importante usar el argumento `size` en la función `geom_jitter` para hacer lo suficientemente pequeños los puntos y que no "molesten". Si se deja el valor por defecto (`size = 1`) aumentamos mucho el desorden.
 :::
 
-# Visualizaciones espaciales
+## Visualizaciones espaciales
 
 En visualización, usando técnicas espaciales tenemos claramente las de ganar, porque tienen una estética muy atractiva *per se*.
 

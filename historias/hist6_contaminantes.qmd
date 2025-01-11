@@ -8,7 +8,9 @@ format:
     theme: cerulean
     highlight-style: ayu-mirage
     self-contained: true
-    date: "`r Sys.Date()`"
+    lang: es
+    date: 01/20/2025
+    date-format: long
     embed-resources: true
     toc-title: Summary
     toc: true
@@ -61,7 +63,7 @@ Así que me he puesto a pensar y claro, por mi primo del alma tengo que hacer al
 
 Es crucial proporcionar el contexto adecuado para que los lectores comprendan de dónde provienen los datos y por qué son relevantes.
 
-Además, tenemos que saber muy bien qué es lo que queremos obtener como producto, en este caso para mi primo al que, aunque lo voy a hacer por amor al arte, tengo que ser capaz de localizarle sitios con menos contaminación.
+Además, tenemos que saber muy bien qué es lo que queremos obtener como producto, en este caso para mi primo al que quiero ser capaz de localizarle sitios con menos contaminación.
 
 Estamos buscando un lugar, por lo que vamos a tratar los datos espacialmente.
 :::

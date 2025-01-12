@@ -250,6 +250,8 @@ accidentes2020_data |>
   mutate(porcentaje = 100 * n / sum(n))
 ```
 
+Las tablas también son elementos de visualización. En este caso, hay algo evidente que hacer, pero lo vamos a explicar con el siguiente gráfico:
+
 ## El tipo de accidente
 
 ```{r}
@@ -261,19 +263,45 @@ accidentes2020_data |>
   theme_bw()
 ```
 
-¿Qué le pasa a este gráfico? ¿En que se puede mejorar?
+¿Qué le falta a este gráfico?¿En qué se puede mejorar? Pues está muy claro: ordenar las categorías. Si no están ordenadas tardamos mucho en determinar, por ejemplo, cuál es la tercera, o la quinta... Únicamente la más importante es relativamente fácil de situar. Pero veamos cuando ordenamos las categorías:
+
+```{r}
+#| code-summary: tipos de accidente (ordenado)
+
+ggplot(accidentes2020_data, aes(y = reorder(tipo_accidente,
+                                            -tipo_accidente,
+                                            length))) +
+  geom_bar(fill = "orange", alpha = 0.6) +
+  labs(title = "Tipos de accidente en Madrid durante el año 2020",
+       subtitle = "Sobresalen la colisión fronto-lateral y el alcance",
+       x = "Número de accidentes", y = "") +
+  scale_x_continuous(labels = function(x) {
+    format(x,
+      big.mark = ".", decimal.mark = ",", scientific = FALSE
+    )
+  }) +
+  theme_bw() +
+  theme(axis.title.x = element_text(hjust = 0))
+  
+```
+
+## Otras visualizaciones
+
+Existen visualizaciones útiles para tablas de contingencia como los balloonplots. Veamos un ejemplo entre el sexo y el tipo de persona con la función 'balloonplot()' del paquete 'gplots()'...
 
 ::: {#exr-4}
-¿Existe asociación entre el sexo y el tipo de persona (conductor, pasajero, peaton) que sufre el accidente?
+¿Existe asociación entre el sexo y el tipo de persona (conductor, pasajero, peatón) que sufre el accidente?
 :::
 
 ```{r}
+#| code-summary: Tabla de contingencia sexo-tipo de persona
 
-# accidentes2020_data_sin_na <- accidentes2020_data |>
-#  na.omit()
-  
-balloonplot(table(accidentes2020_data$sexo , accidentes2020_data$tipo_persona))
+balloonplot(table(accidentes2020_data$sexo,
+                  accidentes2020_data$tipo_persona),
+            main = "Tabla de contingencia de sexo y tipo de persona")
 ```
+
+Otras formas de visualizar asociaciones es usar mosaicos, aunque deben evitarse si las variables incluyen un número importante de factores, como es el caso siguiente:
 
 ::: {#exr-5}
 ¿Existe asociación entre el sexo y el tipo de accidente?
@@ -287,6 +315,8 @@ ggplot() +
   geom_mosaic(aes(x = product(tipo_accidente, sexo), 
                   fill=sexo)) 
 ```
+
+Otra posibilidad es usar facetas para detectar asociaciones. Por ejemplo, veamos los tipos de accidente y el estado meteorológico en el momento del accidente. Como podemos observar, **la carga cognitiva aumenta con el número de categorías de las variables** (17 para el tipo de accidente y 7 para la meteorología)
 
 ```{r}
 niveles <- levels(factor(accidentes2020_data$tipo_accidente))
@@ -302,11 +332,28 @@ accidentes2020_data  |>
   theme_minimal()
 ```
 
-# Centra la atención de tu audiencia
+## Visualizaciones específicas georreferenciadas
+
+Una categoría especial, y que merece mucho la pena destacar, cuando tenemos información georreferenciada, son los mapas interactivos. Una de las librerías más populares para construirlos es 'leaflet', que usa los mapas de OpenStreetMap, permitiendo incluir los mapas físicos de ESRI.
 
 ```{r}
-# con la librería leflet podemos crear un mapa interactivo
+#| code-summary: mapa interactivo con leaflet
 
+accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)
+accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]
+accidentes2020_data$latitude <- st_coordinates(accidentes2020_sf)[, 2]
+
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
+  addCircleMarkers(lng = ~longitude, lat = ~latitude, 
+                   radius = 1, color = "red", opacity = 0.5)  
+#  addProviderTiles(providers$Esri.WorldImagery)
+```
+
+Si incluimos los mapas físicos de ESRI queda así (en cada caso habrá que valorar si interesa):
+
+```{r}
+#| code-summary: mapa interactivo con leaflet y ESRI
 
 utm_crs <- "+proj=utm +zone=30 +datum=WGS84 +units=m +no_defs"
 accidentes_sf <- st_as_sf(accidentes2020_data, 
@@ -315,60 +362,64 @@ accidentes_sf <- st_transform(accidentes_sf, crs = 4326)
 accidentes2020_data$longitude <- st_coordinates(accidentes_sf)[, 1]
 accidentes2020_data$latitude <- st_coordinates(accidentes_sf)[, 2]
 
-leaflet(data = accidentes2020_data) %>%
-  addTiles() %>%
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
   addCircleMarkers(lng = ~longitude, lat = ~latitude, 
-                   radius = 2, color = "red", opacity = 0.5) %>%
+                   radius = 2, color = "red", opacity = 0.5) |>
   addProviderTiles(providers$Esri.WorldImagery)
 ```
 
-```{r}
-accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)
-accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]
-accidentes2020_data$latitude <- st_coordinates(accidentes2020_sf)[, 2]
+## Piensa como un diseñador
 
-leaflet(data = accidentes2020_data) %>%
-  addTiles() %>%
-  addCircleMarkers(lng = ~longitude, lat = ~latitude, 
-                   radius = 1, color = "red", opacity = 0.5)  
-#  addProviderTiles(providers$Esri.WorldImagery)
-```
-
-# Piensa como un diseñador. 
+Estas visualizaciones están muy bien pero... ¿y si pudiéramos aminorar la carga cognitiva del mapa interactivo? Una forma de hacerlo es usar agrupaciones. Veamos cómo hacerlo.
 
 ```{r}
-leaflet(data = accidentes2020_data) %>%
-  addTiles() %>%
+#| code-summary: mapa interactivo con clusters
+
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
   addCircleMarkers(lng = ~longitude, lat = ~latitude, 
                    radius = 2, color = "red", opacity = 0.5, clusterOptions = markerClusterOptions())
 ```
 
+Otra forma de visualizar que permite 'leaflet' son los mapas de calor:
+
 ```{r}
-# ahora haz un mapa de calor
-leaflet(data = accidentes2020_data) %>%
-  addTiles() %>%
-  addHeatmap(lng = ~longitude, lat = ~latitude, blur = 20, max = 0.05)
+#| code-summary: mapa de calor con leaflet
 
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
+  addHeatmap(lng = ~longitude, lat = ~latitude, blur = 50, max = 0.05)
 ```
-
 ::: {#exr-6}
-¿Dónde se registraron los accidentes el día de la declaración del Estado de Alarma en Madrid?
+Esta visualización la podemos configurar con los parámetros. Es tu turno: juega con ellos y consigue una gradación e intensidad de colores a tu gusto.
 :::
 
 ```{r}
-# Convertir la columna 'fecha' a formato Date
-accidentes2020_data[, fecha := as.Date(fecha, format = "%d/%m/%Y")]
+#| eval: false
 
-# Definir el rango de fechas del estado de alarma
-fecha_inicio <- as.Date("2020-03-14")
-fecha_fin <- as.Date("2020-03-14")
-
-# Filtrar el dataset por el rango de fechas
-estado_alarma_data <- accidentes2020_data[fecha >= fecha_inicio & fecha <= fecha_fin]
-
-# Crear un mapa con los accidentes
-leaflet(data = estado_alarma_data) %>%
-  addTiles() %>%
-  addCircleMarkers(lng = ~longitude, lat = ~latitude, 
-                   radius = 3, color = "red", opacity = 0.5)  
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
+  addHeatmap(lng = ~longitude, lat = ~latitude,
+             blur = _____, max = _____)
 ```
+
+# Contar una historia
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hemos visto el **planteamiento**, en el que proporcionamos el contexto: el mismísimo alcalde de Madrid se ha enterado de nuestras excelentes capacidades y nos ha pedido ayuda...
+
+El análisis exploratorio nos ha ido introduciendo en la **trama**, donde descubrimos que hay una **fuerte dependencia de la hora del día y del lugar donde se produce el accidente**.
+
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando al alcalde las conclusiones más interesantes, que podríamos resumir en un par de gráficos:
+
+-   Con el gráfico de evolución del número de accidentes a lo largo del día va a saber que (es lógico) que **en las 14 y 19 horas se producen el mayor número de accidentes**.
+
+-   Con un **mapa interactivo (podemos elegir cuál nos proporciona la mejor visualización)** le damos la posibilidad de mirar de forma dinámica qué zonas son las que necesitan más acciones de protección.
+:::
+
+## Para pensar:
+
+Nosotros te hemos propuesto un par de visualizaciones, pero puede que no estés de acuerdo... ¿Qué visualizaciones utilizarías en el desenlace, para aportarle el mayor conocimiento a Almeida sobre los accidentes de tráfico de su ciudad?

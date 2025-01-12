@@ -34,12 +34,24 @@ execute:
   code-fold: true
 ---
 
-Se sospecha que un individuo está traficando con libros fotocopiados en la ciudad de Toledo. Para determinar qué está pasando, se ha obtenido información sobre las antenas de telefonía a las que se ha conectado su teléfono móvil, así como los mensajes que ha enviado y recibido.
+# Misterio en la Ciudad Imperial
 
+Se sospecha que un individuo está traficando con libros fotocopiados en la ciudad de Toledo. Para determinar qué está pasando, se ha obtenido información de las antenas de telefonía a las que se ha conectado su teléfono móvil, así como los mensajes que ha enviado y recibido.
 
-# Cargamos los paquetes **R** necesarios para el análisis de los datos.
+El caso es que el científico de datos de la Policía Local está recuperándose de una operación de hernia discal, y el Jefe de la Policía ha acudido a la UCLM para que los alumnos del curso "Storytelling visual con R" le solucionen la papeleta, ya que dice [sic] "que no hay nadie mejor que ellos para esto".
 
-```{r read-packages}
+# Entender el contexto
+
+::: {.callout-tip}
+
+## Cómo definir el propósito y la audiencia de tu análisis
+
+Aquí se trata de pillar al caco y obtener alguna evidencia de su delito. ¿Cómo lo podemos hacer? Con la información georreferenciada podemos ver por dónde ha estado. Con sus mensajes podemos ver quién se relaciona con él y montar alguna nube de palabras que lo delate... pues venga, sin más pérdida de tiempo... ¡A por él!
+:::
+
+```{r}
+#| code-summary: Configuración inicial y datos
+
 library(tidyverse)      # Para manipular los datos
 library(leaflet)        # Para crear mapas interactivos
 library(leaflet.extras) # Para crear extesiones en mapas interactivos
@@ -48,17 +60,15 @@ library(raster)         # Para trabajar con datos raster
 library(igraph)         # Para trabajar con grafos
 library(tm)             # Para trabajar con texto
 library(wordcloud)      # Para crear nubes de palabras
-```
 
-# Leemos los ficheros de datos y mostramos las primeras filas.
-
-```{r}
 antennas <- read_csv("data/book_antennas.csv")
 connections <- read_csv("data/book_connections.csv")
 messages <- read_csv("data/book_messages.csv")
 ```
 
-# ¿Qué tipo de datos tenemos? ¿Cómo son las variables?
+# Análisis exploratorio inicial
+
+¿Qué tipo de datos tenemos? ¿Cómo son las variables?
 
 ```{r}
 head(antennas)
@@ -66,7 +76,7 @@ head(connections)
 head(messages)
 ```
 
-# Geolocalización de las antenas y conexiones del movil objeto de interés.
+## Geolocalización de las antenas y las conexiones del movil objeto de interés
 
 ```{r}
 leaflet() |>
@@ -79,7 +89,9 @@ leaflet() |>
                    label = ~ paste("Conexión", connection_id))
 ```
 
-# Análisis espacial de la intensidad de las antenas. Localización y tipo de variable.
+Ay, qué papelón vamos a hacer... ¡Que el comercio se está produciendo en el entorno de la Facultad de Ciencias Jurídicas y Sociales!
+
+## Análisis espacial de la intensidad de las antenas. Localización y tipo de variable.
 
 ```{r}
 leaflet() |>
@@ -89,9 +101,11 @@ leaflet() |>
                    label = ~ paste("Antena", antenna_id))
 ```
 
-# `Objetivo: mapa de cobertura.` Interpolación de la intensidad de las antenas para representar la cobertura de cada una de ellas. 
+Si hacemos un mapa de cobertura de las antenas, podemos hacer interpolación de su intensidad para representar la cobertura de cada una de ellas. 
 
 ```{r}
+#| code-summary: mapa de cobertura de antenas
+
 # Crear un objeto SpatialPointsDataFrame
 coordinates(antennas) <- ~ longitude + latitude
 
@@ -123,9 +137,13 @@ leaflet() |>
 
 ```
 
-# ¿Con quién se relaciona el sospechoso, que es conocido con el pseudónimo de **Laplace**?
+# ¿Con quién se relaciona el sospechoso? Los grafos
+
+El Jefe de la Policía Local nos ha dicho que es conocido con el pseudónimo de **Laplace**. Si pudiéramos montar un grafo de relaciones quizá podríamos sacar alguna conclusión...
 
 ```{r}
+#| code-summary: grafo de relaciones entre actores
+
 graph_data <- messages |>
   dplyr::select(sender, receiver) |>
   graph_from_data_frame(directed = TRUE)
@@ -136,20 +154,24 @@ plot(graph_data,
      edge.arrow.size = 0.5)
 ```
 
-# ¿Y si mejoramos el grafo teniendo en cuenta la centraliada del nodo, es decir, la importancia de cada actor? 
+¿Y si mejoramos el grafo teniendo en cuenta la centralizada del nodo, es decir, la importancia de cada actor?
 
 ```{r}
+#| code-summary: grafo con la importancia de cada actor
+
 plot(graph_data, 
      vertex.size = degree(graph_data), 
      vertex.label.cex = 0.8, 
      edge.arrow.size = 0.5)
 ```
 
-# ¿De qué habla Laplace en sus mensajes de texto con el teléfono móvil?
+Pues cuidado, porque aquí hay una red entera de comercio de libros, por lo que el Jefe de Policía ya puede empezar a planificar un operativo bastante mayor del que probablemente pensaba hacer inicialmente. Si supiera Laplace que por su culpa se va a levantar una liebre tan grande, y van a pillar a muchos de sus colegas...
 
-## Preparación del texto:
+# ¿De qué habla Laplace en sus mensajes de texto con el teléfono móvil? Las nuebes de palabras (wordclouds)
 
 ```{r}
+#| code-summary: Preparación del texto
+
 corpus <- Corpus(VectorSource(messages$message))
 corpus <- tm_map(corpus, content_transformer(tolower))
 corpus <- tm_map(corpus, removePunctuation)
@@ -163,9 +185,9 @@ words <- sort(rowSums(matrix), decreasing = TRUE)
 df <- data.frame(word = names(words), freq = words)
 ```
 
-## Nube de palabras:
-
 ```{r}
+#| code-summary: nube de palabras
+
 wordcloud(words = df$word, 
           freq = df$freq, 
           min.freq = 1, 
@@ -173,3 +195,23 @@ wordcloud(words = df$word,
           colors = brewer.pal(8, "Dark2")
           )
 ```
+
+Una vez visualizada la nube de palabras está claro que la temática son los libros, destacando otras palabras como "¿cuántos?", "necesitas", "descuento", "precio"... Curiosamente, la Estadística ocupa un lugar preferencial entre las materias que se comercializan... ¡¡¡¿No estarán fotocopiando ese libro tan famoso, "Fundamentos de Ciencia de Datos con R"?!!! Tendremos que avisar a los autores...
+
+# Contar una historia
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+El **planteamiento** de la historia es que el Jefe de la Policía Local de Toledo necesita información sobre la actividad de un sospechoso (Laplace) a través de sus mensajes de móvil.
+
+El análisis exploratorio de los conjuntos de datos nos ha introducido directamente en la **trama**, donde hemos detectado aspectos muy interesantes para la Policía, como es la ampliación de la red de comercio ilegal de libros a un buen número de sospechosos. Además hemos situado la zona de actividad y proporcionado una visualización del contenido de los mensajes.
+
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando al Jefe la **información que necesita para actuar**:
+
+-   Con el **gráfico de conexiones, incluyendo la interpolación de intensidad de las antenas, puede ver la zona de actividad**.
+
+-   El **grafo de conexiones entre actores le descubre toda la red de comercio ilegal**.
+
+-   La **nuebe de palabras acaba de confirmarle que la actividad es el comercio ilegal de libros**.
+:::

@@ -193,7 +193,6 @@ ggplot(data = renta, aes(x=`2019`)) +
 ¡Qué histograma más feo! Vamos a mejorarlo
 
 ::: {.callout-important title="Tu turno"}
-
 Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
 :::
 

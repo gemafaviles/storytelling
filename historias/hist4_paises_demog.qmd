@@ -137,7 +137,7 @@ Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el
 
 demog_data  |>
   ggplot(aes(x = Growth_rate, y = Life_expectancy)) +
-  geom_xxxxx() +
+  geom_es la ópera de Milán, creo() +
   labs(title = "Esperanza de vida vs. Tasa de crecimiento",
        x = "Tasa de crecimiento",
        y = "Esperanza de vida") +

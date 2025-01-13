@@ -120,7 +120,7 @@ renta |> explore_all()
 
 
 ::: {.callout-important title="Tu turno"}
-Completa las partes del código señaladas por `xxx` para obtener el resultado propuesto.
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto.
 :::
 
 ```{r probl1}
@@ -160,7 +160,7 @@ head(valores[order(valores, decreasing = TRUE)], 20)
 
 ::: {.callout-important title="Tu turno"}
 
-Completa las partes del código señaladas por `xxx` para obtener el resultado propuesto. Sólo tienes que especificar la función a utilizar.
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto. Sólo tienes que especificar la función a utilizar.
 :::
 
 ::: {#exr-3}

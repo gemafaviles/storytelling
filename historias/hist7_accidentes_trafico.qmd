@@ -154,8 +154,30 @@ ggplot(data = accidentes2020_data,
 
 Vamos a separar la fecha y la hora, porque en ese gráfico no vemos casi nada...
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
+```{r}
+#| eval: false
+# Convertir la columna 'fecha' a formato Date
+accidentes2020_data$fecha <- as.Date(accidentes2020_data$fecha, format = "%d/%m/%Y")
+
+accidentes2020_fecha <- accidentes2020_data |>
+  select(fecha) |>
+  group_xxxxx(_____) |>
+  mutate(n = n()) |>
+  unique()
+
+ggplot(data = accidentes2020_fecha,
+       aes(x = fecha, y = n)) + 
+  geom_xxxxx() +
+  theme_minimal()
+```
+
 ```{r}
 #| code-summary: gráfico del cuándo según el día
+#| echo: false
 
 # Convertir la columna 'fecha' a formato Date
 accidentes2020_data$fecha <- as.Date(accidentes2020_data$fecha, format = "%d/%m/%Y")
@@ -241,7 +263,23 @@ ggplot(data = accidentes2020_hora_dia,
 ¿De qué tipo son los accidentes? 
 :::
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto.
+:::
+
 ```{r}
+#| eval: false
+
+accidentes2020_data <- accidentes2020_data |>
+  mutate_if(is.character, as.factor)
+
+accidentes2020_data |>
+  count(tipo_accidente) |>
+  mutate(porcentaje = 100 * n / sum(n))
+```
+
+```{r}
+#| echo: false
 accidentes2020_data <- accidentes2020_data |>
   mutate_if(is.character, as.factor)
 
@@ -265,7 +303,32 @@ accidentes2020_data |>
 
 ¿Qué le falta a este gráfico?¿En qué se puede mejorar? Pues está muy claro: ordenar las categorías. Si no están ordenadas tardamos mucho en determinar, por ejemplo, cuál es la tercera, o la quinta... Únicamente la más importante es relativamente fácil de situar. Pero veamos cuando ordenamos las categorías:
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+:::
+
 ```{r}
+#| eval: false
+
+ggplot(accidentes2020_data, aes(y = reorder(tipo_accidente,
+                                            -tipo_accidente,
+                                            length))) +
+  geom_xxxxx(fill = "orange", alpha = 0.6) +
+  labs(title = "Tipos de accidente en Madrid durante el año 2020",
+       subtitle = "Sobresalen la colisión fronto-lateral y el alcance",
+       x = "Número de accidentes", y = "") +
+  scale_x_continuous(labels = function(x) {
+    format(x,
+      big.mark = ".", decimal.mark = ",", scientific = FALSE
+    )
+  }) +
+  theme_bw() +
+  theme(axis.title.x = element_text(_____ = 0))
+  
+```
+
+```{r}
+#| echo: false
 #| code-summary: tipos de accidente (ordenado)
 
 ggplot(accidentes2020_data, aes(y = reorder(tipo_accidente,

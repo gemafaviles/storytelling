@@ -70,7 +70,21 @@ messages <- read_csv("data/book_messages.csv")
 
 ¿Qué tipo de datos tenemos? ¿Cómo son las variables?
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto.
+:::
+
 ```{r}
+#| eval: false
+
+xxxx(antennas)
+xxxx(connections)
+xxxx(messages)
+```
+
+```{r}
+#| echo: false
+
 head(antennas)
 head(connections)
 head(messages)
@@ -93,7 +107,23 @@ Ay, qué papelón vamos a hacer... ¡Que el comercio se está produciendo en el 
 
 ## Análisis espacial de la intensidad de las antenas. Localización y tipo de variable.
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto.
+:::
+
 ```{r}
+#| eval: false
+
+leaflet() |>
+  xxxxx() |>
+  addCircleMarkers(data = antennas, ~longitude, ~latitude, 
+                   color = "red", radius = ~ intensity / 5, 
+                   label = ~ paste("Antena", antenna_id))
+```
+
+```{r}
+#| echo: false
+
 leaflet() |>
   addTiles() |>
   addCircleMarkers(data = antennas, ~longitude, ~latitude, 
@@ -141,8 +171,26 @@ leaflet() |>
 
 El Jefe de la Policía Local nos ha dicho que es conocido con el pseudónimo de **Laplace**. Si pudiéramos montar un grafo de relaciones quizá podríamos sacar alguna conclusión...
 
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto. ¿Qué paquete se usa para especificar la función select()?
+:::
+
+```{r}
+#| eval: false
+
+graph_data <- messages |>
+  xxxxx::select(sender, receiver) |>
+  graph_from_data_frame(directed = TRUE)
+
+plot(graph_data, 
+     vertex.size = 10, 
+     vertex.label.cex = 0.8, 
+     edge.arrow.size = 0.5)
+```
+
 ```{r}
 #| code-summary: grafo de relaciones entre actores
+#| echo: false
 
 graph_data <- messages |>
   dplyr::select(sender, receiver) |>

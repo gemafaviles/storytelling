@@ -226,7 +226,7 @@ vis_miss(titanic_train)
 ```
 
 ::: {.callout-important title="Tu turno"}
-Completa las partes del código señaladas por `xxx` para obtener el resultado propuesto. ¿Eres capaz de recordar la función para visualizar los datos faltantes?
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto. ¿Eres capaz de recordar la función para visualizar los datos faltantes?
 :::
 
 ```{r}

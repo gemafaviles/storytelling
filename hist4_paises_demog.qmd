@@ -94,33 +94,31 @@ head(demog_data, 3)
 Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto. ¿Te acuerdas de las funciones para explorar todas las variables a la vez?
 :::
 
-
-
 ```{r}
 #| code-summary: Exploración básica
 #| eval: false
+
 demog_data |> xxxxxxx_all()
 ```
 
 ```{r}
 #| echo: false
-summary(demog_data)
-```
 
-
-
-```{r}
-#| code-summary: Resumen
-#| eval: false
-xxxxxxx(demog_data)
-```
-
-```{r}
 demog_data |> explore_all()
 ```
 
+```{r}
+#| code-summary: Resumen
+#| echo: false
 
+summary(demog_data)
+```
 
+```{r}
+#| eval: false
+
+xxxxxxx(demog_data)
+```
 
 # Elegir una visualización adecuada
 
@@ -199,8 +197,6 @@ demog_data  |>
   theme_minimal()
 ```
 
-
-
 ```{r}
 #| code-summary: Hexbin plot
 
@@ -237,6 +233,7 @@ demog_data  |>
   theme(axis.title.x = element_text(hjust = 0),
         axis.title.y = element_text(hjust = 1))
 ```
+
 Estamos usando **dos variables para enfocar la atención aportando información: el tamaño del país y el continente**. Solo con eso vemos enseguida por donde van los tiros: la mayor parte de los países de Europa tienen gran esperanza de vida y crecimiento moderado. Por el contrario, Sudamérica tiene tasas de crecimiento muy elevadas (son países en fases de expansión económica) y una menor esperanza de vida, a falta de consolidar sanidad y otros servicios en general.
 
 También somos capaces de identificar China e India rápidamente, por su tamaño, y Japón arriba a la izquierda por su tamaño medio-grande y enorme esperanza de vida.
@@ -308,6 +305,7 @@ Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el
 :::
 
 ```{r}
+#| code-summary: Añadimos línea de suavizado
 #| eval: false
 
 ______ + geom_smooth(method = NULL, se = TRUE) 

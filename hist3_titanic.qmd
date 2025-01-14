@@ -35,16 +35,14 @@ execute:
 ---
 
 ::: {.callout-note}
-Los datos para esta historia están sacados de la competición de kaggle "Titanic - Machine Learning from Disaster": https://www.kaggle.com/competitions/titanic. Los datasets de entrenamiento y test se encuentran en el objeto `titanic` del paquete `titanic`.
+Los datos para esta historia están sacados de la competición de kaggle [Titanic - Machine Learning from Disaster](https://www.kaggle.com/competitions/titanic). Los datasets de entrenamiento y test se encuentran en el objeto `titanic` del paquete `titanic`.
 
 ``` {r}
 #| code-summary: Instalación y/o carga del paquete `titanic`
 
-if (!require(titanic)){install.packedads("titanic")}
+if (!require(titanic)){install.packages("titanic")}
 ```
 :::
-
-
 
 Mi colega de departamento se ha picado con el departamento vecino, y se han apostado que ganaban el próximo datathon de GAIA-X. No pasaría nada, sería su problema, si no me hubiera pedido que le ayudara con el análisis exploratorio, que está mal de tiempo... lo de siempre... ¡¿Pero por qué no pueden dejarme tranquilo?!
 
@@ -57,9 +55,9 @@ Mi colega de departamento se ha picado con el departamento vecino, y se han apos
 En este caso, puesto que el objetivo de mi colega es la predicción, lo primero que vamos a hacer es un análisis exploratorio, para ver las relaciones entre las variables del conjunto de datos. Luego ya se apañará mi compañero para modelizar... ¡a ver si se piensa que lo voy a hacer todo yo!
 :::
 
-
 ```{r}
-#| code-summary: Lectura de librerías
+#| code-summary: Lectura de bibliotecas
+
 library(titanic)
 library(tidyverse)
 library(skimr)
@@ -72,12 +70,14 @@ library(visdat)
 
 ```{r}
 #| code-summary: Lectura de datos de los datos titanic_train del paquete titanic
+
 titanic <- titanic::titanic_train
 ```
 
 
 ```{r}
 #| code-summary: Nombre de las variables y primera visualización
+
 names(titanic)[1:6] <- c("id", "supervivencia", "clase", "nombre", "sexo", "edad")
 head(titanic, 3)
 ```
@@ -116,7 +116,7 @@ skim(titanic_conteo)
 
 ## ¿Hombre o mujer?
 
-Hemos visto como se relaciona la supervivencia con la pertenencia a la tripulación o a una clase en concreto, pero ¿influyó el sexo?
+Una pregunta que podemos hacernos enseguida es: ¿influyó el sexo en la supervivencia?
 
 Si usamos un diagrama de mosaico, que es un método gráfico para visualizar datos de dos o más variables cualitativas, podemos tener una visión general de los datos y reconocer relaciones entre diferentes variables cualitativas.
 
@@ -167,7 +167,7 @@ mosaico3
 
 # Eliminar el desorden. Enfocar la atención
 
-El gráfico anterior es muy complicado de interpretar, a no ser que se exija una fuerte atención del lector. **¿Podemos facilitarle la vida?**, porque... ¡de eso se trata en visualización!
+El gráfico anterior es muy complicado de interpretar y exige un enorme esfuerzo del lector, por su elevada carga cognitiva. **¿Podemos facilitarle la vida?**, porque... ¡de eso se trata en visualización!
 
 ## El diagrama de flujo
 
@@ -317,8 +317,6 @@ El análisis exploratorio nos introduce de lleno en la **trama**, donde descubri
 Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro colega las claves que necesita:
 
 -   Con el gráfico de flujo va a ver claramente como el sexo, la edad y la clase los tiene que tener en cuenta en el modelo: **la tercera clase tuvo un ratio de supervivencia claramente menor al contrario que las mujeres y los niños**.
-
-<!-- -   Un simple modelo `logit` nos hace encontrar otra variable: un **número de hermanos y esposas** mayor, aumenta la `supervivencia`. -->
 :::
 
 ## Para pensar:

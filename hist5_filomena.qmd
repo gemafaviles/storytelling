@@ -1,5 +1,5 @@
 ---
-title: "¿Dónde se ha sufrido más la borrasca Filomena?"
+title: "¿Dónde se 'ha sufrido' más la borrasca Filomena?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
@@ -8,7 +8,9 @@ format:
     theme: cerulean
     highlight-style: ayu-mirage
     self-contained: true
-    date: "`r Sys.Date()`"
+    lang: es
+    date: 01/20/2025
+    date-format: long
     embed-resources: true
     toc-title: Summary
     toc: true
@@ -47,7 +49,7 @@ if (!require(CDR)){
 Los datos referentes a la temperatura en España han sido recopilados por la Agencia Estatal de Meteorología (AEMET) y descargados en **R** con el paquete climatológico `climaemet`. Los mapas de España han sido procesados con el paquete `mapSpain`.
 :::
 
-# "¿Dónde se `ha sufrido` más la borrasca Filomena?"
+# ¿Dónde se 'ha sufrido' más la borrasca Filomena?
 
 El director de informativos de RTVE nos ha pedido al equipo de visualización que le preparemos un mapa rebonico para Informe Semanal. Como siempre, de un día para otro... ¡Que estamos a viernes por la tarde y ya me iba a ir a casica, con mi batica de Albacete! Que ya se sabe: "¡Pijama y bata... calefacción barata!".
 
@@ -95,7 +97,7 @@ if (st_crs(tmin_sf) != st_crs(esp)) {
 ## Selección de gráficos y visualizaciones que mejor representen tus datos.
 :::
 
-# ¿Gráfico de cajas o de violines?
+## ¿Gráfico de cajas o de violines?
 
 Ambas soluciones son ideales para ver la distribución de las temperaturas mínimas. Recomendamos los violines porque son más informativos, ya que se ve mejor la distribución de las variables cuantitativas.
 
@@ -233,7 +235,7 @@ Se ve claramente que las colas de los días 7 y 8 se deben casi exclusivamente a
 CUIDADO: es importante usar el argumento `size` en la función `geom_jitter` para hacer lo suficientemente pequeños los puntos y que no "molesten". Si se deja el valor por defecto (`size = 1`) aumentamos mucho el desorden.
 :::
 
-# Visualizaciones espaciales
+## Visualizaciones espaciales
 
 En visualización, usando técnicas espaciales tenemos claramente las de ganar, porque tienen una estética muy atractiva *per se*.
 

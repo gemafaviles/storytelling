@@ -1,0 +1,48 @@
+---
+title: "Convierte los datos en una historia"
+author:
+  - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
+  - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
+format: html
+theme: superhero
+#highlight-style: ayu-mirage
+self-contained: true
+date: "`r Sys.Date()`"
+code-link: true
+number-sections: true
+execute:
+  code-overflow: scroll
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  code-fold: true
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+#bibliography: biblio.bib
+---
+
+
+
+# Tu turno
+  
+1. Trabaja en grupos de 2 - 4 personas.
+
+2. Explora los datos que se te proporcionan y piensa en una historia que puedas contar con ellos. Los datos están en el archivo [municipalities.RData](https://gemafaviles.github.io/storytelling/municipalities.RData) y la descripción en el documento [descrip_municipalities.pdf](https://gemafaviles.github.io/storytelling/descrip_municipalities.pdf).
+
+
+
+3. Guarda los datos en tu directorio de trabajo y cárgalos con el siguiente comando
+
+```r
+load("municipalities.RData")
+```
+
+4. El objeto **R** contiene datos de características de los municipios de Castilla-La Mancha con la geometría de los polígonos incorporada.
+
+
+5. El último día de clase tu grupo presentará la historia que hayáis creado (la duración aproximada de la exposición será de 5-7 minutos).

@@ -1,0 +1,67 @@
+---
+title: "hist1_paro_femenino"
+format: html
+---
+
+```{r}
+library(CDR)
+library(tidyverse)
+library(summarytools)
+library(explore)
+library(ggpubr)
+library(ggridges)
+
+paleta_heatmaps <- c("#B3FF0080", "#213894FF")
+paleta_lineas <- c("blue4", "orange", "darkgreen")
+
+data("parados_clm")
+head(parados_clm)
+help("parados_clm")
+```
+
+```{r}
+summary(parados_clm)
+```
+
+```{r}
+resumen <- parados_clm |>
+  group_by(anyo) |> # Agrupamos por la variable año
+  summarise(parados = sum(parados)) |> # Sumamos parados para cada agrupación
+  mutate(anyo = as.numeric(as.character(anyo))) # Pasamos numérico la variable año
+anyos <- c(2007, 2013, 2019, 2020, 2022)
+
+# Creamos el dataframe paro_anyos
+paro_anyos <- resumen |>
+  filter(anyo %in% anyos) |>
+  select(parados) |>
+  mutate(parados = round(parados, 0))
+
+# Creamos el dataframe puntos para los puntos de giro
+puntos <- data.frame(anyos, paro_anyos)
+```
+
+```{r}
+graf <- ggplot(resumen, aes(anyo, parados)) +
+  geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
+  xlab("") +
+  ylab("número de parados") +
+  geom_point(data = puntos,
+    mapping = aes(x = anyos, y = parados),
+    shape = "circle filled", size = 2.5, fill = paleta_lineas[1],
+    alpha = 1
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      format(x,
+        big.mark = ".",
+        decimal.mark = ",", scientific = FALSE
+      )
+    },
+    limits = c(0, 300000)
+  ) +
+  ggtitle("Impacto de las crisis en el paro de Castilla-La Mancha") +
+  theme_minimal()
+
+graf
+```
+

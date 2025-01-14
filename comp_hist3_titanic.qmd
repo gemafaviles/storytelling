@@ -44,7 +44,7 @@ if (!require(titanic)){install.packedads("titanic")}
 ```
 :::
 
-
+# ¿Quién sobrevivió al Titanic?
 
 Mi colega de departamento se ha picado con el departamento vecino, y se han apostado que ganaban el próximo datathon de GAIA-X. No pasaría nada, sería su problema, si no me hubiera pedido que le ayudara con el análisis exploratorio, que está mal de tiempo... lo de siempre... ¡¿Pero por qué no pueden dejarme tranquilo?!
 
@@ -59,27 +59,21 @@ En este caso, puesto que el objetivo de mi colega es la predicción, lo primero 
 
 
 ```{r}
-#| code-summary: Lectura de librerías
+#| code-summary: Configuración inicial y datos
+
 library(titanic)
 library(tidyverse)
 library(skimr)
 library(explore)
+library(caret)
 library(ggmosaic)
 library(ggalluvial)
+library(pROC)
 library(visdat)
-```
 
-
-```{r}
-#| code-summary: Lectura de datos de los datos titanic_train del paquete titanic
-titanic <- titanic::titanic_train
-```
-
-
-```{r}
-#| code-summary: Nombre de las variables y primera visualización
+titanic <- titanic_train
 names(titanic)[1:6] <- c("id", "supervivencia", "clase", "nombre", "sexo", "edad")
-head(titanic, 3)
+head(titanic)
 ```
 
 ```{r}
@@ -207,7 +201,7 @@ flujo
 Los diagramas de árbol permiten enfocar la atención y llegar a conclusiones interesantes de una forma rápida, ya que señalan las categorías más destacables en las variables. Además, combinan la visualización con la presentación de datos muy informativos...
 
 ```{r}
-#| code-summary: Diagrama de árbol
+#| code-summary: diagrama de árbol
 
 titanic_conteo |> explain_tree(target = supervivencia, n = n, out = "model")
 ```
@@ -218,92 +212,86 @@ sexo = Male: 21% supervivencia (79% de las observaciones)
 sexo = Female & clase = 3rd: 46% supervivencia (9%)
 sexo = Female & clase <> 3rd: 93% supervivencia (12%)
 
+# Una modelización muy sencilla
 
+Como somos muy buenos colegas, y ponemos mucho interés en lo que hacemos, vamos a hacer un modelo logit sencillo, para ver si ratifica nuestros hallazgos con la fase de visualización previa.
 
+```{r}
+#| code-summary: carga de datos de entrenamiento. Faltantes
 
-<!-- # Una modelización muy sencilla -->
+## Cargamos los conjuntos de datos
+head(titanic_train)
+sum(is.na(titanic_train))
+vis_miss(titanic_train)
+```
 
-<!-- Como somos muy buenos colegas, y ponemos mucho interés en lo que hacemos, vamos a hacer un modelo logit sencillo, para ver si ratifica nuestros hallazgos con la fase de visualización previa. -->
+::: {.callout-important title="Tu turno"}
+Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto. ¿Eres capaz de recordar la función para visualizar los datos faltantes?
+:::
 
-<!-- ```{r} -->
-<!-- #| code-summary: carga de datos de entrenamiento. Faltantes -->
+```{r}
+#| eval: false
 
-<!-- ## Cargamos los conjuntos de datos -->
-<!-- head(titanic_train) -->
-<!-- sum(is.na(titanic_train)) -->
-<!-- vis_miss(titanic_train) -->
-<!-- ``` -->
+vis_xxxx(titanic_train)
+```
 
-<!-- ::: {.callout-important title="Tu turno"} -->
-<!-- Completa las partes del código señaladas por `xxxxx` para obtener el resultado propuesto. ¿Eres capaz de recordar la función para visualizar los datos faltantes? -->
-<!-- ::: -->
+```{r}
+#| code-summary: limpieza del conjunto de datos de entrenamiento
 
-<!-- ```{r} -->
-<!-- #| eval: false -->
+# Valores faltantes todos en la edad:
+colSums(apply(titanic_train, 2, is.na))
 
-<!-- vis_xxxx(titanic_train) -->
-<!-- ``` -->
+# La edad es muy importante en el modelo, por lo que solo nos quedamos con los registros completos:
+titanic_data <- titanic_train[complete.cases(titanic_train),]
 
-<!-- ```{r} -->
-<!-- #| code-summary: limpieza del conjunto de datos de entrenamiento -->
+## Convertimos "Survived", "Pclass", "Sex" y "Embarked" a factores
+for (i in c("Survived", "Pclass", "Sex", "Embarked")){
+  titanic_data[,i] = as.factor(titanic_data[,i])
+}
 
-<!-- # Valores faltantes todos en la edad: -->
-<!-- colSums(apply(titanic_train, 2, is.na)) -->
+# Nos quedamos con las variables útiles
+titanic_data <- titanic_data |>
+  select(-c(PassengerId, Name, Ticket, Cabin))
+```
 
-<!-- # La edad es muy importante en el modelo, por lo que solo nos quedamos con los registros completos: -->
-<!-- titanic_data <- titanic_train[complete.cases(titanic_train),] -->
+```{r}
+#| code-summary: modelo
 
-<!-- ## Convertimos "Survived", "Pclass", "Sex" y "Embarked" a factores -->
-<!-- for (i in c("Survived", "Pclass", "Sex", "Embarked")){ -->
-<!--   titanic_data[,i] = as.factor(titanic_data[,i]) -->
-<!-- } -->
+## Separando entrenamiento y test
+train <- titanic_data[1:535,] # 75%
+test <- titanic_data[536:714,]
 
-<!-- # Nos quedamos con las variables útiles -->
-<!-- titanic_data <- titanic_data |> -->
-<!--   select(-c(PassengerId, Name, Ticket, Cabin)) -->
-<!-- ``` -->
+## Creación del modelo
+modelo <- glm(Survived ~ .,
+             family = binomial(link ='logit'),
+             data = train)
 
-<!-- ```{r} -->
-<!-- #| code-summary: modelo -->
+## Resumen del modelo
+summary(modelo)
+```
 
-<!-- ## Separando entrenamiento y test -->
-<!-- train <- titanic_data[1:535,] # 75% -->
-<!-- test <- titanic_data[536:714,] -->
+```{r}
+#| code-summary: anova del modelo
 
-<!-- ## Creación del modelo -->
-<!-- modelo <- glm(Survived ~ ., -->
-<!--              family = binomial(link ='logit'), -->
-<!--              data = train) -->
+anova(modelo, test = "Chisq")
+```
 
-<!-- ## Resumen del modelo -->
-<!-- summary(modelo) -->
-<!-- ``` -->
+```{r}
+#| code-summary: predicciones, matriz de confusión y curva ROC
 
-<!-- ```{r} -->
-<!-- #| code-summary: anova del modelo -->
+## Prediciendo el conjunto de test
+resultado <- predict(modelo, newdata = test[,-1],
+                     type = 'response')
+resultado_factor <- as.factor(ifelse(resultado > 0.5,1,0))
 
-<!-- anova(modelo, test = "Chisq") -->
-<!-- ``` -->
+## Confusion matrix and statistics
+confusionMatrix(data = resultado_factor,
+                reference = test$Survived)
 
-<!-- ```{r} -->
-<!-- #| code-summary: predicciones, matriz de confusión y curva ROC -->
-
-<!-- ## Prediciendo el conjunto de test -->
-<!-- resultado <- predict(modelo, newdata = test[,-1], -->
-<!--                      type = 'response') -->
-<!-- resultado_factor <- as.factor(ifelse(resultado > 0.5,1,0)) -->
-
-<!-- ## Confusion matrix and statistics -->
-<!-- confusionMatrix(data = resultado_factor, -->
-<!--                 reference = test$Survived) -->
-
-<!-- ## Curva ROC -->
-<!-- auc = roc(test$Survived, resultado) # puntuación AUC -->
-<!-- plot(auc, main ="Curva ROC. Regresión logística") -->
-<!-- ``` -->
-
-
-
+## Curva ROC
+auc = roc(test$Survived, resultado) # puntuación AUC
+plot(auc, main ="Curva ROC. Regresión logística")
+```
 
 # Contar una historia
 
@@ -318,7 +306,7 @@ Pero como siempre, lo más importante es el **desenlace**, donde le estamos dand
 
 -   Con el gráfico de flujo va a ver claramente como el sexo, la edad y la clase los tiene que tener en cuenta en el modelo: **la tercera clase tuvo un ratio de supervivencia claramente menor al contrario que las mujeres y los niños**.
 
-<!-- -   Un simple modelo `logit` nos hace encontrar otra variable: un **número de hermanos y esposas** mayor, aumenta la `supervivencia`. -->
+-   Un simple modelo `logit` nos hace encontrar otra variable: un **número de hermanos y esposas** mayor, aumenta la `supervivencia`.
 :::
 
 ## Para pensar:

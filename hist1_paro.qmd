@@ -1,5 +1,5 @@
 --- 
-title: "¡Cuidado con el paro femenino! FURGOL"
+title: "¡Cuidado con el paro femenino! ER FURGOL"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)

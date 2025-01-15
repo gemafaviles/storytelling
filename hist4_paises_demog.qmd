@@ -67,10 +67,14 @@ library(explore)
 
 
 ```{r}
-#| code-summary: Lectura de datos formato `csv` desde la web
-demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
+#| code-summary: Lectura de datos formato `csv` en local
+demog_data <- read.table("data/multivariate.csv", header = T, sep = ";")
 ```
 
+```{r}
+#| code-summary: Lectura de datos formato `csv` directamente desde la web
+demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
+```
 
 ```{r}
 #| code-summary: Estilo de código. Cambio los puntos por guiones 

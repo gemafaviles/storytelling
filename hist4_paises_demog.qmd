@@ -67,7 +67,7 @@ library(explore)
 
 
 ```{r}
-#| code-summary: Lectura de datos formato `csv` en local
+#| code-summary: Lectura de datos formato `csv` en local desde la carpeta `data`
 demog_data <- read.table("data/multivariate.csv", header = T, sep = ";")
 ```
 

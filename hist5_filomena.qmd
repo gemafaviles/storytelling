@@ -1,5 +1,5 @@
 ---
-title: "¿Dónde se 'ha sufrido' más la borrasca Filomena?"
+title: "¿Quién es Filomena? ¿Mi tía? ¿Tu suegra? ¿Una borrasca...?"
 author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
@@ -17,7 +17,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
-    code-fold: true
+#    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -65,27 +65,51 @@ Como siempre, vamos a empezar por explorar un poco los datos y después finaliza
 
 
 ```{r}
-#| code-summary: Configuración inicial y datos
+#| code-summary: Carga de libreías necesarías
 
 library(CDR)
 library(tidyverse)
 library(mapSpain)
 library(sf)
 library(GGally)
-library(NbClust)
-library(igraph)
-library(factoextra)
+# library(NbClust)
+# library(igraph)
+# library(factoextra)
 library(corrplot)
 library(explore)
+```
 
+
+::: {.callout-warning}
+## CUIDADO: estamos trabajando con datos espaciales
+:::
+
+Visualizamos las primeras filas del dataset que vamos a utilizar `tempmin_data` ya creado y disponible en el paquete `CDR`.
+
+```{r}
+#| code-summary: Mostramos las primeras filas del conjunto datos.
+# CDR::tempmin_data
+head(tempmin_data, 6)
+```
+
+```{r}
+#| code-summary: Ponemos el objeto tempmin_data en formato espacial
+tmin_sf <- st_as_sf(tempmin_data, 
+                    coords = c("longitud", "latitud"), 
+                    crs = 4326)
+
+```
+
+Ahora necesitamos un mapa de España
+```{r}
+#| code-summary: Con la librería mapSpain cargamos el mapa de España sin las Islas Canarías  (por simplicidad)
 esp <- esp_get_ccaa() |>
   filter(ine.ccaa.name != "Canarias") # Filtramos las Islas Canarias
+```
 
-head(tempmin_data)
-
-tmin_sf <- st_as_sf(tempmin_data, coords = c("longitud", "latitud"), crs = 4326)
-
-# Verificamos que los sistemas de coordenadas de la capa de mapas de España (paquete `mapspain`) y de la capa de temperaturas mínimas (paquete `CDR`) sean los mismos; si no lo son, transformamos uno para igualarlos.
+Verificamos que los sistemas de coordenadas de la capa de mapas de España (paquete `mapspain`) y de la capa de temperaturas mínimas (paquete `CDR`) sean los mismos; si no lo son, transformamos uno para igualarlos.
+```{r}
+#| code-summary: Comprobación de los CRS de los datos y el mapa
 if (st_crs(tmin_sf) != st_crs(esp)) {
   esp <- st_transform(esp, st_crs(tmin_sf))
 }
@@ -102,6 +126,7 @@ if (st_crs(tmin_sf) != st_crs(esp)) {
 Ambas soluciones son ideales para ver la distribución de las temperaturas mínimas. Recomendamos los violines porque son más informativos, ya que se ve mejor la distribución de las variables cuantitativas.
 
 ```{r}
+#| code-summary: Boxplot
 ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
   geom_boxplot(fill = "orange", alpha = 0.6)
 ```
@@ -119,15 +144,17 @@ ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
 Y por encima de todo: ¡simplicidad!
 
 ```{r }
+#| code-summary: Violin y boxplot
 boxplot_inicial <- ggplot(tempmin_data,
                           aes(x = fecha, y = tmin)) +
   geom_violin(color = "orange") +
   geom_boxplot(alpha = 0.6, fill = "orange") +
   labs(title = "La borrasca Filomena fue más intensa el 6 de enero",
-       x = "Fecha", y = "Temperatura mínima (°C)") +
-  theme_minimal() +
-  theme(axis.title.x = element_text(hjust = 0),
-        axis.title.y = element_text(hjust = 1))
+       x = "Fecha", 
+       y = "Temperatura mínima (°C)") +
+  theme_minimal() 
+ # theme(axis.title.x = element_text(hjust = 0),
+ #        axis.title.y = element_text(hjust = 1))
 
 boxplot_inicial
 ```
@@ -139,6 +166,7 @@ Basta una primera mirada al gráfico para darnos cuenta de que las dos visualiza
 Por eso, calculamos la mediana de las temperaturas y las conectamos temporalmente mediante un gráfico de línea, de forma que podamos indicar, no solo la distribución de la variable, sino también su evolución:
 
 ```{r}
+#| code-summary: Preparación de los datos
 medianas <- tempmin_data |>
   select(fecha, tmin) |>
   group_by(fecha) |>
@@ -146,23 +174,32 @@ medianas <- tempmin_data |>
   select(fecha, mediana) |>
   unique()
 medianas$pos <- 1:5
+```
 
-boxplot_inicial <- ggplot(tempmin_data,
+
+
+```{r}
+plot_final <- ggplot(tempmin_data,
                           aes(x = fecha, y = tmin)) +
-  geom_violin(color = "orange", fill = "orange", alpha = .7) +
-  geom_point(data = medianas, aes(x = fecha, y = mediana),
+  geom_violin(color = "orange", 
+              fill = "orange", 
+              alpha = .7) +
+  geom_point(data = medianas, 
+             aes(x = fecha, y = mediana),
              color = "darkblue") +
-  geom_line(data = medianas, aes(x = pos, y = mediana),
+  geom_line(data = medianas, 
+            aes(x = pos, y = mediana),
             color = "darkblue") +
   labs(title = "Temperaturas mínimas durante la borrasca Filomena",
-       subtitle = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)",
-       x = "Fecha", y = "Temperatura mínima (°C)") +
-  theme_minimal() +
-  theme(axis.title.x = element_text(hjust = 0),
-        axis.title.y = element_text(hjust = 1))
+       subtitle = "6 de enero: día más frío (mediana en color azul)",
+       x = "Fecha", 
+       y = "Temperatura mínima (°C)") +
+  theme_minimal() 
 
-boxplot_inicial
+plot_final
 ```
+
+
 
 Aquí podríamos añadir los valores sobre el violín. En algunos casos, como cuando hay colas muy largas (aquí la inferior del día 7) es interesante ver si se debe a pocos valores o, por el contrario, hay que tenerlos en cuenta. Vamos a verlo:
 
@@ -181,7 +218,11 @@ medianas <- tempmin_data |>
   select(fecha, mediana) |>
   unique()
 medianas$pos <- 1:5
+```
 
+
+```{r}
+#| eval: false
 boxplot_inicial <- ggplot(tempmin_data,
                           aes(x = fecha, y = tmin)) +
   geom_violin(color = "orange", fill = "orange", alpha = .7) +
@@ -191,43 +232,42 @@ boxplot_inicial <- ggplot(tempmin_data,
             color = "darkblue") +
   geom_jitter(size = .2, width = .2) +
   labs(title = "Temperaturas mínimas durante la borrasca Filomena",
-       ________ = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)",
+       ________ = "6 de enero: día más frío (mediana en color azul)",
        x = "Fecha", y = "Temperatura mínima (°C)") +
-  theme_minimal() +
-  theme(axis.title.x = element_text(hjust = 0),
-        axis.title.y = element_text(hjust = 1))
+  theme_minimal() 
 
 boxplot_inicial
 ```
 
-```{r}
-#| echo: false
 
-medianas <- tempmin_data |>
-  select(fecha, tmin) |>
-  group_by(fecha) |>
-  mutate(mediana = median(tmin)) |>
-  select(fecha, mediana) |>
-  unique()
-medianas$pos <- 1:5
 
-boxplot_inicial <- ggplot(tempmin_data,
-                          aes(x = fecha, y = tmin)) +
-  geom_violin(color = "orange", fill = "orange", alpha = .7) +
-  geom_point(data = medianas, aes(x = fecha, y = mediana),
-             color = "darkblue") +
-  geom_line(data = medianas, aes(x = pos, y = mediana),
-            color = "darkblue") +
-  geom_jitter(size = .2, width = .2) +
-  labs(title = "Temperaturas mínimas durante la borrasca Filomena",
-       subtitle = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)",
-       x = "Fecha", y = "Temperatura mínima (°C)") +
-  theme_minimal() +
-  theme(axis.title.x = element_text(hjust = 0),
-        axis.title.y = element_text(hjust = 1))
+<!-- ```{r} -->
+<!-- #| echo: false -->
 
-boxplot_inicial
-```
+<!-- medianas <- tempmin_data |> -->
+<!--   select(fecha, tmin) |> -->
+<!--   group_by(fecha) |> -->
+<!--   mutate(mediana = median(tmin)) |> -->
+<!--   select(fecha, mediana) |> -->
+<!--   unique() -->
+<!-- medianas$pos <- 1:5 -->
+
+<!-- boxplot_inicial <- ggplot(tempmin_data, -->
+<!--                           aes(x = fecha, y = tmin)) + -->
+<!--   geom_violin(color = "orange", fill = "orange", alpha = .7) + -->
+<!--   geom_point(data = medianas, aes(x = fecha, y = mediana), -->
+<!--              color = "darkblue") + -->
+<!--   geom_line(data = medianas, aes(x = pos, y = mediana), -->
+<!--             color = "darkblue") + -->
+<!--   geom_jitter(size = .2, width = .2) + -->
+<!--   labs(title = "Temperaturas mínimas durante la borrasca Filomena", -->
+<!--        subtitle = "La borrasca fue más intensa el 6 de enero en la mayoría de estaciones (mediana en color azul)", -->
+<!--        x = "Fecha", y = "Temperatura mínima (°C)")  -->
+
+<!-- boxplot_inicial -->
+<!-- ``` -->
+
+
 
 Se ve claramente que las colas de los días 7 y 8 se deben casi exclusivamente a una estación, por lo que nuestra conclusión (y la que refleja la mediana) de etiquetar el día 6 como el peor, es acertada.
 

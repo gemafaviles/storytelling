@@ -17,7 +17,7 @@ format:
     number-sections: true
     preview-links: auto
     code-link: true
-    code-fold: true
+#    code-fold: true
 number-sections: true
 execute:
   echo: true
@@ -72,40 +72,56 @@ library(visdat)
 #| code-summary: Lectura de datos de los datos titanic_train del paquete titanic
 
 titanic <- titanic::titanic_train
+head(titanic, 3)
 ```
 
 
 ```{r}
-#| code-summary: Nombre de las variables y primera visualización
+#| code-summary: Nombre de las variables en español y primera visualización
 
 names(titanic)[1:6] <- c("id", "supervivencia", "clase", "nombre", "sexo", "edad")
 head(titanic, 3)
 ```
 
+Recuento y seleción de variables
 ```{r}
 #| code-summary: Exploramos variables del dataset de entrenamiento
-
 titanic_conteo <- use_data_titanic(count = TRUE) # más adelante no contaremos por variables, porque nos interesarán los datos "crudos"
 names(titanic_conteo) <- c("clase", "sexo", "edad", "supervivencia", "n")
-titanic_conteo |> explore(clase, n = n)
-titanic_conteo |> describe(clase, n = n)
+```
 
-# ¿Cuántos sobrevivieron de cada clase?:
+¿Qué información contiene la variable `clase`?
+```{r}
+#| code-summary: Descipción
+titanic_conteo |> describe(clase, n = n)
+```
+
+
+```{r}
+#| code-summary: Gráfico de barras para variables cualitativas
+titanic_conteo |> explore(clase, n = n)
+```
+
+
+```{r}
+#| code-summary: ¿Cuántos sobrevivieron de cada clase?
 titanic_conteo |> explore(clase,
                           target = supervivencia,
                           n = n, split = TRUE)
 ```
 
+
+Lo normal es que queramos la información de todas las variables del dataset, en este caso, del objeto `titanic_conteo`.
 ```{r}
 #| code-summary: También podemos explorar todas las variables del dataset de una forma más resumida
-
 titanic_conteo |> explore_all(n = n)
 ```
 
+Un paquete muy interesante para el análisis exploratorio es `skim`
+
 ```{r}
 #| code-summary: skimr es un paquete que conviene memorizar
-
-skim(titanic_conteo)
+skim(titanic)
 ```
 
 # Elegir una visualización adecuada
@@ -118,7 +134,7 @@ skim(titanic_conteo)
 
 Una pregunta que podemos hacernos enseguida es: ¿influyó el sexo en la supervivencia?
 
-Si usamos un diagrama de mosaico, que es un método gráfico para visualizar datos de dos o más variables cualitativas, podemos tener una visión general de los datos y reconocer relaciones entre diferentes variables cualitativas.
+Si usamos un **diagrama de mosaico**, que es un método gráfico para visualizar datos de dos o más variables cualitativas, podemos tener una visión general de los datos y reconocer relaciones entre diferentes variables cualitativas.
 
 Veamos la `supervivencia` de los pasajeros del Titanic en función del `sexo` (ambas variables cualitativas).
 
@@ -129,7 +145,7 @@ Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el
 ```{r}
 #| eval: false
 
-titanic <- use_data_titanic(count = _____) # ahora trabajamos con los datos "crudos"
+titanic <- use_data_titanic(count = _____) # ahora trabajamos con los datos "crudos", sin conteo
 names(titanic) <- c("clase", "sexo", "edad", "supervivencia")
 
 mosaico2 <- ggplot(data = titanic) +
@@ -142,7 +158,7 @@ mosaico2
 #| echo: false
 #| code-summary: mosaico de 2 variables con los datos crudos
 
-titanic <- use_data_titanic(count = FALSE) # ahora trabajamos con los datos "crudos"
+titanic <- use_data_titanic(count = FALSE) # ahora trabajamos con los datos "crudos", sin conteo
 names(titanic) <- c("clase", "sexo", "edad", "supervivencia")
 
 mosaico2 <- ggplot(data = titanic) +
@@ -202,21 +218,21 @@ flujo <- ggplot(tabla_titanic,
 flujo
 ```
 
-## Los diagramas de árboles
+<!-- ## Los diagramas de árboles -->
 
-Los diagramas de árbol permiten enfocar la atención y llegar a conclusiones interesantes de una forma rápida, ya que señalan las categorías más destacables en las variables. Además, combinan la visualización con la presentación de datos muy informativos...
+<!-- Los diagramas de árbol permiten enfocar la atención y llegar a conclusiones interesantes de una forma rápida, ya que señalan las categorías más destacables en las variables. Además, combinan la visualización con la presentación de datos muy informativos... -->
 
-```{r}
-#| code-summary: Diagrama de árbol
+<!-- ```{r} -->
+<!-- #| code-summary: Diagrama de árbol -->
 
-titanic_conteo |> explain_tree(target = supervivencia, n = n, out = "model")
-```
+<!-- titanic_conteo |> explain_tree(target = supervivencia, n = n, out = "model") -->
+<!-- ``` -->
 
-Vemos que el `sexo` y la `clase` pueden dar una buena pista de quién tiene más probabilidad de salvarse:
+<!-- Vemos que el `sexo` y la `clase` pueden dar una buena pista de quién tiene más probabilidad de salvarse: -->
 
-sexo = Male: 21% supervivencia (79% de las observaciones)
-sexo = Female & clase = 3rd: 46% supervivencia (9%)
-sexo = Female & clase <> 3rd: 93% supervivencia (12%)
+<!-- sexo = Male: 21% supervivencia (79% de las observaciones) -->
+<!-- sexo = Female & clase = 3rd: 46% supervivencia (9%) -->
+<!-- sexo = Female & clase <> 3rd: 93% supervivencia (12%) -->
 
 
 
@@ -319,6 +335,6 @@ Pero como siempre, lo más importante es el **desenlace**, donde le estamos dand
 -   Con el gráfico de flujo va a ver claramente como el sexo, la edad y la clase los tiene que tener en cuenta en el modelo: **la tercera clase tuvo un ratio de supervivencia claramente menor al contrario que las mujeres y los niños**.
 :::
 
-## Para pensar:
+## Para pensar
 
 Si se hundiera hoy en día el Titanic, ¿habría cambiado la influencia de alguna variable en el modelo? ¿Tendríamos una visualización más confusa en el gráfico de flujo?

@@ -41,6 +41,14 @@ puntos <- data.frame(anyos, paro_anyos)
 ```
 
 ```{r}
+#| code-summary: Creación del gráfico lineal
+
+ggplot(data = resumen, mapping = aes(x = anyo, y = parados)) +
+  geom_line() +
+  theme_bw()
+```
+
+```{r}
 graf <- ggplot(resumen, aes(anyo, parados)) +
   geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
   xlab("") +
@@ -63,5 +71,124 @@ graf <- ggplot(resumen, aes(anyo, parados)) +
   theme_minimal()
 
 graf
+```
+
+```{r}
+resumen_sexo <- parados_clm |>
+  group_by(anyo, sexo) |>
+  summarise(parados = sum(parados)) |>
+  mutate(anyo = as.numeric(as.character(anyo)))
+paro_anyos <- resumen_sexo |>
+  filter(anyo %in% anyos) |>
+  select(sexo, parados) |>
+  mutate(parados = round(parados, 0))
+puntos <- data.frame(
+  anyos = rep(anyos, each = 2),
+  sexo = paro_anyos$sexo,
+  parados = paro_anyos$parados
+)
+```
+
+```{r}
+graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
+  geom_line(linewidth = 1, col = paleta_lineas[1], alpha = 0.5) +
+  xlab("") +
+  ylab("número de parados") +
+  facet_wrap("sexo") +
+  geom_point(puntos,
+    mapping = aes(x = anyos, y = parados),
+    shape = "circle filled", size = 2.5, fill = paleta_lineas[1],
+    alpha = 0.8
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      format(x,
+        big.mark = ".",
+        decimal.mark = ",", scientific = FALSE
+      )
+    },
+    limits = c(0, 300000)
+  ) +
+  ggtitle("Las mujeres se han recuperado peor de la crisis de 2007") + 
+  theme_minimal() +
+  theme(axis.title.y = element_text(hjust = 1))
+
+graf
+```
+
+```{r}
+graf <- ggplot(resumen_sexo, aes(anyo, parados)) +
+  geom_line(
+    data = resumen_sexo[resumen_sexo$sexo == "hombre", ],
+    linewidth = 1, col = paleta_lineas[1], alpha = 0.5
+  ) +
+  geom_line(
+    data = resumen_sexo[resumen_sexo$sexo == "mujer", ],
+    linewidth = 1, col = paleta_lineas[2], alpha = 0.5
+  ) +
+  xlab("") +
+  ylab("número de parados") +
+  annotate(
+    geom = "text", label = "hombres", col = paleta_lineas[1],
+    x = 2021,
+    y = puntos$parados[puntos$sexo == "hombre" &
+      puntos$anyos == 2022]
+  ) +
+  annotate(
+    geom = "text", label = "mujeres", col = paleta_lineas[2],
+    x = 2021,
+    y = puntos$parados[puntos$sexo == "mujer" &
+      puntos$anyos == 2022]
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      format(x,
+        big.mark = ".",
+        decimal.mark = ",", scientific = FALSE
+      )
+    },
+    limits = c(0, 150000)
+  ) +
+  ggtitle("Las mujeres se han recuperado peor de la crisis de 2007") +
+  theme_minimal() +
+  theme(axis.title.y = element_text(hjust = 1))
+
+graf
+```
+
+```{r}
+tabla <- parados_clm |>
+  select(anyo, sexo, edad, parados) |>
+  filter(anyo %in% c(2007, 2019, 2022))
+tabla <- tabla |>
+  group_by(anyo, sexo, edad) |>
+  summarise(parados = sum(parados))
+```
+
+```{r}
+graf <- ggplot(data = tabla, mapping = aes(x = sexo, y = edad, fill = parados)) +
+  geom_raster() +
+  scale_fill_gradientn(colours = paleta_heatmaps) +
+  facet_wrap(~ anyo) +
+  labs(x = "", y = "edad") +
+  theme_bw() +
+  theme(axis.title.y = element_text(hjust = 1))
+ 
+graf
+```
+
+```{r}
+ggplot(tabla, aes(x = edad, y = parados, col = anyo, fill = anyo)) +
+  geom_ribbon(aes(ymin = 0, ymax = tabla$parados), alpha = 0.4) +
+  facet_wrap(~sexo) +
+  ylab("número de parados") +
+  scale_y_continuous(labels = function(x) {
+    format(x,
+      big.mark = ".", decimal.mark = ",", scientific = FALSE
+    )
+  }) +
+  theme_bw() +
+  theme(axis.title.x = element_text(hjust = 0),
+        axis.title.y = element_text(hjust = 1))
 ```
 

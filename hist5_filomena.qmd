@@ -83,31 +83,10 @@ Visualizamos las primeras filas del dataset que vamos a utilizar `tempmin_data` 
 
 ```{r}
 #| code-summary: Mostramos las primeras filas del conjunto datos.
+
 # CDR::tempmin_data
+
 head(tempmin_data, 6)
-```
-
-```{r}
-#| code-summary: Ponemos el objeto tempmin_data en formato espacial
-tmin_sf <- st_as_sf(tempmin_data, 
-                    coords = c("longitud", "latitud"), 
-                    crs = 4326)
-
-```
-
-Ahora necesitamos un mapa de España
-```{r}
-#| code-summary: Con la librería mapSpain cargamos el mapa de España sin las Islas Canarias  (por simplicidad)
-esp <- esp_get_ccaa() |>
-  filter(ine.ccaa.name != "Canarias") # Filtramos las Islas Canarias
-```
-
-Verificamos que los sistemas de coordenadas de la capa de mapas de España (paquete `mapspain`) y de la capa de temperaturas mínimas (paquete `CDR`) sean los mismos; si no lo son, transformamos uno para igualarlos.
-```{r}
-#| code-summary: Comprobación de los CRS de los datos y el mapa
-if (st_crs(tmin_sf) != st_crs(esp)) {
-  esp <- st_transform(esp, st_crs(tmin_sf))
-}
 ```
 
 # Elegir una visualización adecuada
@@ -122,8 +101,9 @@ Ambas soluciones son ideales para ver la distribución de las temperaturas míni
 
 ```{r}
 #| code-summary: Boxplot
+
 ggplot(tempmin_data, aes(x = fecha, y = tmin)) +
-  geom_boxplot(fill = "orange", alpha = 0.6)
+  geom_boxplot(fill = "orange")
 ```
 
 ## Mejora tu visualización con las herramientas disponibles
@@ -143,7 +123,8 @@ Y por encima de todo: ¡simplicidad!
 boxplot_inicial <- ggplot(tempmin_data,
                           aes(x = fecha, y = tmin)) +
   geom_violin(color = "orange") +
-  geom_boxplot(alpha = 0.6, fill = "orange") +
+  geom_boxplot(alpha = 0.6, 
+               fill = "orange") +
   labs(title = "La borrasca Filomena fue más intensa el 6 de enero",
        x = "Fecha", 
        y = "Temperatura mínima (°C)") +
@@ -166,6 +147,7 @@ medianas <- tempmin_data |>
   mutate(mediana = median(tmin)) |>
   select(fecha, mediana) |>
   unique()
+
 medianas$pos <- 1:5
 ```
 
@@ -180,19 +162,26 @@ Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el
 #| eval: false
 boxplot_inicial <- ggplot(tempmin_data,
                           aes(x = fecha, y = tmin)) +
-  geom_violin(color = "orange", fill = "orange", alpha = .7) +
-  geom_point(data = medianas, aes(x = fecha, y = _______),
+  geom_violin(color = "orange",              #  añade un violín
+              fill = "orange", 
+              alpha = .7) +  
+  geom_point(data = medianas,                #  añade las medianas
+             aes(x = fecha, y = _______),      
              color = "darkblue") +
-  geom_XXXX(data = medianas, aes(x = pos, y = mediana),
+  geom_XXXX(data = medianas, 
+            aes(x = pos, y = mediana),       #  añade una linea de conexión
             color = "darkblue") +
-  geom_jitter(size = .2, width = .2) +
+  geom_jitter(size = .2, 
+              width = .2) +                   #  añade los puntos dispersos para evitar superposición
   labs(title = "Temperaturas mínimas durante la borrasca Filomena",
        ________ = "6 de enero: día más frío (mediana en color azul)",
-       x = "Fecha", y = "Temperatura mínima (°C)") +
+       x = "Fecha", 
+       y = "Temperatura mínima (°C)") +
   theme_minimal() 
 
 boxplot_inicial
 ```
+
 
 ```{r}
 #| echo: false
@@ -215,12 +204,64 @@ boxplot_inicial
 Se ve claramente que las colas de los días 7 y 8 se deben casi exclusivamente a una estación, por lo que nuestra conclusión (y la que refleja la mediana) de etiquetar el día 6 como el peor, es acertada.
 
 ::: {.callout-tip}
-CUIDADO: es importante usar el argumento `size` en la función `geom_jitter` para hacer lo suficientemente pequeños los puntos y que no "molesten". Si se deja el valor por defecto (`size = 1`) aumentamos mucho el desorden. Para ver el efecto de los 2 parámetros, se pueden probar distintos valores y determinar los más estéticos.
+## CUIDADO: es importante usar el argumento `size` en la función `geom_jitter` para hacer lo suficientemente pequeños los puntos y que no "molesten". Si se deja el valor por defecto (`size = 1`) aumentamos mucho el desorden. Para ver el efecto de los 2 parámetros, se pueden probar distintos valores y determinar los más estéticos.
 :::
+
 
 ## Visualizaciones espaciales
 
 En visualización, usando técnicas espaciales tenemos claramente las de ganar, porque tienen una estética muy atractiva *per se*.
+
+### Paso 1: Define y prepara los datos con un formato espacial
+
+```{r}
+#| code-summary: Ponemos el objeto tempmin_data en formato espacial
+tmin_sf <- st_as_sf(tempmin_data, 
+                    coords = c("longitud", "latitud"), 
+                    crs = 4326)
+```
+
+
+### Paso 2: Utiliza las librerías para la representación espacial `sf` y `geof_sf`
+```{r}
+#| code-summary: Primera representación tmin_sf
+ggplot() +
+  geom_sf(data = tmin_sf, 
+          aes(color = tmin)) +
+  labs(title = "Temperaturas mínimas (6-10 enero 2021)",
+       x = "Longitud", y = "Latitud") 
+```
+
+
+
+### Paso 3: Añadimos un mapa de España con el paquete `mapSpain`
+
+Ahora necesitamos un mapa de España y hacer unas comprobaciones
+
+```{r}
+#| code-summary: Con la librería mapSpain cargamos el mapa de España sin las Islas Canarias  (por simplicidad)
+esp <- esp_get_ccaa() |>
+  filter(ine.ccaa.name != "Canarias") # Filtramos las Islas Canarias
+```
+
+::: {.callout-warning}
+## ¿Están los datos de temperatura mínima en el mismo sistema de coordenadas que el mapa?
+:::
+
+::: {.callout-tip}
+## CRS: Un Sistema de Referencia de Coordenadas, o CRS, es un método para asociar coordenadas numéricas con una posición en la superficie de la Tierra.
+:::
+
+Verificamos que los sistemas de coordenadas de la capa de mapas de España (paquete `mapspain`) y de la capa de temperaturas mínimas (paquete `CDR`) sean los mismos; si no lo son, transformamos uno para igualarlos.
+```{r}
+#| code-summary: Comprobación de los CRS de los datos y el mapa
+if (st_crs(tmin_sf) != st_crs(esp)) {
+  esp <- st_transform(esp, st_crs(tmin_sf))
+}
+```
+
+
+### Paso 4: Seleccionamos el día más frío (6-enero)
 
 Puesto que el día de mayor intensidad general fue el 6 de enero, vamos a trabajar con esas temperaturas mínimas, representándolas en un mapa para ver las zonas más afectadas.
 
@@ -291,16 +332,20 @@ Podemos usar facetas según el día en los que transcurrió la borrasca. Vamos a
 ```{r }
 #| echo: false
 
-ggplot() +
-  geom_sf(data = esp, fill = "grey95") +
-  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
-  facet_wrap(vars(fecha), ncol = 3) +
-  scale_color_viridis_c() +
-  theme_light() +
-  labs(title = "Temperaturas mínimas en España durante Filomena",
-       subtitle = "Del 6 al 10 de enero de 2021",
-       color = "Temp. mínima (°C)") +
-  theme(legend.position = "bottom")
+ggplot() +                                # Inicia un gráfico vacío con ggplot
+  geom_sf(data = esp, fill = "grey95") +  # Añade un objeto sf (esp) con relleno gris claro
+  geom_sf(data = tmin_sf,                 # Añade otro objeto sf (tmin_sf)
+          aes(color = tmin),              # Colorea los puntos según la temperatura mínima (tmin)
+          size = 3,                       # Tamaño de los puntos
+          alpha = 0.7) +                  # Transparencia de los puntos
+  facet_wrap(vars(fecha),                 # Crea facetas por la variable fecha
+             ncol = 3) +                  # Número de columnas en las facetas
+  scale_color_viridis_c() +               # Aplica una escala de color viridis continua
+  theme_light() +                         # Aplica un tema claro al gráfico
+  labs(title = "Temperaturas mínimas en España durante Filomena",          
+       subtitle = "Del 6 al 10 de enero de 2021",                        
+       color = "Temp. mínima (°C)") +  
+  theme(legend.position = "bottom")   
 ```
 
 ::: {.callout-tip}
@@ -310,22 +355,27 @@ ggplot() +
 Fijémonos lo que se puede hacer con una buena elección de escala. ¿Mejora la claridad y el impacto visual? ¿Se aprecian las diferencias temporales?
 
 ```{r }
-#| code-summary: gráfico con la escala adecuada
+#| code-summary: Gráfico con la escala adecuada
 
-cortes <- c(-Inf, seq(-20, 20, 2.5), Inf)
-colores <- hcl.colors(15, "PuOr", rev = TRUE)
+cortes <- c(-Inf, seq(-20, 20, 2.5), Inf)       # Define los cortes para la escala de colores, desde -Inf a Inf con intervalos de 2.5
+colores <- hcl.colors(15, "PuOr", rev = TRUE)  # Genera una paleta de colores con 15 colores usando la paleta "PuOr" y los revierte
 
-ggplot() +
-  geom_sf(data = esp, fill = "grey95") +
-  geom_sf(data = tmin_sf, aes(color = tmin), size = 3, alpha = 0.7) +
-  facet_wrap(vars(fecha), ncol = 3) +
-  scale_color_gradientn(colours = colores, breaks = cortes, 
-                        labels = ~ stringr::str_c(. , "º"), 
-                        guide = "legend") +
-  theme_light() +
-  labs(title = "Temperaturas mínimas en España durante Filomena",
-       subtitle = "Del 6 al 10 de enero de 2021",
-       color = "Temp. mínima (°C)")
+ggplot() +                                    
+  geom_sf(data = esp, fill = "grey95") +      
+  geom_sf(data = tmin_sf, 
+          aes(color = tmin), 
+          size = 3, 
+          alpha = 0.7) +  
+  facet_wrap(vars(fecha), 
+             ncol = 3) +  
+  scale_color_gradientn(colours = colores,   # Aplica una escala de color con los colores 
+                        breaks = cortes,     # Aplica una escala de cortes con los cortes definidos
+                        labels = ~ stringr::str_c(. , "º"),  # Añade etiquetas a los cortes, añadiendo el símbolo de grados
+                        guide = "legend") +  # Usa una leyenda para la guía de colores
+  theme_light() +  
+  labs(title = "Temperaturas mínimas en España durante Filomena",    
+       subtitle = "Del 6 al 10 de enero de 2021",   
+       color = "Temp. mínima (°C)")  
 ```
 
 # Contar una historia
@@ -348,7 +398,9 @@ Pero como remarcamos siempre, lo más importante es el **desenlace**, donde le e
 # Para pensar:
 
 ::: {.callout}
-En esta historia hemos visto lo importante que puede ser la **elección de una buena escala de colores**. Merece mucho la pena dedicar tiempo a la escala (intervalos y gama de colores), ya que, especialmente cuando hay gradientes continuos convertibles en categorías discretas, puede suponer acertar con la visualización o perder una buena oportunidad.
+En esta historia hemos visto lo importante que puede ser la **elección de una buena escala de colores**. 
+
+Merece mucho la pena dedicar tiempo a la escala (intervalos y gama de colores), ya que, especialmente cuando hay gradientes continuos convertibles en categorías discretas, puede suponer acertar con la visualización o perder una buena oportunidad.
 :::
 
 

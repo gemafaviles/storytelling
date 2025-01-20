@@ -66,18 +66,18 @@ En cualquier caso, lo primero es hacer un análisis exploratorio para ver si hay
 ```{r}
 #| code-summary: Configuración inicial y datos
 
-library(CDR)               # Carga el paquete CDR para la lectura de datos
-library(tidyverse)         # Manipulación y visualización de datos
-library(sf)                # Para trabajar con datos espaciales
-library(mapSpain)          # Para obtener y visualizar mapas de España
-library(tidyterra)         # Para trabajar con datos espaciales y raster
-library(lubridate)         # Manipulación de fechas y horas
-library(data.table)        # Para manipulación eficiente de datos
-library(gplots)            # Carga el paquete gplots para crear gráficos avanzados
-library(RColorBrewer)      # Carga el paquete RColorBrewer para paletas de colores
-library(leaflet)           # Carga el paquete leaflet para crear mapas interactivos
-library(leaflet.extras)    # Carga el paquete leaflet.extras para funcionalidades adicionales en leaflet
-library(ggmosaic)          # Carga el paquete ggmosaic para crear gráficos de mosaico
+library(CDR)
+library(tidyverse)
+library(sf)
+library(mapSpain)
+library(tidyterra)
+library(lubridate)
+library(data.table)
+library(gplots)
+library(RColorBrewer)
+library(leaflet)
+library(leaflet.extras)
+library(ggmosaic)
 ```
 
 # Elegir una visualización adecuada
@@ -96,57 +96,44 @@ library(ggmosaic)          # Carga el paquete ggmosaic para crear gráficos de m
 #| code-summary: primer mapa
 
 data(accidentes2020_data)
-head(accidentes2020_data)
-```
 
-
-```{r}
-#| code-summary: primer mapa
-ggplot(data = accidentes2020_data,                          # Crea un gráfico con el dataset accidentes2020_data
-       aes(x = coordenada_x_utm, y = coordenada_y_utm)) +   # x= coordenada_x_utm e y= coordenada_y_utm  
-  geom_point() +                                            # Añade puntos al gráfico para cada observación 
-  coord_fixed()                                             # Mantiene una relación fija entre las unidades del eje x y el eje y
+ggplot(data = accidentes2020_data,
+       aes(x = coordenada_x_utm, y = coordenada_y_utm)) + 
+  geom_point() +
+  coord_fixed()
 ```
 
 ## El desorden es tu enemigo
 
 Deja mucho que desear, ¿verdad?: no tenemos información, solo unos datos representados en un gráfico. Con muy poco, tirando de estética (reduciendo la dimensión de los puntos para que se vea el fondo) y alguna referencia geográfica (en forma de mapa de carreteras), veremos cómo se reduce la carga cognitiva:
 
-### Paso 1: # Convierte el dataset accidentes2020_data a un objeto `sf`
 ```{r}
-accidentes2020_sf <- st_as_sf(accidentes2020_data,     
-  coords = c("coordenada_x_utm", "coordenada_y_utm"),  # Define las columnas de coordenadas UTM
-  crs = 25830                                          # Establece el sistema de referencia de coordenadas a ETRS89/UTM zona 30N, usado en Europa
-)
+#| code-summary: primer mapa mejorado
+
+accidentes2020_sf <- st_as_sf(accidentes2020_data,
+  coords = c("coordenada_x_utm", "coordenada_y_utm"),
+  crs = 25830 # proyección ETRS89/ UTM zone 30N. Área de uso: Europa  
+  )  
+
+madrid <- esp_get_munic(munic = "^Madrid$") |>
+  st_transform(25830) 
+
+# descarga imagen de un de mapa estático de las carreteras de Madrid
+tile <- esp_getTiles(madrid, "IDErioja", zoommin = 2)  
+
+ggplot() +
+  geom_spatraster_rgb(data = tile) +
+  geom_sf(data = accidentes2020_sf, 
+    col = "blue", size = 0.05, alpha = 0.3) +
+  coord_sf(expand = FALSE) +
+  labs(title = "¿Dónde se producen los accidentes de tráfico en Madrid?")
 ```
-
-### Paso 2: Obtiene datos del municipio de Madrid con la función `esp_get_munic` de la libreíra `mapSpain`
-```{r}
-madrid <- esp_get_munic(munic = "^Madrid$") |>    # Obtiene los datos del municipio de Madrid
-  st_transform(25830)                             # Transforma las coordenadas al sistema de referencia ETRS89/UTM zona 30N
-
-# Descarga una imagen de un mapa estático de las carreteras de Madrid
-tile <- esp_getTiles(madrid, "IDErioja", zoommin = 2)
-```
-
-### Paso 3: Primer mapa mejorado
-
-```{r}
-ggplot() +                                     # Inicia un gráfico vacío con ggplot
-  geom_spatraster_rgb(data = tile) +           # Añade la imagen del mapa estático como fondo
-  geom_sf(data = accidentes2020_sf,            # Añade los datos de accidentes como puntos en el mapa
-    col = "blue", size = 0.05, alpha = 0.3) +  # Define el color, tamaño y transparencia de los puntos
-  coord_sf(expand = FALSE) +                   # Mantiene las proporciones de las coordenadas sin expansión
-  labs(title = "¿Dónde se producen los accidentes de tráfico en Madrid?")   
-```
-
-
 
 ¡Esto ya es otra cosa! Apreciamos, lógicamente, la concentración de accidentes en el centro de la ciudad y, especialmente, en las arterias principales.
 
 ## El cuándo
 
-Además, como hemos comentado, tenemos conocimiento *a priori* sobre la influencia de la fecha en el aumento de tráfico, por lo que probablemente encontremos alguna influencia de la dimensión temporal. Vamos a verlo...
+Además, como hemos comentado, tenemos conocimiento a priori sobre la influencia de la fecha en el aumento de tráfico, por lo que probablemente encontremos alguna influencia de la dimensión temporal. Vamos a verlo...
 
 ::: {#exr-2}
 ¿Cuándo se han producido los accidentes? 
@@ -165,72 +152,58 @@ ggplot(data = accidentes2020_data,
 
 Vamos a separar la fecha y la hora, porque en ese gráfico no vemos casi nada...
 
-### Paso 1: Prepara los datos teniendo en cuenta la timensión temporal
 ```{r}
-#| code-summary: Gráfico del cuándo según el día
+#| code-summary: gráfico del cuándo según el día
 
 # Convertir la columna 'fecha' a formato Date
 accidentes2020_data$fecha <- as.Date(accidentes2020_data$fecha, format = "%d/%m/%Y")
 
-accidentes2020_fecha <- accidentes2020_data |>  # Crea el dataset accidentes2020_fecha
-  select(fecha) |>                              # Selecciona la columna fecha
-  group_by(fecha) |>                            # Agrupa los datos por fecha
-  mutate(n = n()) |>                            # Crea una nueva columna n con el conteo de accidentes por fecha
-  unique()                                      # Elimina duplicados, manteniendo una fila por fecha con el conteo
-```
+accidentes2020_fecha <- accidentes2020_data |>
+  select(fecha) |>
+  group_by(fecha) |>
+  mutate(n = n()) |>
+  unique()
 
-### Paso 2: Gráfico del cuándo según el día
-```{r}
-ggplot(data = accidentes2020_fecha,   # Crea un gráfico con el dataset accidentes2020_fecha
-       aes(x = fecha, y = n)) +       # Define las estéticas del gráfico, con fecha en el eje x y n en el eje y
-  geom_line() +                       # Añade una línea para representar el número de accidentes por fecha
-  theme_minimal()                     # Aplica un tema minimalista al gráfico
+ggplot(data = accidentes2020_fecha,
+       aes(x = fecha, y = n)) + 
+  geom_line() +
+  theme_minimal()
 ```
 
 Como ya le advertimos al alcalde, el año 2020 no es bueno para sacar conclusiones. Ya le hemos pedido que nos facilite datos más amplios para poder proporcionarle una mejor visualización del número de accidentes por fecha, pero mientras tanto, nos tendremos que arreglar con lo que tenemos...
 
-### Gráfico del cuándo según la hora
-
 ```{r}
 #| code-summary: gráfico del cuándo según la hora
 
-# Convierte la columna hora a formato POSIXct y extrae la hora del día
-accidentes2020_data$hora_dia <- hour(as.POSIXct(accidentes2020_data$hora, format = "%H:%M:%S"))  
+# Convertir la columna 'hora' a formato Date y extraer la hora del día
+accidentes2020_data$hora_dia <- hour(as.POSIXct(accidentes2020_data$hora, format = "%H:%M:%S"))
 
- 
-accidentes2020_hora_dia <- accidentes2020_data |>  # Crea el dataset accidentes2020_hora_dia
-  select(hora_dia) |>                              # Selecciona la columna hora_dia
-  group_by(hora_dia) |>                            # Agrupa los datos por hora_dia
-  mutate(n = n()) |>                               # Crea una nueva columna n con el conteo de accidentes por hora
-  unique()                                         # Elimina duplicados
+# Contamos los accidentes por hora
+accidentes2020_hora_dia <- accidentes2020_data |>
+  select(hora_dia) |>
+  group_by(hora_dia) |>
+  mutate(n = n()) |>
+  unique()
 
-ggplot(data = accidentes2020_hora_dia,             # Crea un gráfico con el dataset accidentes2020_hora_dia
-       aes(x = hora_dia, y = n)) +                 # x= hora_dia e  y=n  
-  geom_line(linewidth = 1, color = "orange") +     # Añade una línea de color naranja y ancho de línea 1
-  labs(title = "Número de accidentes según la franja horaria del día",   
-       subtitle = "Las 14 y las 19 horas presentan el mayor número de accidentes",   
-       x = "Hora del día", 
-       y = "Número de accidentes en la franja horaria") +   
-  scale_y_continuous(labels = function(x) {  # Formatea las etiquetas del eje y
+ggplot(data = accidentes2020_hora_dia,
+       aes(x = hora_dia, y = n)) + 
+  geom_line(linewidth = 1, color = "orange") +
+  labs(title = "Número de accidentes según la franja horaria del día",
+       subtitle = "Las 14 y las 19 horas presentan el mayor número de accidentes",
+       x = "Hora del día", y = "Número de accidentes en la franja horaria") +
+  scale_y_continuous(labels = function(x) {
     format(x,
-      big.mark = ".", 
-      decimal.mark = ",", 
-      scientific = FALSE  # Usa puntos como separadores de miles y comas como separadores decimales
+      big.mark = ".", decimal.mark = ",", scientific = FALSE
     )
   }) +
-  theme_minimal()   
+  theme_minimal()
 ```
 
 Es evidente que la hora punta a mediodía y en la salida del trabajo, a las 14 y las 19 horas del día son los 2 picos a vigilar. Pero este gráfico tiene un gran margen de mejora.
 
-
-## El tipo de accidente
-
 ::: {#exr-3}
 ¿De qué tipo son los accidentes? 
 :::
-
-### Paso 1: Resumen numérico por tipo de accidente
 
 ```{r}
 #| code-summary: extracción de los accidentes por tipo
@@ -245,66 +218,52 @@ accidentes2020_data |>
 
 Las tablas también son elementos de visualización. En este caso, hay algo evidente que hacer, pero lo vamos a explicar con el siguiente gráfico:
 
-### Paso 2: Gráfico de barras por tipo de accidente
+## El tipo de accidente
 
 ```{r}
 #| code-summary: tipos de accidente
 
 accidentes2020_data |>
   ggplot() +
-  geom_bar(aes(y=tipo_accidente), 
-           fill = "orange", 
-           alpha = 0.6) +
+  geom_bar(aes(y=tipo_accidente), fill = "orange", alpha = 0.6) +
   theme_bw()
 ```
 
 ¿Qué le falta a este gráfico?¿En qué se puede mejorar? Pues está muy claro: ordenar las categorías. Si no están ordenadas tardamos mucho en determinar, por ejemplo, cuál es la tercera, o la quinta... Únicamente la más importante es relativamente fácil de situar. Pero veamos cuando ordenamos las categorías:
 
-### Paso 3: Gráfico de barras por tipo de accidente ordenado
 ```{r}
 #| code-summary: tipos de accidente (ordenado)
 
-ggplot(accidentes2020_data, aes(y = reorder(tipo_accidente,  
-                                            -tipo_accidente,  # Reordena los tipos de accidente en orden descendente
-                                            length))) +       # Usa la longitud para el reordenamiento
-  geom_bar(fill = "orange", alpha = 0.6) +                    # Añade barras al gráfico con color naranja y transparencia
-  labs(title = "Tipos de accidente en Madrid durante el año 2020",   
-       subtitle = "Sobresalen la colisión fronto-lateral y el alcance",   
-       x = "Número de accidentes", 
-       y = "") +  
-  scale_x_continuous(labels = function(x) {                   # Formatea las etiquetas del eje x
+ggplot(accidentes2020_data, aes(y = reorder(tipo_accidente,
+                                            -tipo_accidente,
+                                            length))) +
+  geom_bar(fill = "orange", alpha = 0.6) +
+  labs(title = "Tipos de accidente en Madrid durante el año 2020",
+       subtitle = "Sobresalen la colisión fronto-lateral y el alcance",
+       x = "Número de accidentes", y = "") +
+  scale_x_continuous(labels = function(x) {
     format(x,
-      big.mark = ".", 
-      decimal.mark = ",", 
-      scientific = FALSE  
+      big.mark = ".", decimal.mark = ",", scientific = FALSE
     )
   }) +
-  theme_bw()   
+  theme_bw()
 ```
 
 ## Visualizaciones específicas georreferenciadas
 
 Una categoría especial, y que merece mucho la pena destacar, cuando tenemos información georreferenciada, son los mapas interactivos. Una de las librerías más populares para construirlos es 'leaflet', que usa los mapas de OpenStreetMap, permitiendo incluir los mapas físicos de ESRI.
 
-### Paso 0: Preparación de los datos
 ```{r}
-# Transforma CRS de accidentes2020_sf a WGS 84 (CRS 4326)
-accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)  
+#| code-summary: mapa interactivo con leaflet
 
-# Extrae las coordenadas de longitud y las añade como una nueva columna en el dataframe
-accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]  
+accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)
+accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]
 accidentes2020_data$latitude <- st_coordinates(accidentes2020_sf)[, 2]
-```
 
-### Paso 1: Primer mapa interactivo con `leaflet`
-```{r}
-leaflet(data = accidentes2020_data) |>  # Crea un mapa interactivo con el dataset accidentes2020_data
-  addTiles() |>                         # Añade las teselas (tiles) del mapa base
-  addCircleMarkers(lng = ~longitude, lat = ~latitude,          # Añade marcadores circulares en lon y lat
-                   radius = 1,                                 # Define el radio, 
-                   color = "red",                              # Define el color   
-                   opacity = 0.5                               # Define la opacidad de los marcadores
-                   )   
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
+  addCircleMarkers(lng = ~longitude, lat = ~latitude, 
+                   radius = 1, color = "red", opacity = 0.5)  
 #  addProviderTiles(providers$Esri.WorldImagery)
 ```
 
@@ -312,32 +271,24 @@ leaflet(data = accidentes2020_data) |>  # Crea un mapa interactivo con el datase
 
 Estas visualizaciones están muy bien pero... ¿y si pudiéramos aminorar la carga cognitiva del mapa interactivo? Una forma de hacerlo es usar agrupaciones. Veamos cómo hacerlo.
 
-### Paso 2: Primer mapa interactivo con `leaflet` y clusters
 ```{r}
 #| code-summary: mapa interactivo con clusters
 
 leaflet(data = accidentes2020_data) |>
   addTiles() |>
   addCircleMarkers(lng = ~longitude, lat = ~latitude, 
-                   radius = 2, color = "red", 
-                   opacity = 0.5, 
-                   clusterOptions = markerClusterOptions()
-                   )
+                   radius = 2, color = "red", opacity = 0.5, clusterOptions = markerClusterOptions())
 ```
-
 
 Otra forma de visualizar que permite 'leaflet' son los mapas de calor:
 
-### Paso 3: Primer mapa interactivo con `leaflet` y mapa de calor
 ```{r}
 #| code-summary: mapa de calor con leaflet
 
 leaflet(data = accidentes2020_data) |>
   addTiles() |>
-  addHeatmap(lng = ~longitude, lat = ~latitude, 
-             blur = 50, max = 0.05)
+  addHeatmap(lng = ~longitude, lat = ~latitude, blur = 50, max = 0.05)
 ```
-
 ::: {#exr-6}
 Esta visualización la podemos configurar con los parámetros. Es tu turno: juega con ellos y consigue una gradación e intensidad de colores a tu gusto.
 :::

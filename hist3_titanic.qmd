@@ -56,7 +56,7 @@ En este caso, puesto que el objetivo de mi colega es la predicción, lo primero 
 ```{r}
 #| code-summary: Lectura de bibliotecas
 
-library(titanic)
+#library(titanic)
 library(tidyverse)
 if (!require(readxl)){install.packages("readxl")}
 library(readxl)
@@ -110,22 +110,31 @@ Veamos la `supervivencia` de los pasajeros del Titanic en función del `sexo` (a
 Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
 :::
 
+### Paso 1: Convierte las variables a `factor`
+
+```{r}
+#| code-summary: Prepara los datos
+
+titanic_mosaico <- titanic |>                  # Carga el dataset titanic_mosaico
+  select(clase, sexo, edad, supervivencia) |>  # Selecciona las columnas clase, sexo, edad y supervivencia
+  mutate_all(as.factor)                        # Convierte todas las columnas seleccionadas a factores
+```
+
+
+### Paso 2: Primer mosaico con las variables `supervivencia` y `sexo`
+
 ```{r}
 #| eval: false
+mosaico2 <- ggplot(data = titanic_mosaico) +        # Crea un gráfico con el dataset titanic_mosaico
+  geom_xxxxx(aes(x = product(supervivencia, sexo),  # Combina supervivencia y sexo en el eje x
+                  fill = supervivencia))            # Colorea los mosaicos según la variable supervivencia
 
-titanic_mosaico <- titanic |>
-  select(clase, sexo, edad, supervivencia) |>
-  mutate_all(as.factor)
-
-mosaico2 <- ggplot(data = titanic_mosaico) +
-  geom_xxxxxx(aes(x = product(supervivencia, sexo),
-                  fill = supervivencia))
-mosaico2
+mosaico2       
 ```
 
 ```{r mosaico-superviencia-sexo}
 #| echo: false
-#| code-summary: mosaico de 2 variables con los datos crudos
+#| code-summary: mosaico de 2 variables
 
 titanic_mosaico <- titanic |>
   select(clase, sexo, edad, supervivencia) |>
@@ -147,7 +156,8 @@ Veamos la `supervivencia` de los pasajeros del Titanic en función del `sexo` y 
 #| code-summary: mosaico de 3 variables
 
 mosaico3 <- ggplot(data = titanic_mosaico) +
-  geom_mosaic(aes(x = product(supervivencia, sexo, clase), fill = supervivencia))
+  geom_mosaic(aes(x = product(supervivencia, sexo, clase), 
+                  fill = supervivencia))
 mosaico3
 ```
 
@@ -161,32 +171,39 @@ Un diagrama de flujo es un gráfico que muestra los pasos de un proceso de una m
 
 Analizamos las mismas variables cualitativas: `supervivencia`, `sexo` y `clase`, pero ahora **el gráfico es mucho más fácil de leer y, por tanto, estamos facilitando el mensaje**. En esto consiste eliminar el desorden.
 
+
 ```{r flujo_superviencia_sexo_clase }
-#| code-summary: construimos el diagrama de flujo
+#| code-summary: Construimos el diagrama de flujo
 
-tabla_titanic <- titanic |>
-  group_by(clase, sexo, supervivencia) |>
-  count()
+tabla_titanic <- titanic |>   
+  group_by(clase, sexo, supervivencia) |>  # Agrupa los datos por clase, sexo y supervivencia
+  count()                                  # Cuenta el número de ocurrencias en cada grupo
 
-flujo <- ggplot(tabla_titanic,
-       aes(axis1 = sexo,
-           axis2 = clase,
-           axis3 = supervivencia,
-           y = n)) +
-  geom_alluvium(aes(fill = sexo)) +
-  geom_stratum() +
-  geom_text(stat = "stratum",
-            aes(label = after_stat(stratum))) +
-  scale_x_discrete(limits = c("clase", "sexo",
-                              "supervivencia"),
-                   expand = c(.1, .1)) +
-  scale_fill_viridis_d() +
-  labs(title = "Las mujeres de primera clase tuvieron preferencia", y = "Frecuencia") +
-  theme_minimal() +
-  theme(legend.position = "none",
-        axis.title.y = element_text(hjust = 1)) 
-flujo
+flujo <- ggplot(tabla_titanic,             # Crea un gráfico con la tabla agrupada
+       aes(axis1 = sexo,                   # Define el primer eje como sexo
+           axis2 = clase,                  # Define el segundo eje como clase
+           axis3 = supervivencia,          # Define el tercer eje como supervivencia
+           y = n)) +                       # Usa la columna n para la altura de los estratos
+  geom_alluvium(aes(fill = sexo)) +        # Añade las corrientes (alluviums) o flujos coloreadas por sexo
+  geom_stratum() +                         # Añade los estratos (strata) o categorías
+  geom_text(stat = "stratum",              # Añade etiquetas a los estratos 
+            aes(label = after_stat(stratum))) +  # Usa el nombre del estrato como etiqueta
+  scale_x_discrete(limits = c("clase", "sexo", "supervivencia"),  # Define los límites de los ejes x
+                   expand = c(.1, .1)) +  # Añade espacio alrededor de los ejes
+  scale_fill_viridis_d() +                # Aplica una paleta de colores viridis
+  labs(title = "Las mujeres de primera clase tuvieron preferencia", 
+       y = "Frecuencia") +  
+  theme_minimal() +   
+  theme(legend.position = "none",  # Elimina la leyenda
+        axis.title.y = element_text(hjust = 1))   
+
+flujo  # Muestra el gráfico
 ```
+
+
+
+
+
 
 # Contar una historia
 

@@ -1,0 +1,86 @@
+---
+title: "Storytelling visual con R: primera clase"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    lang: es
+    date-format: long
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
+number-sections: true
+execute:
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+  code-overflow: scroll
+---
+
+
+
+::: {.callout-warning}
+## IMPORTANTE
+
+**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído**. 
+:::
+
+
+Idea: partir de este plot u otro "peor" (lo modificamos en la sesión 1 y listo) e ir mejorándolo según estos cuatro puntos, TODO super sencillo
+
+```{r starwars2-10}
+ggplot(data = starwars,
+       mapping = aes(x = height,
+                     y = mass,
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       subtitle = "by gender",
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender",
+       caption = "Source: dplyr package")  +
+  scale_colour_viridis_d()
+```
+
+
+
+# Unidad 4. 😔 El desorden es tu enemigo
+
+El objetivo de esta unidad es...
+
+
+
+
+
+# Unidad 5. 🛑 Centra la atención de tu audiencia
+
+El objetivo de esta unidad es...
+
+
+#Unidad 6. 🎨 Piensa como un diseñador
+
+El objetivo de esta unidad es...
+
+
+# Unidad 7. 📖 Cuenta una historia
+
+
+El objetivo de esta unidad es...

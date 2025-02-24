@@ -1,0 +1,178 @@
+---
+title: "Storytelling visual con R"
+subtitle: "¿Cómo y dónde se producen los accidentes en Madrid?"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    lang: es
+    date-format: long
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
+number-sections: true
+execute:
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+  code-overflow: scroll
+---
+
+
+
+::: {.callout-warning}
+## IMPORTANTE
+
+**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+:::
+
+
+
+
+
+::: {.callout-note}
+Los datos que se utilizan en esta historia están disponibles en el paquete `CDR` que puede instalarse con el siguiente comando (se comprueba si no lo está):
+
+``` {r}
+#| code-summary: Instalación y/o carga del paquete `CDR`
+
+if (!require(CDR)){
+  if (!require(remotes)) {install.packages("remotes")}
+  remotes::install_github("cdr-book/CDR")
+  }
+```
+
+Accidentes de tráfico en la Ciudad de Madrid registrados por Policía Municipal con víctimas y/o daños al patrimonio en el 2020. Los datos se han descargado del [Portal de datos abiertos del Ayuntamiento de Madrid.](https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=7c2843010d9c3610VgnVCM2000001f4a900aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default))
+:::
+
+# Cómo y dónde se producen los accidentes en Madrid
+
+Esta mañana estaba tan tranquilo en mi oficina (trabajo en el distrito de Chamartín para el Ayuntamiento) y me sueltan de repente: "el jefe quiere verte". Lo primero que he pensado es que me echaban, como soy un poco "cansa almas"... Pero no, entro en el despacho del jefe... ¡Y allí está Almeida! Que ha oído que he hecho un curso de visualización en la UCLM y me he convertido en un crack de la visualización. Yo no sabía donde meterme, pero he mantenido perfectamente la compostura, como un profesional.
+
+Así que ya me ha ido contando que está muy preocupado con los accidentes y quiere analizar el tema, para buscar soluciones. Que me agradecería mucho si encontramos dónde está el problema, para bajar el número y gravedad de los accidentes en la ciudad. El problema, me dice, es que solo me puede facilitar los datos del año 2020. Ya le he avisado de que es un año muy particular, por el estado de alarma, pero algo sacaremos...
+
+# Entender el contexto
+
+::: {.callout-tip}
+## Cómo definir el propósito y la audiencia de tu análisis
+
+¿Qué le interesa al alcalde? Bajar la tasa de accidentes. Pero desde el punto de vista de la visualización, está claro que va a necesitar información georreferenciada, por lo que haremos mapas. Por otro lado, seguro que la dimensión es importante, porque no es lo mismo Madrid en agosto que un día de lluvia en calendario escolar...
+
+En cualquier caso, lo primero es hacer un análisis exploratorio para ver si hay algo raro en los datos y analizar mínimamente las variables de interés. Y después, le vamos a preparar los gráficos necesarios para **aportarle conocimiento** sobre los accidentes en la ciudad.
+:::
+
+```{r}
+#| code-summary: Configuración inicial y datos
+
+library(CDR)               # Carga el paquete CDR para la lectura de datos
+library(tidyverse)         # Manipulación y visualización de datos
+library(sf)                # Para trabajar con datos espaciales
+library(mapSpain)          # Para obtener y visualizar mapas de España
+library(tidyterra)         # Para trabajar con datos espaciales y raster
+library(lubridate)         # Manipulación de fechas y horas
+library(data.table)        # Para manipulación eficiente de datos
+library(gplots)            # Carga el paquete gplots para crear gráficos avanzados
+library(RColorBrewer)      # Carga el paquete RColorBrewer para paletas de colores
+library(leaflet)           # Carga el paquete leaflet para crear mapas interactivos
+library(leaflet.extras)    # Carga el paquete leaflet.extras para funcionalidades adicionales en leaflet
+library(ggmosaic)          # Carga el paquete ggmosaic para crear gráficos de mosaico
+```
+
+# Elegir una visualización adecuada
+
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos.
+:::
+
+
+## Almeida quiere saber cómo y dónde se producen los accidentes en Madrid
+
+::: {#exr-1}
+¿Dónde se han producido los accidentes de tráfico en Madrid en el 2020?
+:::
+
+```{r}
+#| code-summary: primer mapa
+
+data(accidentes2020_data)
+head(accidentes2020_data)
+```
+
+
+```{r}
+#| code-summary: primer mapa
+ggplot(data = accidentes2020_data,                          # Crea un gráfico con el dataset accidentes2020_data
+       aes(x = coordenada_x_utm, y = coordenada_y_utm)) +   # x= coordenada_x_utm e y= coordenada_y_utm  
+  geom_point() +                                            # Añade puntos al gráfico para cada observación 
+  coord_fixed()                                             # Mantiene una relación fija entre las unidades del eje x y el eje y
+```
+
+## El desorden es tu enemigo
+
+Deja mucho que desear, ¿verdad?: no tenemos información, solo unos datos representados en un gráfico. Con muy poco, tirando de estética (reduciendo la dimensión de los puntos para que se vea el fondo) y alguna referencia geográfica (en forma de mapa de carreteras), veremos cómo se reduce la carga cognitiva:
+
+### Paso 1: # Convierte el dataset accidentes2020_data a un objeto `sf`
+```{r}
+accidentes2020_sf <- st_as_sf(accidentes2020_data,     
+  coords = c("coordenada_x_utm", "coordenada_y_utm"),  # Define las columnas de coordenadas UTM
+  crs = 25830                                          # Establece el sistema de referencia de coordenadas a ETRS89/UTM zona 30N, usado en Europa
+)
+```
+
+### Paso 2: Obtiene datos del municipio de Madrid con la función `esp_get_munic` de la libreíra `mapSpain`
+```{r}
+madrid <- esp_get_munic(munic = "^Madrid$") |>    # Obtiene los datos del municipio de Madrid
+  st_transform(25830)                             # Transforma las coordenadas al sistema de referencia ETRS89/UTM zona 30N
+
+# Descarga una imagen de un mapa estático de las carreteras de Madrid
+tile <- esp_getTiles(madrid, "IDErioja", zoommin = 2)
+```
+
+### Paso 3: Primer mapa mejorado
+
+```{r}
+ggplot() +                                     # Inicia un gráfico vacío con ggplot
+  geom_spatraster_rgb(data = tile) +           # Añade la imagen del mapa estático como fondo
+  geom_sf(data = accidentes2020_sf,            # Añade los datos de accidentes como puntos en el mapa
+    col = "blue", size = 0.05, alpha = 0.3) +  # Define el color, tamaño y transparencia de los puntos
+  coord_sf(expand = FALSE) +                   # Mantiene las proporciones de las coordenadas sin expansión
+  labs(title = "¿Dónde se producen los accidentes de tráfico en Madrid?")   
+```
+
+
+
+¡Esto ya es otra cosa! Apreciamos, lógicamente, la concentración de accidentes en el centro de la ciudad y, especialmente, en las arterias principales.
+
+## El cuándo
+
+Además, como hemos comentado, tenemos conocimiento *a priori* sobre la influencia de la fecha en el aumento de tráfico, por lo que probablemente encontremos alguna influencia de la dimensión temporal. Vamos a verlo...
+
+::: {#exr-2}
+¿Cuándo se han producido los accidentes? 
+:::
+
+```{r}
+#| code-summary: primer gráfico del cuándo
+
+ggplot(data = accidentes2020_data,
+       aes(x = fecha, y = hora)) + 
+  geom_point() +
+  theme_minimal()
+```

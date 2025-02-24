@@ -300,102 +300,102 @@ agrupación:
 ::: {.callout-note}
 Nosotros vamos a contar historias con los datos usando el software 
 estadístico **R** por lo que es necesario conocer algunos paquetes y funciones
-para poder manipular y represenar los datos.
+para poder manipular y representar los datos.
 :::
 
 ¿Qué hay en un conjunto de datos?  
 
-![**Mapa del universo observable con los objetos astronómicos notables conocidos en la actualidad. Fuente: Wikipedia.**](img/05-universo.png){width="50%"}
+<!-- ![**Mapa del universo observable con los objetos astronómicos notables conocidos en la actualidad. Fuente: Wikipedia.**](img/05-universo.png){width="50%"} -->
 
 ## El conjunto de datos `starwars`
 
 ![**Fuente: https://datasciencebox.org**](img/starwars-dataset.png){width="50%"}
 
-## Terminología (común)
+<!-- ## Terminología (común) -->
 
-- Cada fila es una **observación**
-- Cada columna es una **variable**
+<!-- - Cada fila es una **observación** -->
+<!-- - Cada columna es una **variable** -->
 
-```{r carga-datos-starwars}
-library("dplyr")
-starwars
-```
-
-
-
-
-## Tablas de datos (data.frames)
-
-+ Cada columna: variable (cuantitativa o cualitativa).
-
-+ Cada fila:  elemento  observado las características que representan las variables. 
-
-+ La forma más común: `data.frame`. 
-      
-+ Para extraer una variable del `data.frame` se utiliza el operador `$`: `nombre_dataframe$nombre_variable`.
-
-+ Cada columna del `data.frame` es un `vector` (otra estructura de datos). 
+<!-- ```{r carga-datos-starwars} -->
+<!-- library("dplyr") -->
+<!-- starwars -->
+<!-- ``` -->
 
 
 
-## Algunas cuestiones básicas
 
-¿Cuántas columnas (variables) tiene?
-```{r sw-ncol}
-ncol(starwars)
-```
+<!-- ## Tablas de datos (data.frames) -->
 
-¿Cuántas filas (observaciones) tiene?
-```{r sw-nrow}
-nrow(starwars)
-```
+<!-- + Cada columna: variable (cuantitativa o cualitativa). -->
 
-¿Cuál es la dimensión del dataset?
-```{r sw-dim}
-dim(starwars)
-```
+<!-- + Cada fila:  elemento  observado las características que representan las variables.  -->
 
+<!-- + La forma más común: `data.frame`.  -->
 
-## Tablas de datos (`data.frames`)
+<!-- + Para extraer una variable del `data.frame` se utiliza el operador `$`: `nombre_dataframe$nombre_variable`. -->
 
-```{r sw-head}
-# la función head() muestra los primeros valores
-head(starwars, 3)
-```
-
-
-```{r sw-variable-name}
-sw_name<-starwars$name
-```
-
-
-::: {.callout-note}
-El operador `<-` asigna al "símbolo" que hay a su izquierda el resultado
-de la expresión que hay a su derecha. El operador `=` funciona igual que `<-`. 
-:::
-
-## Una observación (el bueno): **Luke Skywalker**
-
-![**Fuente: https://datasciencebox.org**](img/05-luke-skywalker.png){width="50%"}
+<!-- + Cada columna del `data.frame` es un `vector` (otra estructura de datos).  -->
 
 
 
-## Exploración del dataset `starwars`  
+<!-- ## Algunas cuestiones básicas -->
 
-De un **vistazo** (con la función `glimpse()`):
+<!-- ¿Cuántas columnas (variables) tiene? -->
+<!-- ```{r sw-ncol} -->
+<!-- ncol(starwars) -->
+<!-- ``` -->
 
-```{r sw-explora}
-skimr::skim(starwars)
-```
+<!-- ¿Cuántas filas (observaciones) tiene? -->
+<!-- ```{r sw-nrow} -->
+<!-- nrow(starwars) -->
+<!-- ``` -->
+
+<!-- ¿Cuál es la dimensión del dataset? -->
+<!-- ```{r sw-dim} -->
+<!-- dim(starwars) -->
+<!-- ``` -->
+
+
+<!-- ## Tablas de datos (`data.frames`) -->
+
+<!-- ```{r sw-head} -->
+<!-- # la función head() muestra los primeros valores -->
+<!-- head(starwars, 3) -->
+<!-- ``` -->
+
+
+<!-- ```{r sw-variable-name} -->
+<!-- sw_name<-starwars$name -->
+<!-- ``` -->
+
+
+<!-- ::: {.callout-note} -->
+<!-- El operador `<-` asigna al "símbolo" que hay a su izquierda el resultado -->
+<!-- de la expresión que hay a su derecha. El operador `=` funciona igual que `<-`.  -->
+<!-- ::: -->
+
+<!-- ## Una observación (el bueno): **Luke Skywalker** -->
+
+<!-- ![**Fuente: https://datasciencebox.org**](img/05-luke-skywalker.png){width="50%"} -->
 
 
 
-## ¿Qué conozco sobre Luke Skywalker (el bueno)?
-```{r sw-obsev-luke-skywalker}
-# tidy
-starwars|>
-  filter(name=="Luke Skywalker")
-```
+<!-- ## Exploración del dataset `starwars`   -->
+
+<!-- De un **vistazo** (con la función `glimpse()`): -->
+
+<!-- ```{r sw-explora} -->
+<!-- skimr::skim(starwars) -->
+<!-- ``` -->
+
+
+
+<!-- ## ¿Qué conozco sobre Luke Skywalker (el bueno)? -->
+<!-- ```{r sw-obsev-luke-skywalker} -->
+<!-- # tidy -->
+<!-- starwars|> -->
+<!--   filter(name=="Luke Skywalker") -->
+<!-- ``` -->
 
 
 
@@ -406,7 +406,6 @@ starwars|>
 
 + Nociones básicas para manipular datos en **R**.
 
-+ Homework: cumplimentar la hoja de trabajo.
 
 
 

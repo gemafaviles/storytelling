@@ -36,51 +36,268 @@ execute:
 ---
 
 
-
 ::: {.callout-warning}
 ## IMPORTANTE
 
-**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído**. 
+**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
 :::
 
 
-Idea: partir de este plot u otro "peor" (lo modificamos en la sesión 1 y listo) e ir mejorándolo según estos cuatro puntos, TODO super sencillo
+# Los datos 🛳
 
-```{r starwars2-10}
-ggplot(data = starwars,
-       mapping = aes(x = height,
-                     y = mass,
-                     colour = gender)) +
-  geom_point() +
-  labs(title = "Mass vs. height of Starwars characters",
-       subtitle = "by gender",
-       x = "Height (cm)", y = "Weight (kg)",
-       colour = "Gender",
-       caption = "Source: dplyr package")  +
-  scale_colour_viridis_d()
+Los datos para esta historia están sacados de la competición de kaggle [Titanic - Machine Learning from Disaster](https://www.kaggle.com/competitions/titanic). Los datasets de entrenamiento y test se encuentran en el objeto `titanic` del paquete `titanic`. Además, se ha proporcionado un archivo Excel con los datos para facilitar su manipulación,
+el archivo `titanic.xlsx`
+
+
+``` {r}
+#| eval: false
+if (!require(titanic)){install.packages("titanic")}
+```
+
+🙉 **Entender el contexto**
+
+¡Ay, las apuestas entre departamentos! Mi colega del departamento se ha picado con el equipo vecino y han apostado que ganarán el próximo datathon de GAIA-X. No sería mi problema, si no fuera porque me ha pedido ayuda con el análisis exploratorio... ¡y está fatal de tiempo! Lo de siempre... ¡¿Pero por qué no pueden dejarme en paz?!
+
+En fin, como el objetivo de mi colega es la predicción, nuestro trabajo consiste en hacer un análisis exploratorio de los datos, que son casi todos cualitativos, con una variable dependiente también cualitativa, para ver las relaciones entre las variables del conjunto de datos. Luego ya se apañará mi compañero para modelizar... ¡a ver si se piensa que lo voy a hacer todo yo! 😅
+
+**Paso (i):** Lectura de paquetes.
+
+```{r}
+#library(titanic)
+library(tidyverse)
+library(readxl)
+#library(skimr)
+#library(explore)
+library(ggmosaic)
+library(ggalluvial)
+library(visdat)
+```
+
+
+**Paso (ii):** Lectura de datos.
+
++ Opción (a): Lectura del archivo `titanic.xlsx`
+```{r}
+titanic <- read_xlsx("data/titanic.xlsx")
+```
+
++ Opción (b): Podríamos descargar directamente del paquete `titanic` el dataset `titanic_train`
+```{r}
+#| eval: false
+titanic <- titanic::titanic_train
 ```
 
 
 
-# Unidad 4. 😔 El desorden es tu enemigo
-
-El objetivo de esta unidad es...
-
-
-
+::: {.callout-warning title="Tu turno"}
+## Tu turno
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute correctamente la chunk.
+:::
 
 
-# Unidad 5. 🛑 Centra la atención de tu audiencia
+# 👨‍👩‍👧‍👧 **¿Quién viajaba en el Titanic?** 
 
-El objetivo de esta unidad es...
-
-
-#Unidad 6. 🎨 Piensa como un diseñador
-
-El objetivo de esta unidad es...
-
-
-# Unidad 7. 📖 Cuenta una historia
+**Paso 1** Muestra las primeras filas del conjunto de datos `titanic`.
+```{r}
+#| eval: false
+head(________)
+```
 
 
-El objetivo de esta unidad es...
+**Paso 2** Echa un vistazo a la estructura de las variables con la función `glimpse()`.
+```{r}
+#| eval: false
+_____(titanic)
+```
+
+
+**Paso 3** Convierte las variables caracteres a factores con la función `mutate_if()`.
+```{r}
+titanic <- titanic |>
+  mutate_if(is.character, as.factor)
+```
+
+
+**Paso 4** Convierte la variable `Survived` de numérica a factor con la función `as.factor()`.
+```{r}
+titanic$Survived <- as.factor(titanic$Survived)
+```
+
+
+**Paso 5** Haz un resumen esploratorio rápido y global con la función `skim()` del paquete `skimr`
+
+```{r}
+skimr::skim(titanic)
+```
+
+# 🌊 **¿Quién sobrevivió? Centra la atención**
+
+**Paso 1** Utiliza un gráfico de barras para representar la variable `Survived`  
+
+```{r}
+#| eval: false
+ggplot(titanic, aes(x= Survived)) +
+  geom_xxxx() +
+  xlab("_____") +
+  ylab("_____")
+```
+
+
+**Paso 2** 💰 Analiza la variable `Survived` teniendo en cuenta la clase del pasajero `Pclass` con un diagrama de barras. ¿Te acuerdas de como se especificaba este tipo de geometría?
+
+
+```{r}
+#| eval: false
+ggplot(titanic,
+  aes(Pclass)) +
+  geom_xxx(aes(fill = Survived))
+```
+
+**Paso 3** 💰 Analiza la variable `Survived` teniendo en cuenta la clase del pasajero `Pclass` y mejora la estética del gráfico. Para ello, puedes ayudarte de la función `scale_fill_manual()`
+
+```{r}
+#| eval: false
+ggplot(________, aes(__________)) +
+  geom_xxx(aes(fill = ________) )  +
+    scale_fill_manual(name=" ", 
+                      values = c("0" = "grey", "1" = "green"), 
+                      labels=c("Died", "Survived")) +
+    labs(x = "Ticket class", 
+         title="Survival rate by ticket classes") +
+theme_xxxxx()
+```
+
+**Paso 4** 👶 Analiza la variable `Survived` teniendo en cuenta la edad del pasajero `Age` mediante un diagrama de caja o boxplot con la función `geom_boxplot()`. Considera la variable `x = Survived` e `y = Age`.
+
+```{r}
+#| eval: false
+ggplot(_______, 
+       aes(x = ________, y = _______)) +
+  geom_xxxxxx() +
+  xlab("Survived") +
+  ylab("Age")
+```
+
+**Paso 5** 👶 Analiza la variable `Survived` teniendo en cuenta la edad del pasajero `Age` mediante un gráfico de violín con la función `geom_violin()` y a. Considera la variable `x = Survived` e `y = Age`.
+
+
+```{r}
+#| eval: false
+ggplot(titanic, 
+       aes(x = Survived, y = Age)) +
+  geom_violin(col = "red") +
+  geom_jitter(width = 0.1, alpha = 0.3, col="red") +
+  xlab("Survived") +
+  ylab("Age") +
+  theme_bw()
+```
+
+
+
+
+
+# 🤵 👰 **¿Hombre o mujer? Elegir una visualización adecuada**
+
+Una pregunta que podemos hacernos enseguida es: ¿influyó el sexo en la supervivencia?
+
+Si usamos un **diagrama de mosaico**, que es un método gráfico para visualizar datos de dos o más variables cualitativas, podemos tener una visión general de los datos y reconocer relaciones entre diferentes variables cualitativas.
+
+Veamos la supervivencia (`Survived`) de los pasajeros del Titanic en función del sexo (`Sex`) (ambas variables cualitativas).
+
+
+
+** Paso 1** Primer mosaico con las variables `Survived` y `sexo`
+
+```{r}
+ggplot(data = titanic) +        
+  geom_mosaic(aes(x = product(Survived, Sex),  # Combina supervivencia y sexo en el eje x
+                  fill = Survived))            # Colorea los mosaicos según la variable supervivencia
+      
+```
+
+
+**Paso 2** Avanzamos un poco más con los gráficos de mosaico, representando tres variables cualitativas. Veamos la supervivencia (`Suvived`) de los pasajeros del Titanic en función del sexo (`Sex`) y la clase (`Pclass`) (todas las variables cualitativas)
+
+```{r mosaico_superviencia_sexo_clase}
+ggplot(data = titanic) +
+  geom_mosaic(aes(x = product(Survived, Sex, Pclass), 
+                  fill = Survived))
+```
+
+
+**Paso 2** El gráfico anterior es muy complicado de interpretar y exige un enorme esfuerzo del lector, por su elevada carga cognitiva. **¿Podemos facilitarle la vida?**, porque... ¡de eso se trata en visualización!No nos gusta el mosaico, difícil de interpretar. Probemos con `face_wrap()` y especifiquemos algunos detalles para una visualización adecuada.
+```{r}
+ggplot(data = titanic, aes(x = Age, fill = Sex, alpha = Survived)) +
+  geom_bar(stat = "bin", bins = 30, data = filter(titanic, Sex == "male"), color = "grey") +
+  geom_bar(stat = "bin", bins = 30, data = filter(titanic, Sex == "female"), aes(y = ..count.. * (-1)), color = "grey") +
+  scale_fill_viridis_d() +
+  coord_flip() +                      # barras horizontales 
+  theme_bw() +                        # tema del gráfico
+  facet_wrap(. ~ Pclass) +            # clase en columnas
+  labs(title = "Survival distributions by age, gender and ticket class")
+```
+
+
+Un diagrama de flujo es un gráfico que muestra los pasos de un proceso de una manera visual y fácil de entender, por tanto, este tipo de gráficos permitirán visualizar el flujo de los datos a través de las variables que analizamos. Véase como mejora la interpretabilidad de los datos cualitativos respecto al mosaico con tres variables cualitativas.
+
+Analizamos las mismas variables cualitativas, supervivencia (`Suvived`), sexo (`Sex`) y clase (`Pclass`) pero ahora **el gráfico es mucho más fácil de leer y, por tanto, estamos facilitando el mensaje**. En esto consiste eliminar el desorden.
+
+**Paso 3** Creamos un objeto `tabla_titanic` con las variables objeto de interés
+```{r tabla_superviencia_sexo_clase }
+tabla_titanic <- titanic |>   
+  group_by(Pclass, Sex, Survived) |>       # Agrupa los datos por clase, sexo y supervivencia
+  count()                                  # Cuenta el número de ocurrencias en cada grupo
+```
+
+
+**Paso 3** Representamos el diagrama de flujo. Funciones importantes: `geom_alluvium()`, que añade los flujos y `geom_stratum()` que añade los estratos o categorías.
+```{r flujo_superviencia_sexo_clase }
+flujo <- ggplot(tabla_titanic,              # Crea un gráfico con la tabla agrupada
+       aes(axis1 = Pclass,                  # Define el primer eje como sexo
+           axis2 = Sex,                     # Define el segundo eje como clase
+           axis3 = Survived,                # Define el tercer eje como supervivencia
+           y = n)) +                        # Usa la columna n para la altura de los estratos
+  geom_alluvium(aes(fill = Sex)) +          # Añade las corrientes (alluviums) o flujos coloreadas por sexo
+  geom_stratum() +                          # Añade los estratos (strata) o categorías
+  geom_text(stat = "stratum",               # Añade etiquetas a los estratos 
+            aes(label = after_stat(stratum))) +  # Usa el nombre del estrato como etiqueta
+  scale_x_discrete(limits = c("Pclass", "Sex", "Survived"),  # Define los límites de los ejes x
+                   expand = c(.1, .1)) +     # Añade espacio alrededor de los ejes
+  scale_fill_viridis_d() +                   # Aplica una paleta de colores viridis
+  labs(title = "  ", 
+       y = "Frecuencia") +  
+  theme_minimal() +   
+  theme(legend.position = "none",  # Elimina la leyenda
+        axis.title.y = element_text(hjust = 1))   
+
+flujo  # Muestra el gráfico
+```
+
+
+
+
+
+
+
+
+::: {.callout-tip}
+## 📖 Cómo narrar una historia convincente con tus datos.
+
+Hasta ahora hemos visto el **planteamiento**, en el que proporcionamos el contexto: un colega de departamento nos ha pedido ayuda. Si es científico, como nosotros, podemos utilizar todo nuestro arsenal gráfico sin problemas. Como quiere hacer predicción, está interesado en ver la influencia de las variables en la `supervivencia`.
+
+El análisis exploratorio nos introduce de lleno en la **trama**, donde descubrimos que la `edad`, el `sexo` y la `clase` tienen influencia en la variable `supervivencia`.
+
+Pero como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro colega las claves que necesita:
+
+-   Con el gráfico de flujo va a ver claramente como el sexo, la edad y la clase los tiene que tener en cuenta en el modelo: **la tercera clase tuvo un ratio de supervivencia claramente menor, al contrario que las mujeres y los niños**.
+:::
+
+
+
+::: {.callout-tip}
+## Para pensar
+
+Si se hundiera hoy en día el Titanic, ¿habría cambiado la influencia de alguna variable en el modelo? ¿Tendríamos una visualización más confusa en el gráfico de flujo?
+
+¿Cómo podría modelizarse la supervivencia, dadas las conclusiones que hemos sacado?
+:::

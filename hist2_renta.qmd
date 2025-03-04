@@ -106,10 +106,10 @@ renta_municipio_data <- renta_municipio_data[substr(
 vis_miss(renta_municipio_data)
 
 # Forma más artesanal, pero más precisa:
-apply(renta_municipio_data, 1, function(x) sum(is.na(x))) |>
+apply(renta, 1, function(x) sum(is.na(x))) |>
   table()
 # Podríamos imputar con la mediana y salvar los registros de los municipios con 1 ó 2 faltantes, pero para visualización, ya tenemos más de 6.000 y no merecen la pena 205 más, así que eliminamos los municipios con datos faltantes:
-renta <- renta_municipio_data |>
+renta <- renta |>
    drop_na()
 head(renta)
 

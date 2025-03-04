@@ -1,40 +1,318 @@
 ---
-title: "Mi historia en 3 minutos"
+title: "¿Qué pasa con la renta municipal en España?"
 author:
-  - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
-  - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
-format: html
-theme: superhero
-#highlight-style: ayu-mirage
-self-contained: true
-date: "`r Sys.Date()`"
-code-link: true
+  - pon aquí tu nombre (correo electrónico en la UCLM)
+  - pon aquí tu nombre (correo electrónico en la UCLM)
+  - si hay más autores...
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    lang: es
+    date: 04/25/2025
+    date-format: long
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
+    code-fold: false
 number-sections: true
 execute:
-  code-overflow: scroll
-  echo: true
+  echo: false
   eval: true
   output: true
   include: true
   freeze: auto
   fig-height: 5
   warning: false
-  code-fold: true
   comment: "#>"
   code-line-numbers: true
   code-copy: true
-#bibliography: biblio.bib
+  code-overflow: scroll
+  code-fold: true
 ---
 
+```{r planteamiento}
+#| eval: false
+
+Trabajaremos con la renta neta per cápita (en euros) por municipios. Esta información se ha extraído del "Atlas de distribución de renta de los hogares", proporcionado por el Instituto Nacional de Estadística y ha sido procesada para facilitar el análisis. La cargamos desde el archivo Excel "tarea2_renta.xlsx".
+
+Trabajas en una compañía privada que quiere introducir un producto de alta gama, y te ha pedido tu jefe que le hagas un informe sobre la renta municipal en España de los últimos años, porque el CEO quiere ampliar el mercado a determinados tramos de renta, y necesita localizar caladeros de negocio.
+
+Tendrás que buscar segmentos de mercado con capacidad de compra de un producto de alta gama, por lo que te interesa saber dónde vive la gente con más dinero.
+
+Te han hecho un primer análisis exploratorio para limpiar los datos y analizar mínimamente las variables de interés.
+
+Tu tarea consiste en mejorar los gráficos que se incluyen en este archivo de Quarto, y elaborar otros nuevos, para **aportar conocimiento al jefe de la forma más visual posible**.
+
+¡No te preocupes! Te iremos guiando por el camino...
+```
 
 
-# Tu turno
-  
-Con las herramientas mostradas en el curso prepara una historia individualmente sobre alguna de tus lineas de investigación, un tema de clase o cualquier otro tema que te interese.
+```{r bibliotecas}
+#| code-summary: Carga de bibliotecas
+#| echo: false
 
-Esta historia debe tener una duración de 3 minutos y nos la contarás en clase en la última sesión del curso.
+library(CDR)            # datos auxiliares para cartografía (municipios)
+library(readxl)         # carga de datos desde Excel
+library(tidyverse)      # manipulación de datos
+library(sf)             # manejo de datos espaciales
+library(patchwork)      # combinación de gráficos
+library(corrplot)      # matriz de correlaciones
+```
 
 
+```{r datos}
+#| code-summary: Carga de los datos
+#| echo: false
+
+renta <- as.data.frame(read_xlsx("./data/tarea2_renta.xlsx")) # Deberás especificar la ruta donde hayas guardado el archivo.
+```
 
 
+# Distribución de la renta por municipios.
 
+La descripción de las variables de renta es la siguiente. Tenemos 6.424 registros de renta municipal de toda España, a lo largo de 5 años, de 2015 a 2019, cada año en una columna. Observando la media y los 5 números de las variables cuantitativas detectamos asimetría positiva, usual en distribuciones de rentas o salariales.
+
+```{r resumen}
+#| code-summary: visualización previa y resumen de los datos (media y 5 números para variables cuantitativas)
+#| eval: false
+#| echo: false # En un informe no deberían aparecer, pero internamente siempre debemos "verle las tripas" a nuestros datos
+
+head(renta)
+str(renta)
+summary(renta)
+```
+
+La renta no la misma en todos los municipios, variando entre 3.000 y 30.682 a lo largo de los 5 años.
+
+Se presenta un histograma de la distribución del último año (2019), para la visualización de la distribución, que es similar en forma durante los 5 años.
+
+```{r histograma-2019}
+#| code-summary: Creación del histograma
+
+ggplot(data = renta, aes(x = anyo2019)) +
+  geom_histogram() #30 bins por defecto
+```
+
+```{r ejercicio1}
+#| code-summary: ejercicio 1
+#| eval: false
+
+¿Puedes mejorar este histograma?
+Modifica el siguiente chunk, cambiando las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto.
+```
+
+```{r histograma-tarea}
+#| code-summary: Creación del histograma, tu turno.
+#| eval: false # Cuando acabes de arreglar el código traslada esta línea al chunk llamado "histograma-2019", para que salga tu histograma bonito en el informe. Si lo consideras interesante, cambia lo que quieras y déjalo a tu gusto
+
+p_renta_2019 <- ggplot(renta, aes(anyo2019)) +
+  geom_xxxxxx(col = color_relleno,
+                 fill = color_relleno, 
+                 bins = nclass.Sturges(renta$anyo2019)) +
+  geom_xxxxxx(aes(xintercept = mean(anyo2019)),
+             color = color_lineas,
+             linetype = "dashed",
+             linewidth = 1) +
+  geom_xxxxxx(aes(x = mean(anyo2019),
+                y = 100,
+                label = round(mean(anyo2019), 2)),
+            color = color_lineas) +
+  labs(title = "Distribución de la renta por municipios",
+       x = "Renta per cápita",
+       y = "Frecuencia") +
+  theme_xxxxxx()
+
+p_renta_2019 
+```
+
+Como visualización alternativa se presenta igualmente la función de densidad de la renta del último año disponible (2019):
+
+```{r ejercicio2}
+#| code-summary: ejercicio 2
+#| eval: false
+
+Tendrás que usar la función "geom_density()" dentro de un gráfico de ggplot, habiendo elegido previamente las variables adecuadas en el argumento "mapping = aes()" de la función "ggplot()"
+```
+
+```{r ejercicio2-tu-turno}
+#| code-summary: pon aquí tu código para el ejercicio 2
+
+
+```
+
+
+Finalmente, se incluye en el mismo gráfico un diagrama de cajas y violín de la renta del último año disponible (2019):
+
+```{r ejercicio3}
+#| code-summary: ejercicio 3
+#| eval: false
+
+Tendrás que usar las funciones "geom_boxplot()" y "geom_violin()" dentro de un gráfico de ggplot, habiendo elegido previamente las variables adecuadas en el argumento "mapping = aes()" de la función "ggplot()".
+
+Asigna el gráfico a un objeto (llámalo "graf", por ejemplo). Construye después dos objetos usando un código de la forma: "caja <- graf + geom_boxplot()" y "violin <- graf + geom_violin()".
+
+Finalmente, preséntalo como "caja + violin" en una línea, para que el paquete "patchwork" haga su magia.
+
+La estructura del código quedaría así:
+
+graf <- ggplot()
+
+caja <- graf + ggplot()
+
+violin <-  graf + ggplot()
+
+caja + violin
+```
+
+```{r ejercicio3-tu-turno}
+#| code-summary: pon aquí tu código para el ejercicio 3
+
+
+```
+
+# Evolución de la renta municipal
+
+Hasta aquí se ha analizado la distribución de la renta del último año disponible, 2019. A continuación, para ver como ha evolucionado a lo largo de los años, presentamos una serie temporal de la mediana del conjunto de todos los municipios en cada año disponible. En una distribución asimétrica como la renta, utilizar la mediana es mejor, ya que no está afectada por los valores extremos de renta:
+
+```{r ejercicio4}
+#| code-summary: ejercicio 4
+#| eval: false
+
+Tendrás que usar la función "geom_line()" dentro de un gráfico de ggplot, habiendo elegido previamente las variables adecuadas en el argumento "mapping = aes()" de la función "ggplot()". Para facilitarte las cosas, ya hemos calculado la mediana de cada año, y hemos fabricado un data frame ("medianas") con el que vas a construir fácilmente el gráfico que debes hacer.
+
+Este gráfico es muy sencillo No te conformes con un gráfico sin sustancia. Usa el color con elegancia, etiquetas en los ejes, título con fuerza... todo lo que ya sabes hacer.
+```
+
+```{r ejercicio4-tu-turno}
+#| code-summary: pon a continuación de este código lo que necesites para completar el ejercicio 4
+
+valor_medianas <- apply(renta[,2:6], 2, median)
+medianas <- data.frame(anyo = 2015:2019, mediana = valor_medianas[5:1]) # le damos la vuelta a los valores de las medianas porque las columnas del objeto "renta" están en orden decreciente
+
+
+```
+
+# Relación de los valores de renta entre los años disponibles
+
+Se presenta un gráfico de dispersión entre la renta del último año disponible respecto al anterior´, así como una matriz de correlación entre los 5 años de los que disponemos información:
+
+```{r ejercicio5}
+#| code-summary: ejercicio 5
+#| eval: false
+
+# NOTA IMPORTANTE: Es evidente que hay una fuerte relación entre la renta de todos los años, pero queríamos que este tipo de gráfico y la matriz de correlación se incluyeran en el ejercicio, ya que son muy habituales en nuestro ámbito de trabajo (científico)
+
+Tendrás que usar la función "geom_point()" y, si te parece intersante, completar el gráfico con "geom_smooth()", que añadirá una línea de tendencia con el intervalo de confianza integrado en la curva
+```
+
+
+```{r ejercicio5-tu-turno}
+#| code-summary: pon aquí tu código para el ejercicio 5
+
+
+```
+
+
+```{r ejercicio6}
+#| code-summary: ejercicio 6
+#| eval: false
+
+Una matriz de correlación es muy útil, especialmente cuando se tienen muchas variables, porque permite encontrar relaciones entre las variables explicativas, permitiendo descartar alguna y mejorar el comportamiento del modelo.
+
+Te recomendamos usar la función "corrplot()" del paquete del mismo nombre, "corrplot". Selecciona una configuración que se ajuste a tu estilo, porque el paquete incluye una amplia variedad de visualizaciones. Para ello, no dudes en mirar la ayuda de la función ejecutando:
+
+?corrplot
+
+# CUIDADO: aunque es evidente, recuerda utilizar solo variables cuantitativas
+```
+
+
+```{r ejercicio6-tu-turno}
+#| code-summary: pon aquí tu código para el ejercicio 6
+
+
+```
+
+# Distribución geográfica de la renta municipal en España
+
+Una vez visualizada la distribución y evolución de la renta municipal en España, así como la relación de la renta entre los años disponibles, se visualiza la distribución geográfica en el país, para detectar las municipios que más interesan a nuestra empresa, a efectos de localizar los municipios más interesantes para abrir localizaciones interesantes de negocio.
+
+
+```{r dataset}
+#| code-summary: unión de los datos de renta con la capa geográfica municipal
+
+renta_municipal <- municipios |>
+  left_join(renta) |>   # une datasets
+  dplyr::select(name, codigo_ine, anyo2015, anyo2016, anyo2017, anyo2018,
+                anyo2019) # selecciona las variables que nos interesan
+```
+
+
+```{r ejercicio7}
+#| code-summary: ¿cómo cambiarías este código para mejorar la visualización del mapa básico que hemos incluido?
+#| eval: false
+
+El gráfico incluido, debido a la escala de colores, tiende a uniformizar los municipios
+
+Algunas ideas:
+  - elige una escala adecuada (viridis, inferno), e investiga si la dirección de la escala es adecuada (prueba los tonos en orden inverso)
+  - pon un título adecuado (y subtítulo, si lo consideras útil)
+  - esta es más complicada: estratifica en tramos la graduación de renta diseñando una escala discreta; para ello puedes usar la función "classIntervals()" del paquete "classInt", aplicando el método "Fisher-Jenks"
+```
+
+
+```{r ejercicio7-tu-turno}
+#| code-summary: mejora la visualización de este mapa
+
+ggplot(renta_municipal) +
+  geom_sf(aes(fill = anyo2019), color = NA) +
+  theme_minimal()
+```
+
+# Municipios con la mayor renta per cápita
+
+De cara al departamento de inversores, se detallan a continuación los municipios con mayor renta per cápita en España para la última anualidad disponible (2019). Para ello se ordenan por orden de renta, especificando en un gráfico lollipop la renta de los 20 primeros.
+
+```{r mayor-renta}
+#| code-summary: te facilitamos el dataframe de los municipios de mayor renta
+
+municipios_mayor_renta <- renta_municipal |>
+  arrange(desc(anyo2019)) |>
+  slice(1:20) |>
+  dplyr::select(name, anyo2019) |>
+  st_drop_geometry()
+```
+
+```{r ejercicio8}
+#| code-summary: indicaciones para el gráfico lollipop
+#| eval: false
+
+Los gráficos loliipop son complejos, pero en ocasiones muy efectivos, especialmente cuando se integran con otras representaciones.
+
+Ten en cuenta que para hacerlo correctamente:
+  - el municipio de mayor renta debe quedar arriba, y el resto por orden descendente
+  - tendrás que usar "geom_segment()" especificando los valores inicial y final de cada segmento, tanto en "x" como en "y" para dibujar las líneas
+  - "geom_point()" para los puntos finales
+  - para ordenar los municipios por la variable "anyo2019" tendrás que usar "reorder()" en el mapping. Esta función lleva dos argumentos, en el primero la variable a ordenar (el nombre del municipio) y en el segundo la variable que ordena (la renta de 2019)
+
+```
+
+```{r ejercicio8-tu-turno}
+#| code-summary: construye un gráfico lollipop con la renta por municipios, usando todo lo aprendido en el curso (título, subtítulo, aspectos estéticos, simplicidad, elegancia, baja carga cognitiva, eficiencia, etc.)
+
+
+```
+
+# Conclusión
+
+Una vez analizada la renta municipal y detectados los municipios con la mayor renta per cápita en el último año disponible, se recomienda al departamento de logística que analice la idoneidad de ubicación de los mismos, a fin de determinar las mejores localizaciones para el crecimiento de la empresa.
+
+Si necesitan análisis adicionales, no duden en consultarnos. Estamos a su disposición.
+
+Atentamente,
+Departamento de "Storytelling"

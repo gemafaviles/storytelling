@@ -1,5 +1,5 @@
 ---
-title: "Storytelling visual con R"
+title: "Storytelling visual con R. Lab 4. Accidentalidad 🚘"
 subtitle: "¿Cómo y dónde se producen los accidentes en Madrid?"
 author:   
   - name: Gema Fernández-Avilés 
@@ -40,7 +40,10 @@ execute:
 ::: {.callout-warning}
 ## IMPORTANTE
 
-**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+📕 **Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+
+🦄 <mark> Este icono indica **AVANZADO E IMPORTANTE**</mark>
+
 :::
 
 
@@ -111,8 +114,7 @@ help(accidentes2020_data)
 
 ::: {.callout-warning title="Tu turno"}
 ## Tu turno
-Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute
-correctamente la chunk.
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute correctamente la chunk.
 :::
 
 
@@ -148,7 +150,7 @@ accidentes2020_data |>
 ```
 
 
-Las tablas también son elementos de visualización. En este caso, hay algo evidente que hacer, pero lo vamos a explicar con el siguiente gráfico:
+Las tablas también son elementos de visualización. En este caso, hay algo evidente que hacer. Lo vamos a explicar con el siguiente gráfico.
 
 **Paso 5** Gráfico de barras por `tipo_accidente` en el eje `y`.
 
@@ -157,7 +159,7 @@ Las tablas también son elementos de visualización. En este caso, hay algo evid
 
 accidentes2020_data |>
   ggplot() +
-  geom_bar(aes(y = _________))
+  geom_xxx(aes(y = _________))
 ```
 
 
@@ -170,7 +172,7 @@ Pues está muy claro:
 
 * cambia la **estética**: dale color `orange` al relleno de las barras y transparencia de `0.6`,
 * modifica el **fondo** con el tema `theme_bw()` y, 
-* lo más importante, **ordena las categorías**. Si no están ordenadas tardamos mucho en determinar, por ejemplo, cuál es la tercera, o la quinta... Únicamente la más importante es relativamente fácil de situar. 
+* lo más importante, **ordena las categorías**. Si no están ordenadas tardamos mucho en determinar, por ejemplo, cuál es la tercera, o la quinta... Únicamente, la más importante es relativamente fácil de situar. 
 
 **Paso 6** Gráfico de barras por tipo de accidente ordenado
 ```{r}
@@ -202,7 +204,7 @@ ggplot(accidentes2020_data,
 
 ❓ **¿Se podría hacer rápidamente un lollipop con las frecuencias relativas (datos en porcentaje)?** 
 
-**Paso 7** `Lollipop` ordenado con `geom_segment()` y `geom_point()`
+🦄 **Paso 7** **Lollipop** ordenado con `geom_segment()` y `geom_point()`
 ```{r}
 # Calcular la frecuencia de cada tipo de accidente
 accidentes2020_data |>
@@ -298,7 +300,8 @@ accidentes2020_hora_dia <- accidentes2020_data |>  # Crea el dataset accidentes2
 #| eval: false
 ggplot(data = accidentes2020_hora_dia,             
        aes(x = hora_dia, y = n)) +                 # x= hora_dia e  y=n  
-  geom_xxxx(linewidth = 1, color = "orange") +     # Añade una línea de color naranja y ancho de línea 1
+  geom_xxxx(linewidth = _____,      # Ancho de la línea  ____
+            color = "______") +     # Añade una línea de color ______ 
   labs(title = "Número de accidentes según la horaria del día",   
        x = "Hora", 
        y = "Número de accidentes") +   
@@ -340,7 +343,7 @@ Los datos espaciales tienen característica importantes que debemos tener en cue
 
 
 
-**Paso 2**  Convierte el dataset accidentes2020_data a un objeto `sf`.
+🦄 **Paso 2**  Convierte el dataset accidentes2020_data a un objeto `sf`.
 ```{r}
 accidentes2020_sf <- st_as_sf(accidentes2020_data,     
   coords = c("coordenada_x_utm", "coordenada_y_utm"),  # Define las columnas de coordenadas UTM
@@ -349,7 +352,7 @@ accidentes2020_sf <- st_as_sf(accidentes2020_data,
 ```
 
 
-**Paso 3** Obtiene datos del municipio de Madrid con la función `esp_get_munic()` de la libreíra `mapSpain`.
+🦄 **Paso 3** Obtiene datos del municipio de Madrid con la función `esp_get_munic()` de la librería `mapSpain`.
 ```{r}
 madrid <- esp_get_munic(munic = "^Madrid$") |>    # Obtiene los datos del municipio de Madrid
   st_transform(25830)                             # Transforma las coordenadas al sistema de referencia ETRS89/UTM zona 30N
@@ -359,13 +362,13 @@ class(madrid)
 ```
 
 
-**Paso 4** Descarga una imagen de un mapa estático de las carreteras de Madrid con la función `esp_getTiles()` de la librería `mapSpain`
+🦄 **Paso 4** Descarga una imagen de un mapa estático de las carreteras de Madrid con la función `esp_getTiles()` de la librería `mapSpain`
 ```{r}
 tile <- esp_getTiles(madrid, "IDErioja", zoommin = 2)
 ```
 
 
-**Paso 5** Primer mapa mejorado con la función `ggplot()` (nada nuevo 😉). Añade la imagen del mapa de carreteras de fondo con la función `geom_spatraster_rgb()` del paquete `tidyterra` y especifica la estética (hazlo a tu gusto).
+🦄 **Paso 5** Primer mapa mejorado con la función `ggplot()` (nada nuevo 😉). Añade la imagen del mapa de carreteras de fondo con la función `geom_spatraster_rgb()` del paquete `tidyterra` y especifica la estética (hazlo a tu gusto).
 
 ```{r}
 #| eval: false
@@ -379,8 +382,6 @@ ggplot() +                                     # Inicia un gráfico vacío con g
   labs(title = "________________")             # Título
 ```
 
-
-
 ¡Esto ya es otra cosa! Apreciamos, lógicamente, la concentración de accidentes en el centro de la ciudad y, especialmente, en las arterias principales.
 
 
@@ -390,14 +391,14 @@ ggplot() +                                     # Inicia un gráfico vacío con g
 Una categoría especial, y que merece mucho la pena destacar, cuando tenemos información georreferenciada, son los mapas interactivos. Una de las librerías más populares para construirlos en **R** es `leaflet`. Este paquete permite crear mapas dinámicos e interactivos utilizando la librería Leaflet de JavaScript. La principal ventaja de utilizar `leaflet` frente a otras alternativas es su flexibilidad y que su implementación en **R** es realmente sencilla de usar.
 
 
-**Paso 6** Preparación de los datos. Transforma el CRS de `accidentes2020_sf` a WGS 84 (**CRS 4326**), CRS usado en Google Earth y en los sistemas GSP (longitud, latitud).
+🦄 **Paso 6** Preparación de los datos. Transforma el CRS de `accidentes2020_sf` a WGS 84 (**CRS 4326**), CRS usado en Google Earth y en los sistemas GSP (longitud, latitud).
 
 ```{r}
 accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)
 ```
 
 
-**Paso 7** Extrae las coordenadas de longitud y latitud del objeto espacial proyectado `accidentes2020_sf` y las añade como una nuevas columnas, nuevas variables, `longitude` y `latitude`, en el conjunto de datos `accidentes2020_data`.
+🦄 **Paso 7** Extrae las coordenadas de longitud y latitud del objeto espacial proyectado `accidentes2020_sf` y las añade como una nuevas columnas, nuevas variables, `longitude` y `latitude`, en el conjunto de datos `accidentes2020_data`.
 
 ```{r}
 accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]  
@@ -405,7 +406,7 @@ accidentes2020_data$latitude <- st_coordinates(accidentes2020_sf)[, 2]
 ```
 
 
-**Paso 8** Primer mapa interactivo con `leaflet`
+🦄 **Paso 8** Primer mapa interactivo con `leaflet`
 ```{r}
 leaflet(data = accidentes2020_data) |>  # Crea un mapa interactivo con el dataset accidentes2020_data
   addTiles() |>                         # Añade las teselas (tiles) del mapa base
@@ -423,7 +424,7 @@ leaflet(data = accidentes2020_data) |>  # Crea un mapa interactivo con el datase
 
 Estas visualizaciones están muy bien pero... ¿y si pudiéramos aminorar la carga cognitiva del mapa interactivo? Una forma de hacerlo es **usar agrupaciones**. Veamos cómo hacerlo.
 
-**Paso 9** Primer mapa interactivo con `leaflet` y clusters con la función `addCircleMarkers()`
+🦄 **Paso 9** Primer mapa interactivo con `leaflet` y clusters con la función `addCircleMarkers()`
 ```{r}
 leaflet(data = accidentes2020_data) |>
   addTiles() |>
@@ -434,7 +435,7 @@ leaflet(data = accidentes2020_data) |>
 ```
 
 
-**Paso 10** Primer mapa interactivo con `leaflet` y **mapa de calor** con la función `addHeatmap()` del paquete `leaflet.extras`.
+🦄 **Paso 10** Primer mapa interactivo con `leaflet` y **mapa de calor** con la función `addHeatmap()` del paquete `leaflet.extras`.
 
 ```{r}
 leaflet(data = accidentes2020_data) |>
@@ -475,5 +476,4 @@ Pero, como siempre, lo más importante es el **desenlace**, donde presentamos al
 
 Te hemos propuesto un par de visualizaciones, pero puede que no estés de acuerdo. ¿Qué visualizaciones utilizarías en el desenlace para aportar el mayor conocimiento a Almeida sobre los accidentes de tráfico en su ciudad?
 
-
-
+![](img/logos_finan.png){align="right"}

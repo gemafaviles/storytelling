@@ -1,5 +1,5 @@
 ---
-title: "Storytelling visual con R: primera clase"
+title: "Storytelling visual con R. Lab 2 con Starwars ⚔"
 subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
 author:   
   - name: Gema Fernández-Avilés 
@@ -40,11 +40,29 @@ execute:
 ::: {.callout-warning}
 ## IMPORTANTE
 
-**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído**. 
+📕 **Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+
+🦄 <mark> Este icono indica **AVANZADO E IMPORTANTE**</mark>
+
 :::
 
 
-Idea: partir de este plot u otro "peor" (lo modificamos en la sesión 1 y listo) e ir mejorándolo según estos cuatro puntos, TODO super sencillo
+**Paso (i):** Lectura de paquetes
+
+```{r}
+library(ggplot2)    # Visualización de datos
+library(dplyr)      # Manipulación de datos
+library(ggpmisc)    # Añade la linea de regresión en el plot
+```
+
+
+**Paso (ii):** Lectura y visualización de los datos 
+
+```{r}
+head(starwars)
+```
+
+**Paso (iii)** Punto de partida
 
 ```{r starwars2-10}
 ggplot(data = starwars,
@@ -53,34 +71,176 @@ ggplot(data = starwars,
                      colour = gender)) +
   geom_point() +
   labs(title = "Mass vs. height of Starwars characters",
-       subtitle = "by gender",
-       x = "Height (cm)", y = "Weight (kg)",
-       colour = "Gender",
-       caption = "Source: dplyr package")  +
-  scale_colour_viridis_d()
+       x = "Height (cm)", 
+       y = "Weight (kg)",
+       colour = "Gender")  
 ```
+
+
+::: {.callout-warning title="Tu turno"}
+## Tu turno
+
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute correctamente la chunk.
+:::
 
 
 
 # Unidad 4. 😔 El desorden es tu enemigo
 
-El objetivo de esta unidad es...
+Para evitar el desorden, podemos simplificar la visualización eliminando elementos innecesarios y enfocándonos en lo esencial. ¿Son necesarios los `NA` en este caso? ¿El fondo gris aporta información?
 
+**Paso 1** Elimino los datos faltantes, NA (Not Avaliable) con la función `is.na()`, indicando que filtre los que son distintos a NA (con el operador `!`). Guardo el nuevo conjunot de datos en el objeto `starwars_clean`.
+```{r}
+starwars_clean <- starwars |>
+  filter(!is.na(gender))
+```
+
+**Paso 2** Compruebo que no tengo `NAs` con la función `is.na()`.
+```{r}
+summary(is.na(starwars_clean))
+```
+
+**Paso 3** Cambio el tema del fondo del gráfico. Prueba algunos y elige el que consideres más apropiado: `theme_bw()`, `theme_minimal()`, `theme_light()`, `theme_dark()`,...
+
+
+```{r}
+#| eval: false
+ggplot(data = starwars_clean,
+       mapping = aes(x = height, 
+                     y = mass, 
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. Height of Starwars Characters",
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender") +
+  theme_xxx()
+```
 
 
 
 
 # Unidad 5. 🛑 Centra la atención de tu audiencia
 
-El objetivo de esta unidad es...
+Para centrar la atención, podemos analizar ciertos puntos de interés, como los personajes con alturas y pesos extremos.
+
+**Paso 1** Centro la atención en el personaje *outlier* para ver quién es. Para ello filtro (`filter()`) los valores de la variable `mass > 1000` e indico que ponga una etiqueta con la variable `label = name` .
+
+```{r}
+#| eval: false
+ggplot(starwars_clean |> 
+         filter(_____ > ____), 
+       aes(x = ___, 
+           y = ___, 
+           label = ____, 
+           colour = ____)) +
+  geom_point() +
+  geom_text(hjust = 1.1, vjust = 1.1, size = 3) +
+  labs(title = "Characters with Mass Greater than 1000",
+       x = "Height (cm)", 
+       y = "Weight (kg)",
+       colour = "Gender") +
+  theme_bw() 
+```
 
 
-#Unidad 6. 🎨 Piensa como un diseñador
+**Paso 2** Determinamos el conjunto de datos objetivo. En este caso, eliminamos el personaje *outlier*, `Jabba Desilijic Tiure`, del conjunto de datos `starwars_clean` y lo guardamos en el objeto `starwars_clean_sin_outlier`.
+```{r}
+starwars_clean_sin_outlier <- starwars_clean |>
+      filter(name != "Jabba Desilijic Tiure")
+```
 
-El objetivo de esta unidad es...
+
+**Paso 3** Representamos el diagrama de dispersión del conjunto de datos `starwars_clean_sin_outlier`.
+
+```{r}
+#| eval: false
+ggplot(starwars_clean_sin_outlier,
+       mapping = aes(x = height, 
+                     y = mass, 
+                     colour = gender)) +
+  geom_point() +
+  labs(title = "Mass vs. Height of Starwars Characters (Excluding Jabba)",
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender") +
+    theme_bw()
+```
+
+
+# Unidad 6. 🎨 Piensa como un diseñador
+
+Para pensar como un diseñador, podemos usar colores y formas que hagan la visualización más atractiva y fácil de entender.
+
+**Paso 1** Añade colores y formas al gráfico, además de la fuente de los datos.
+
+```{r}
+#| eval: false
+ggplot(starwars_clean_sin_outlier, 
+       mapping = aes(x = height, 
+                     y = mass, 
+                     colour = gender, 
+                     ______ = gender)) +
+  geom_point(size = 3) +
+  labs(title = "Mass vs. Height of Starwars Characters",
+       x = "Height (cm)", 
+       y = "Weight (kg)",
+       colour = "Gender", 
+       ______ = "Gender",
+       caption = "Source: dplyr package") +
+  theme_minimal() +
+  scale_colour_viridis_d() +
+  theme(legend.position = "bottom")
+```
+
+
 
 
 # Unidad 7. 📖 Cuenta una historia
 
+Para contar una historia, podemos agregar anotaciones que expliquen los datos y guíen al espectador a través de la visualización.
 
-El objetivo de esta unidad es...
+
+**Paso 1** Destaca los personajes más importantes y cambia la escala de color.
+```{r}
+#| eval: true
+ggplot(starwars_clean_sin_outlier, 
+       mapping = aes(x = height, 
+                     y = mass, 
+                     colour = gender)) +
+  geom_point(size = 3) +
+  geom_text(aes(label = ifelse(name %in% c("Darth Vader", "Luke Skywalker", "Leia Organa", "Yoda"), 
+                               name, " ")),  
+            size = 5) +
+  labs(title = "Mass vs. Height of Starwars Characters",
+       subtitle = "Highlighting Key Characters",
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender",
+       caption = "Source: dplyr package") +
+  theme_minimal() +
+scale_colour_brewer(palette = "Set2")
+```
+
+
+
+**Paso 2** Añade una linea de regresión con sus coeficientes y el R2.
+```{r}
+#| eval: true
+ggplot(starwars_clean_sin_outlier, 
+       mapping = aes(x = height, 
+                     y = mass, 
+                     colour = gender)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, aes(colour = gender)) +  # Línea de regresión por género
+  stat_poly_eq(aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~"), 
+                   colour = gender), 
+               formula = y ~ x, 
+               parse = TRUE, label.x.npc = "right", label.y.npc = "top") +
+  labs(title = "Mass vs. Height of Starwars Characters",
+       x = "Height (cm)", y = "Weight (kg)",
+       colour = "Gender",
+       caption = "Source: dplyr package") +
+  theme_minimal() +
+  scale_colour_brewer(palette = "Set2") +
+  theme(legend.position = "bottom")
+```
+
+![](img/logos_finan.png){align="right"}

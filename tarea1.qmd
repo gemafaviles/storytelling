@@ -4,6 +4,7 @@ author:
   - Gema Fernández-Avilés (Gema.FAviles@uclm.es)
   - Isidro Hidalgo (Isidro.Hidalgo@uclm.es)
 format: html
+logo: img/logos_finan.png
 theme: superhero
 #highlight-style: ayu-mirage
 self-contained: true

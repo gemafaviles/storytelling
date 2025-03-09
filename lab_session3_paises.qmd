@@ -1,6 +1,6 @@
 ---
-title: "Storytelling visual con R"
-subtitle: "¡Nos vamos a Noruega!"
+title: "Storytelling visual con R. Lab 3: demografía (cuantitativos)"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
 author:   
   - name: Gema Fernández-Avilés 
     email: gema.faviles@uclm.es
@@ -41,7 +41,10 @@ execute:
 ::: {.callout-warning}
 ## IMPORTANTE
 
-**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+📕 **Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+
+🦄 <mark> Este icono indica **AVANZADO E IMPORTANTE**</mark>
+
 :::
 
 
@@ -211,7 +214,7 @@ ggplot(demog_data,
 #| eval: false
 ggplot(demog_data,
        aes(x = Growth_rate, y = Life_expectancy)) +
-  geom_hex() +
+  geom_xxx() +
   labs(title = "Esperanza de vida vs. Tasa de crecimiento",
        x = "Tasa de crecimiento",
        y = "Esperanza de vida") +
@@ -219,7 +222,7 @@ ggplot(demog_data,
 ```
 
 
-🔍 Eliminar el desorden. Enfocar la atención
+🔍 **Eliminar el desorden. Enfocar la atención**
 
 ¿Qué herramientas tenemos a nuestro alcance para poner el foco sobre lo que nos interesa? Aquí podemos usar la estética y las facetas, para separar los puntos y dar más información a través de la visualización. Veamos...
 
@@ -256,6 +259,7 @@ g_demog <- ggplot(demog_data,
   theme_minimal() 
 
 # para represenar el gráfico
+
 g_demog
 ```
 
@@ -276,13 +280,14 @@ También somos capaces de identificar China e India rápidamente, por su tamaño
 
 Sin embargo, hay colores muy parecidos, que exigen demasiada atención. Podemos usar la siguiente herramienta...
 
+ 
 
 📊  **Facetas** 
 
 Otra forma de eliminar el desorden y enfocar la atención es usar facetas, separando el gráfico según una o más variables interesantes. En este caso usamos solo el continente.
 
 
-**Paso 8** Diagrama de dispersión mejorado por facetas con la función `facet_wrap()`.
+🦄 **Paso 8** Diagrama de dispersión mejorado por facetas con la función `facet_wrap()`.
 
 ```{r}
 demog_scatter <- ggplot(data = demog_data, # data
@@ -311,14 +316,14 @@ Pero muchas veces es muy importante, cuando usamos facetas, que podamos comparar
 ¿Existe una forma fácil de saber cuáles poner? Claro, con un `summary()` de las variables, tal como indicamos a continuación, vemos rápidamente el valor mínimo y máximo de las variables que nos interesan:
 
 
-**Paso 9 ** Mejoramos la escala para comparar facetas: observamos los límites de las variables.
+🦄 **Paso 9 ** Mejoramos la escala para comparar facetas: observamos los límites de las variables.
 ```{r}
 summary(demog_data$Life_expectancy)
 summary(demog_data$Growth_rate)
 ```
 
 
-**Paso 10** Especificamos los límites en los 
+🦄 **Paso 10** Especificamos los límites en los 
 ```{r}
 demog_scatter_escala <- ggplot(data = demog_data,
                                aes(x = Growth_rate,
@@ -340,7 +345,7 @@ demog_scatter_escala
 
 📈 **Linea de suavizado**
 
-A veces, si hay una tendencia evidente, es conveniente usar una línea de suavizado que la identifique. En este caso, no está nada clara, por lo que la podemos omitir. Y aquí sí es interesante dejar libre la escala, para maximizar la visualización de la tendencia, que es lo que nos interesa:
+A veces, si hay una tendencia evidente, es conveniente usar una línea de suavizado que la identifique. En este caso, no está nada clara, por lo que la podemos omitir. Y aquí sí es interesante dejar libre la escala, para maximizar la visualización de la tendencia, que es lo que nos interesa.
 
 **Paso 11**  Añadimos línea de suavizado con la función `geom_smooth()`.
 
@@ -376,4 +381,4 @@ Finalmente, hemos visto que, cuando tenemos un número elevado de información, 
 -   Directamente usar una tabla, relacionando todos los países de interés.
 :::
 
-
+![](img/logos_finan.png){align="right"}

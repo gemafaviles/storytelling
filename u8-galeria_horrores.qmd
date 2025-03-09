@@ -15,6 +15,7 @@ format:
     toc-title: Index
     toc: false
     slide-number: c/t
+    logo: img/logos_finan.png
     fig-align: center
     show-slide-number: all
     transition: fade
@@ -32,7 +33,7 @@ format:
     toc: true
     number-sections: true
     colorlinks: true
-    out-width: "50%"
+    out-width: "45%"
 code-link: true
 execute:
   code-overflow: scroll
@@ -541,11 +542,11 @@ plot_ly(x = kd$x, y = kd$y, z = kd$z) %>% add_surface()
 
 ### Los porcentajes no suman el 100 \%
 
-![](img/error_no_suma_100.png){width="60%"}
+![](img/error_no_suma_100.png){width="50%"}
 
 ### Los valores no coinciden con la visualización
 
-![](img/error_azucar_sal.png){width="60%"}
+![](img/error_azucar_sal.png){width="50%"}
 
 :::
 
@@ -556,12 +557,12 @@ plot_ly(x = kd$x, y = kd$y, z = kd$z) %>% add_surface()
 
 ### Antes  
 
-![](img/error_buble1.png){width="60%"}
+![](img/error_buble1.png){width="50%"}
 
 
 ### Después
 
-![](img/error_buble2.png){width="60%"}
+![](img/error_buble2.png){width="50%"}
 
 :::
 
@@ -572,14 +573,16 @@ plot_ly(x = kd$x, y = kd$y, z = kd$z) %>% add_surface()
 
 ### Antes  
 
-![](img/error_menos_mas1.png){width="60%"}
+![](img/error_menos_mas1.png){width="50%"}
 
 
 ### Después
 
-![](img/error_menos_mas2.png){width="60%"}
+![](img/error_menos_mas2.png){width="50%"}
 [Paso a paso](https://www.storytellingwithdata.com/blog/2017/3/29/declutter-this-graph)
 
 :::
 
 # ¡No olvidar! `r emo::ji("document")` {background-color="#AB5484"}
+
+![](img/logos_finan.png){align="right"}

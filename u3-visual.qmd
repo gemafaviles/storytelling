@@ -15,6 +15,7 @@ format:
     toc-title: Index
     toc: false
     slide-number: c/t
+    logo: img/logos_finan.png
     fig-align: center
     show-slide-number: all
     transition: fade

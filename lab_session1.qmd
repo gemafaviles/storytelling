@@ -1,5 +1,5 @@
 ---
-title: "Storytelling visual con R: primera clase"
+title: "Storytelling visual con R. Lab 1 con Starwars ⚔"
 subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
 author:   
   - name: Gema Fernández-Avilés 
@@ -40,8 +40,12 @@ execute:
 ::: {.callout-warning}
 ## IMPORTANTE
 
-**Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído**. 
+📕 **Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+
+🦄 <mark> Este icono indica **AVANZADO E IMPORTANTE**</mark>
+
 :::
+
 
 
 # Unidad 1. 🛠 Toolkit del curso: R, RStudio y Quarto
@@ -66,6 +70,13 @@ Ya hemos utilizado algunos términos nuevos, así que vamos a definirlos antes d
 Crea y publique artículos, informes, presentaciones, sitios web, blogs y libros de alta calidad en HTML, PDF, MS Word, ePub, etc., incluyendo ecuaciones, citas, referencias cruzadas, paneles de figuras, llamadas, diseño avanzado y mucho más.
 
 - **Proyecto:** Un proyecto es un directorio de trabajo (carpeta) que contiene todo lo necesario para trabajar en un análisis de datos (proyecto) específico. Tipos de proyectos: documentos, presentaciones, paquetes, Webs.
+
+- **Paquete:** Un paquete es una colección de funciones, datos y documentación que extiende las capacidades de **R**. Ejemplo: `tydiverse`, `ggplot2`, `dplyr`.
+
+- **Función:** Una función es un bloque de código que realiza una tarea específica. Las funciones toman argumentos, realizan alguna tarea y devuelven un resultado. Ejemplo: `mean()`, `ggplot()`, `filter()`.
+
+- **Chunk:** Un chunk es un bloque de código **R** que se ejecuta en un documento, Quarto en nuestro caso.  
+
 
 ## Empezar despacio
 
@@ -92,6 +103,11 @@ Una guía detallada sobre Quarto en RStudio está disponible en el siguiente enl
 
 
 # Unidad 2: 🚑 La importancia del contexto
+
+::: {.callout-warning title="Tu turno"}
+## Tu turno
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute correctamente la chunk.
+:::
 
 ## Manos a la obra 
 
@@ -123,7 +139,7 @@ para poder manipular y representar los datos.
 ## Nuestra filosofía: *learning by doing*
 
 
-1. Cargamos los datos `starwars` contenidos en el paquete `dplyr`.
+**Paso 1** Cargamos los datos `starwars` contenidos en el paquete `dplyr`.
 
 ```{r carga-datos-starwars}
 library("dplyr")
@@ -131,23 +147,23 @@ starwars
 ```
 
 
-2. ¿Cuántas columnas (variables) tiene?
+**Paso 2** ¿Cuántas columnas (variables) tiene?
 ```{r sw-ncol}
 ncol(starwars)
 ```
 
-3. ¿Cuántas filas (observaciones) tiene?
+**Paso 3** ¿Cuántas filas (observaciones) tiene?
 ```{r sw-nrow}
 nrow(starwars)
 ```
 
-4. ¿Cuál es la dimensión del dataset?
+**Paso 4** ¿Cuál es la dimensión del dataset?
 ```{r sw-dim}
 dim(starwars)
 ```
 
 
-5. ¿Cómo extraer una **variable** del `data.frame`? 
+**Paso 5** ¿Cómo extraer una **variable** del `data.frame`? 
 
 Opción 1: formato tidy
 ```{r}
@@ -170,7 +186,7 @@ Selecciona la variable `name` del conjunto de datos `starwars`.
 # Tu código R aquí
 ```
 
-6. Para asignar "algo" (la variable `name`) a "algo" (el objeto `sw_name`) se utiliza el operador `<-`.
+**Paso 6** Para asignar "algo" (la variable `name`) a "algo" (el objeto `sw_name`) se utiliza el operador `<-`.
 
 ```{r sw-variable-name}
 sw_name <- starwars$name
@@ -178,14 +194,15 @@ sw_name <- starwars$name
 
 
 ::: {.callout-note}
+## Operador `<-`
+
 El operador `<-` asigna al "símbolo" que hay a su izquierda el resultado
 de la expresión que hay a su derecha. El operador `=` funciona "igual" que `<-`. 
 :::
 
-Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto. ¿Te acuerdas de las funciones para explorar todas las variables a la vez?
 
 
-7. ¿Como extraer una observación del conjunto de datos?
+**Paso 7** ¿Como extraer una observación del conjunto de datos?
 
 ```{r sw-obsev}
 #| eval: false
@@ -203,7 +220,7 @@ Selecciona una observación (el bueno), `Luke Skywalker`, filtrando por el nombr
 ```
 
 
-8. Exploración del dataset `starwars` de un **vistazo** (con la función `skim()` de la librería `skimr`):
+**Paso 8** Exploración del dataset `starwars` de un **vistazo** (con la función `skim()` de la librería `skimr`):
 
 ```{r sw-explora}
 skimr::skim(starwars)
@@ -217,15 +234,17 @@ skimr::skim(starwars)
 # Unidad 3. 📊 La elección de un gráfico efectivo: From data to viz
 
 
-## ¿Cómo visualizar con la función `ggplot()` del paquete `ggplot`?
+::: {.callout-warning}
+## ¿Cómo visualizar con la función `ggplot()` del paquete `ggplot2`? Recuerda: 
 
-1. Cargamos el paquete `ggplot`
+<mark> **Paso 1** Cargar el paquete `ggplot` con la función `library()`. </mark>
+
 ```{r ggplot-library, eval=FALSE}
 library(ggplot2)
 ```
 
 
-2. Trabajamos con la función `ggplot()`
+<mark> **Paso 2** Utilizar la función `ggplot()`. </mark>
 
 ```{r ggplot-teoria, eval=FALSE}
 ggplot(data = nuestro_dataset, 
@@ -234,9 +253,10 @@ ggplot(data = nuestro_dataset,
    otras opciones
 ```
 
+:::
 
-## ¿Cómo describirías la relación entre la masa (`mass`) y la altura (`height`) de los personajes de Starwars (`starwars`)? 
 
+## ¿Cómo describirías la relación entre la masa (`mass`) y la altura (`height`) de los personajes de Starwars (`starwars`) mediante una visualización? 
 
 
 ## Paso a paso  🐾
@@ -244,18 +264,18 @@ ggplot(data = nuestro_dataset,
 **Paso 🐾1.** El primer argumento de `ggplot()` es el conjunto de datos que se utilizará en el gráfico 
 
 ```{r}
-library(ggplot2)
-ggplot(data = starwars) 
+#| eval: false
+_______(ggplot2)
+_______(data = starwars) 
 ```
 
 
-**Paso 🐾2.** Indicamos a `ggplot()` cómo se representará visualmente la información de nuestros datos. El argumento `mapping` de la función ggplot() define cómo se asignan las variables del conjunto de datos a las propiedades visuales (estéticas) del gráfico. 
-
-La función `aes()`, y los argumentos `x` e `y` de aes() especifican qué variables mapear a los ejes x e y. Asignaremos `height` a la estética `x` y `mass` a la estética `y`.
+**Paso 🐾2.** Indicamos a `ggplot()` cómo se representará visualmente la información de nuestros datos. El argumento `mapping` define cómo se asignan las variables del conjunto de datos a las propiedades visuales (estéticas) del gráfico. Los argumentos `x` e `y` de `aes()` especifican qué variables mapear en los ejes `x` e `y`. Asignaremos `height` a la estética `x` y `mass` a la estética `y`.
 
 ```{r starwars2-2}
+#| eval: false
 ggplot(data = starwars,
-       mapping = aes(x = height, y = mass)) 
+       mapping = aes(x = _______, y = ______)) 
 ```
 
 
@@ -264,54 +284,59 @@ ggplot(data = starwars,
 Los gráficos de barras utilizan `geom_bar()`, los gráficos de líneas utilizan `geom_line()`, los boxplots utilizan `geom_boxplot()`, los scatterplots utilizan `geom_point()`, etc.
 
 ```{r starwars2-3}
+#| eval: false
 ggplot(data = starwars,
        mapping = aes(x = height, y = mass)) + 
-  geom_point() 
+  geom_xxxx() 
 ```
 
 
 **Paso 🐾4.** Añade la variable `gender` en `aes()` para visualizar el género de cada observación
 
 ```{r starwars2-4 }
+#| eval: false
 ggplot(data = starwars,
        mapping = aes(x = height,
                      y = mass,
-                     colour = gender)) + 
+                     colour = ______)) + 
   geom_point()
 ```
 
 
 
-**Paso 🐾5.** Añadimos título al gráfico: "Mass vs. height of Starwars characters" 
+**Paso 🐾5.** Añadimos título al gráfico: `"Mass vs. height of Starwars characters"` 
 
 ```{r starwars2-5}
+#| eval: false
 ggplot(data = starwars,
        mapping = aes(x = height,
                      y = mass,
                      colour =gender)) +
   geom_point() +
-  labs(title = "Mass vs. height of Starwars characters")
+  labs(title = "_________________________")
 ```
 
 
-**Paso 🐾6.** Añadimos el subtítulo "by gender"
+**Paso 🐾6.** Añadimos el subtítulo `"by gender"`
 
 ```{r starwars2-6}
+#| eval: false
 ggplot(data = starwars,
        mapping = aes(x = height,
                      y = mass,
                      colour = gender)) +
   geom_point() +
   labs(title = "Mass vs. height of Starwars characters",
-       subtitle = "by gender")
+       subtitle = "_______________")
 ```
 
 
 
 
-**Paso 🐾7.** Etiquetamos los ejes x e y como con las siguiente expresiones: x = "Height (cm)", y = "Weight (kg)", respectivamente.
+**Paso 🐾7.** Etiquetamos los ejes `x` e `y` como con las siguiente expresiones: `x = "Height (cm)"`, `y = "Weight (kg)"`, respectivamente.
 
 ```{r starwars2-7}
+#| eval: false
 ggplot(data = starwars,
        mapping = aes(x = height,
                      y = mass,
@@ -319,15 +344,17 @@ ggplot(data = starwars,
   geom_point() +
   labs(title = "Mass vs. height of Starwars characters",
        subtitle = "by gender",
-       x = "Height (cm)", y = "Weight (kg)")
+       x = "_______", 
+       y = "______")
 ```
 
 
 
 
-**Paso 🐾8.** Ahora, etiquetamos la leyenda con la expresión: "Species".
+**Paso 🐾8.** Finalmente, etiquetamos la leyenda con la expresión: `Gender`.
 
 ```{r starwars2-8 }
+#| eval: false
 ggplot(data = starwars,
        mapping = aes(x = height,
                      y = mass,
@@ -335,46 +362,14 @@ ggplot(data = starwars,
   geom_point() +
   labs(title = "Mass vs. height of Starwars characters",
        subtitle = "by gender",
-       x = "Height (cm)", y = "Weight (kg)",
-       colour = "Gender")
-```
-
-
-**Paso 🐾9.** Añadimos la fuente de los datos, el paquete `dplyr`.
-
-```{r starwars2-9}
-ggplot(data = starwars,
-       mapping = aes(x = height,
-                     y = mass,
-                     colour = gender)) +
-  geom_point() +
-  labs(title = "Mass vs. height of Starwars characters",
-       subtitle = "by gender",
-       x = "Height (cm)", y = "Weight (kg)",
-       colour = "Gender",
-       caption = "Source: dplyr package")
-```
-
-
-**Paso 🐾10.** Finalmente, usamos paleta con una escala de colores discreta que está diseñada para ser percibida por espectadores con formas comunes de daltonismo, `scale_colour_viridis_d()`.
-
-```{r starwars2-10}
-ggplot(data = starwars,
-       mapping = aes(x = height,
-                     y = mass,
-                     colour = gender)) +
-  geom_point() +
-  labs(title = "Mass vs. height of Starwars characters",
-       subtitle = "by gender",
-       x = "Height (cm)", y = "Weight (kg)",
-       colour = "Gender",
-       caption = "Source: dplyr package")  +
-  scale_colour_viridis_d()
+       x = "Height (cm)", 
+       y = "Weight (kg)",
+       colour = "______")
 ```
 
 
 
-## Aesthetics (estética) `r emo::ji("hit")`  {background-color="#017eae"}
+## Aesthetics (estética) 👸
 
 ```{r aes-col, eval= FALSE }
 ggplot(data = starwars,
@@ -388,6 +383,4 @@ ggplot(data = starwars,
   geom_point()
 ```
 
-
-
-
+![](img/logos_finan.png){align="right"}

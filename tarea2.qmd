@@ -8,7 +8,7 @@ author:
   - si hay más autores...
 format:
   html:
-    theme: cerulean
+    theme: superhero  ## cambia el tema a tu gusto  
     highlight-style: ayu-mirage
     self-contained: true
     lang: es

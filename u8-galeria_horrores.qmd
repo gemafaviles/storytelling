@@ -584,5 +584,3 @@ plot_ly(x = kd$x, y = kd$y, z = kd$z) %>% add_surface()
 :::
 
 # ¡No olvidar! `r emo::ji("document")` {background-color="#AB5484"}
-
-![](img/logos_finan.png){align="right"}

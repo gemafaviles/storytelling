@@ -1,0 +1,384 @@
+---
+title: "Storytelling visual con R. Lab 3: demografía (cuantitativos)"
+subtitle: "Curso formativo para el PDI. Universidad de Castilla-La Mancha"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    lang: es
+    date-format: long
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
+number-sections: true
+execute:
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+  code-overflow: scroll
+---
+
+
+
+
+::: {.callout-warning}
+## IMPORTANTE
+
+📕 **Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+
+🦄 <mark> Este icono indica **AVANZADO E IMPORTANTE**</mark>
+
+:::
+
+
+# Los datos
+
+Los datos que se utilizan en esta historia están disponibles en el repositorio GitHub "From data to viz": https://github.com/holtzy/data_to_viz. Además, se ha facilitado un archivo Excel
+
+
+
+# ¡Nos vamos a Noruega! 🥶
+
+¡Ah, la vida del analista de datos! Mi jefe me ha pedido que realice un análisis exploratorio (aunque en realidad siempre quiere gráficos impresionantes con conclusiones fascinantes) de unos datos demográficos por países. Pero aquí viene lo mejor: quiere que lo acompañe a Noruega para un *workshop* "fantástico" [sic]...
+
+Con el frío que hace ahora en Noruega, uno se pregunta: ¿por qué no elige destinos con más criterio? ¡Hawái, por ejemplo, sería una opción mucho más cálida y agradable!
+
+
+
+::: {.callout-tip}
+
+## Entender el contexto: cómo definir el propósito y la audiencia de tu análisis
+
+En este caso, lo que me pide el jefe es un análisis exploratorio. Básicamente, se trata de encontrar relaciones interesantes entre variables, observar su evolución para ver si surge algo llamativo, y preparar gráficos que vayan al grano, como ya sabemos hacer... 
+
+🎓 ¡Para eso sirven los cursos de la UCLM
+:::
+
+
+**Paso (i):** Lectura de paquetes
+
+```{r}
+library(tidyverse)
+library(psych)
+library(GGally)
+library(corrplot)
+library(plotly)
+```
+
+
+**Paso (ii):** Lectura de los datos 
+
++ Opción (a): Lectura de datos formato `csv` directamente desde la web
+```{r}
+#| eval: false
+demog_data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/multivariate.csv", header = T, sep = ";")
+```
+
++ Opción (b): Lectura de datos formato `csv` (recuerda que mis datos están guardados en la carpeta `data`, ¿los tuyos también o no?)
+```{r}
+demog_data <- read.table("data/multivariate.csv", header = T, sep = ";")
+```
+
+
+::: {.callout-warning title="Tu turno"}
+## Tu turno
+
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado propuesto y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute correctamente la chunk.
+:::
+
+
+
+# ¿Cómo son mis datos?
+
+**Paso 1** Muestra las primeras filas del conjunto de datos `demog_data`.
+
+```{r}
+#| eval: false
+head(_______)
+```
+
+
+**Paso 2** Echa un vistazo a la estructura de las variables con la función `glimpse()`.
+
+```{r}
+#| eval: false
+________(demog_data)
+```
+
+
+**Paso 3** Haz unos descriptivos básicos con la función `describe()` del paquete `psych`.
+
+```{r}
+#| eval: false
+________(demog_data)
+```
+
+
+**Paso 4** Aquí va otra opción interesante con la función `skim()` del paquete `skim`.
+
+```{r}
+skimr::skim(demog_data)
+```
+
+
+
+# Elegir una visualización adecuada
+
+::: {.callout-tip}
+## Selección de gráficos y visualizaciones que mejor representen tus datos. En este caso la mayoría son variables cuantitativas.
+:::
+
+📊  **Matriz diagramas de dispersión** (*scatterplot matrix*)
+
+Podemos comenzar por una matriz de puntos de las variables cuantitativas. El paquete `GGally` ofrece una visualización muy elaborada para un primer vistazo con la función `ggpairs()`.
+
+::: {.callout-tip}
+## Cuidado: solo variables cuantitativas.
+:::
+
+
+**Paso 1**  Selecciona las variables cuantitativas del conjunto de datos `demog_data` y guardarlas en el objeto `demo_cuanti`. 
+
+```{r}
+demo_cuanti <- demog_data |>
+   select(Pop, Birth_rate, Mortality_rate, Life_expectancy,
+          Infant_mortality, Child_per_woman,  Growth_rate,
+          Pop_aged_65) |>
+   na.omit()
+```
+
+
+**Paso 2** **Matriz de correlaciones y diagramas de dispersión** con la función `ggpairs()` de la librería `GGally`
+
+```{r}
+demo_cuanti |> 
+   ggpairs(progress = FALSE)
+```
+
+📊  **Matriz de correlaciones** 
+
+Hay muchas asociaciones interesantes entre diferentes variables. Aquí ya vemos mucha tela que cortar. Por no extendernos, analizaremos una de las relaciones más adelante. Pero primero, es muy interesante ver la matriz de correlaciones que, aunque con `ggpairs()` teníamos ya una primera impresión, el paquete `corrplot` nos ofrece una visualización ideal con la función `corrplot.mixed()`
+
+
+**Paso 3** Primero calculo la matriz de correlaciones con la función `cor()` y luego la represento con la función `corrplot.mixed()` que presenta múltiples posibilidades.
+
+```{r}
+demo_cuanti |> 
+  cor() |> 
+  corrplot.mixed( order = 'AOE')
+```
+
+
+📊  **Gráfico de puntos o scatterplot** 
+
+
+Como ejemplo, vamos a ver la relación entre la tasa de crecimiento, `Growth_rate`, y la esperanza de vida, `Life_expectancy`, que ya hemos visto que existe relación estadística. Empecemos con diagrama de puntos.
+
+
+**Paso 4** ¿Te acuerdas de la función de `ggplot2` para una capa de puntos?
+
+```{r}
+#| eval: false
+ggplot(demog_data,
+         aes(x = Growth_rate, y = Life_expectancy)) +
+  geom_xxxxxxxx() +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
+
+
+📊  **Hexbin plot** 
+
+**Paso 5** ¿Te acuerdas de la función de `ggplot2` para convertir puntos en densidades de forma hexagonal?
+```{r}
+#| eval: false
+ggplot(demog_data,
+       aes(x = Growth_rate, y = Life_expectancy)) +
+  geom_xxx() +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal()
+```
+
+
+🔍 **Eliminar el desorden. Enfocar la atención**
+
+¿Qué herramientas tenemos a nuestro alcance para poner el foco sobre lo que nos interesa? Aquí podemos usar la estética y las facetas, para separar los puntos y dar más información a través de la visualización. Veamos...
+
+
+**Paso 5** Diagrama de dispersión mejorado por estética incluyendo la variable `Pop` para el tamaño de los puntos.
+
+```{r}
+#| eval: false
+  ggplot(demog_data,
+         aes(x = Growth_rate, y = Life_expectancy, 
+             _____ = Pop)) +
+  scale_size(range = c(.1, 20)) +
+  labs(title = "Esperanza de vida vs. Tasa de crecimiento",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal() 
+```
+
+
+**Paso 6** Añade la variable `Continent` en el análisis para representar por colores los continentes en la estética de la función `aes()`. Además, añade cierta transparencia porque puede que los puntos más grandes estén tapando a los más pequeños. Escribe el título que consideres más apropiado. Ahora, el gráfico lo vamos a guardar en un objeto llamado `g_demog`.
+
+
+```{r}
+#| eval: false
+g_demog <- ggplot(demog_data,
+         aes(x = Growth_rate, y = Life_expectancy, 
+             _____ = Pop,
+             _____ = Continent)) +
+  geom_point(_____ = 0.5) +
+  scale_size(range = c(.1, 20)) +
+  labs(title = "_______________________________",
+       x = "Tasa de crecimiento",
+       y = "Esperanza de vida") +
+  theme_minimal() 
+
+# para represenar el gráfico
+
+g_demog
+```
+
+
+📊  **Gráficos interactivos** 
+
+**Paso 7** Hacemos interactivo el gráfico anterior con la función `ggplotly()` de la libreriá `pltoly`.
+
+```{r}
+#| eval: false
+ggplotly(_____)
+```
+
+
+Estamos usando **dos variables para enfocar la atención aportando información: el tamaño del país y el continente**. Solo con eso vemos enseguida por donde van los tiros: la mayor parte de los países de Europa tienen gran esperanza de vida y crecimiento moderado. Por el contrario, Sudamérica tiene tasas de crecimiento muy elevadas (son países en fases de expansión económica) y una menor esperanza de vida, a falta de consolidar sanidad y otros servicios en general.
+
+También somos capaces de identificar China e India rápidamente, por su tamaño, y Japón arriba a la izquierda por su tamaño medio-grande y enorme esperanza de vida.
+
+Sin embargo, hay colores muy parecidos, que exigen demasiada atención. Podemos usar la siguiente herramienta...
+
+ 
+
+📊  **Facetas** 
+
+Otra forma de eliminar el desorden y enfocar la atención es usar facetas, separando el gráfico según una o más variables interesantes. En este caso usamos solo el continente.
+
+
+🦄 **Paso 8** Diagrama de dispersión mejorado por facetas con la función `facet_wrap()`.
+
+```{r}
+demog_scatter <- ggplot(data = demog_data, # data
+              aes(x = Growth_rate, y = Life_expectancy, colour = Continent)) + #aesthetics
+    geom_point(alpha = 0.5) + #geometries
+    facet_wrap(~ Continent, scales = "free") + #facets
+    labs(title = "Life expectancy at birth vs. Per capita GDP", 
+         x = "Growth_rate", y = "Life_expectancy", colour = "Continent") + #labels
+    theme_light() #themes
+
+demog_scatter 
+```
+
+❓ **¿Qué problema podría tener este gráfico?**
+
+::: {.callout-tip}
+## Pista
+
+¡Fijaos en los ejes!
+:::
+
+Exacto: las escalas. Pero hemos dicho "podría", no que tenga un problema en sí. Cuando nuestra intención es mirar dentro de cada faceta para ver la relación entre las variables, es posible que nos interese dejarlo como está.
+
+Pero muchas veces es muy importante, cuando usamos facetas, que podamos comparar los diferentes grupos entre sí. En este caso, es imprescindible usar la misma escala en todas las facetas. Para ello, hay que especificar los límites de las escalas de los ejes.
+
+¿Existe una forma fácil de saber cuáles poner? Claro, con un `summary()` de las variables, tal como indicamos a continuación, vemos rápidamente el valor mínimo y máximo de las variables que nos interesan:
+
+
+🦄 **Paso 9 ** Mejoramos la escala para comparar facetas: observamos los límites de las variables.
+```{r}
+summary(demog_data$Life_expectancy)
+summary(demog_data$Growth_rate)
+```
+
+
+🦄 **Paso 10** Especificamos los límites en los 
+```{r}
+demog_scatter_escala <- ggplot(data = demog_data,
+                               aes(x = Growth_rate,
+                                   y = Life_expectancy,
+                                   colour = Continent)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~ Continent, scales = "free") +
+  labs(title = "Esperanza de vida respecto al PIB per capita",
+       x = "Tasa de crecimiento", y = "Esperanza de vida",
+       colour = "Continent") +
+  scale_x_continuous(limits = c(-10, 45)) +
+  scale_y_continuous(limits = c(45, 85)) +
+  theme_light()
+
+demog_scatter_escala 
+```
+
+
+
+📈 **Linea de suavizado**
+
+A veces, si hay una tendencia evidente, es conveniente usar una línea de suavizado que la identifique. En este caso, no está nada clara, por lo que la podemos omitir. Y aquí sí es interesante dejar libre la escala, para maximizar la visualización de la tendencia, que es lo que nos interesa.
+
+**Paso 11**  Añadimos línea de suavizado con la función `geom_smooth()`.
+
+```{r}
+#| eval: false
+______ + geom_smooth(method = NULL, se = TRUE) 
+```
+
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hemos visto el **planteamiento**, en el que proporcionamos el contexto: trabajamos para un jefe que nos ha pedido algo muy concreto: un análisis exploratorio (y sabemos que lo quiere con conclusiones)...
+
+El análisis exploratorio podemos usarlo para ir introduciendo la **trama**, donde vemos enseguida relaciones interesantes entre algunas parejas de variables... Solo hemos analizado la esperanza de vida al nacer respecto a la tasa de crecimiento, pero en la matriz de puntos hemos visto muchas, por lo que el jefe estará feliz.
+
+La segmentación también nos ha proporcionado agrupaciones de países, aunque visualmente son difíciles de interpretar, por lo que lo más lógico sería seleccionar un conjunto de países de interés, que consiga un análisis (y su visualización) más interesante.
+
+Como siempre, lo más importante es el **desenlace**, donde le estamos dando a nuestro jefe las claves que necesita:
+
+-   La matriz de puntos es vital, si nuestro superior está habituado al análisis, porque **se aprecia un número importante de relaciones claras entre variables**.
+
+-   En cada variable **podemos usar la estética y las facetas para potenciar la visualización**, determinando las variables que suministran información en las relaciones encontradas.
+
+Finalmente, hemos visto que, cuando tenemos un número elevado de información, tenemos que adoptar una decisión equilibrada entre la información que suministramos en nuestros gráficos y nuestra habilidad para eliminar el desorden y enfocar la mirada del espectador a lo que nos interesa más. Para el caso que nos ocupa, podemos:
+
+-   Usar la agrupación previa por zonas geográficas, como hemos hecho antes.
+
+-   Restringir la visualización a una zona geográfica concreta.
+
+-   Filtrar determinados países para quedarnos con los que nos interesa comparar.
+
+-   Directamente usar una tabla, relacionando todos los países de interés.
+:::
+
+![](img/logos_finan.png){align="right"}

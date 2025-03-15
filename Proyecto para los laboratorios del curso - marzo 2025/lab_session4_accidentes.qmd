@@ -1,0 +1,479 @@
+---
+title: "Storytelling visual con R. Lab 4. Accidentalidad 🚘"
+subtitle: "¿Cómo y dónde se producen los accidentes en Madrid?"
+author:   
+  - name: Gema Fernández-Avilés 
+    email: gema.faviles@uclm.es
+  - name: Isidro Hidalgo
+    email: isidro.hidalgo@uclm.es 
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: cerulean
+    highlight-style: ayu-mirage
+    self-contained: true
+    lang: es
+    date-format: long
+    embed-resources: true
+    toc-title: Summary
+    toc: true
+    number-sections: true
+    preview-links: auto
+    code-link: true
+number-sections: true
+execute:
+  echo: true
+  eval: true
+  output: true
+  include: true
+  freeze: auto
+  fig-height: 5
+  warning: false
+  comment: "#>"
+  code-line-numbers: true
+  code-copy: true
+  code-overflow: scroll
+---
+
+
+
+::: {.callout-warning}
+## IMPORTANTE
+
+📕 **Como buen estudiante que eres, sabrás lo importante que es trabajar de forma autónoma y venir a clase con el material leído 😊**. 
+
+🦄 <mark> Este icono indica **AVANZADO E IMPORTANTE**</mark>
+
+:::
+
+
+# Los datos
+
+Los datos con los que vamos a trabajar se corresponden con los accidentes de tráfico en la Ciudad de Madrid registrados por Policía Municipal con víctimas y/o daños al patrimonio en el año 2020. Los datos se han descargado del [Portal de datos abiertos del Ayuntamiento de Madrid.](https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=7c2843010d9c3610VgnVCM2000001f4a900aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default))
+
+
+# El jefe quiere verte 😱
+
+Esta mañana, mientras disfrutaba de una tranquila jornada en mi oficina (trabajo en el distrito de Chamartín para el Ayuntamiento de Madrid), me sueltan de repente: "el jefe quiere verte". Lo primero que pensé fue que me iban a despedir, ya que tengo fama de ser un poco "cansa almas"... Pero no, entro en el despacho del jefe... ¡Y allí está Almeida! Resulta que ha oído que hice un curso de visualización en la UCLM y me he convertido en un crack de la visualización. Yo no sabía dónde meterme, pero mantuve la compostura como todo un profesional.
+
+Almeida me contó que está muy preocupado por los accidentes y quiere analizar el tema para buscar soluciones. Me agradecería mucho si encontramos dónde está el problema, para reducir el número y la gravedad de los accidentes en la ciudad. El único inconveniente, me dice, es que solo puede facilitarme los datos del año 2020. Ya le advertí que es un año muy particular debido al estado de alarma, pero algo sacaremos...
+
+¡Así que manos a la obra! Vamos a demostrar nuestras habilidades de storytelling visual con R y ayudar a mejorar la seguridad en nuestra querida ciudad. 🚦📊
+
+
+
+::: {.callout-tip}
+## Entender el contexto: ¿Cómo definir el propósito y la audiencia de tu análisis?
+
+¿Qué le interesa al alcalde? Reducir la tasa de accidentes, por supuesto. Pero desde el punto de vista de la visualización, está claro que va a necesitar **información georreferenciada**, así que prepararemos unos mapas espectaculares. Además, la **dimensión temporal** es crucial, porque no es lo mismo Madrid en agosto que un día de lluvia o en pleno calendario escolar... Y, por supuesto, también analizaremos el **tipo de accidente**.
+
+En cualquier caso, lo primero es realizar un análisis exploratorio para detectar cualquier anomalía en los datos y analizar mínimamente las variables de interés. Después, prepararemos los gráficos necesarios para **aportarle conocimiento** sobre los accidentes en la ciudad.
+:::
+
+
+::: {.callout-tip}
+## Elegir una visualización adecuada
+
+Selección de gráficos y visualizaciones que mejor representen tus datos en cada momento. 
+:::
+
+
+
+
+**Paso (i):** Lectura de paquetes
+
+```{r}
+library(tidyverse)         # Para manipulación y visualización de datos
+library(sf)                # Para datos espaciales
+library(mapSpain)          # Para obtener y visualizar mapas de España
+library(tidyterra)         # Para trabajar con datos espaciales y raster
+library(leaflet)           # Para crear mapas interactivos
+library(leaflet.extras)    # Para funcionalidades adicionales en leaflet
+```
+
+**Paso (ii):** Lectura de los datos (recuerda que mis datos están guardados en la carpeta `data`, ¿los tuyos también o no?)
+
+```{r}
+accidentes2020_data <- read.table("data/accidentes_sin_duplicados.txt")
+```
+
+
+**Paso (iii):** Descripción de las variables con la información contenida en el paquete `CDR`.
+
+```{r}
+#| eval: false
+
+if (!require(CDR)){
+  if (!require(remotes)) {install.packages("remotes")}
+  remotes::install_github("cdr-book/CDR")
+}
+
+help(accidentes2020_data)
+```
+
+
+::: {.callout-warning title="Tu turno"}
+## Tu turno
+Completa las partes del código señaladas por `_____` o `xxxxx` para obtener el resultado deseado y acuérdate de cambiar `eval: false` por `eval: true` cuando lo hayas cumplimentado para que se ejecute correctamente la chunk.
+:::
+
+
+
+# ¿Cómo? ¿De qué tipo son los accidentes? 
+
+
+**Paso 1** Muestra las primeras filas del conjunto de datos `accidentes2020_data`.
+```{r}
+#| eval: false
+_____(________)
+```
+
+
+**Paso 2** Echa un vistazo a la estructura de las variables con la función `glimpse()`.
+```{r}
+#| eval: false
+_____(accidentes2020_data)
+```
+
+
+**Paso 3** Convierte las variables caracteres a factores con la función `mutate_if()`.
+```{r}
+accidentes2020_data <- accidentes2020_data |>
+  mutate_if(is.character, as.factor)
+```
+
+**Paso 4** Resumen numérico por tipo de accidente `tipo_accidente`.
+```{r}
+accidentes2020_data |>
+  count(tipo_accidente) |>
+  mutate(porcentaje = n / sum(n) * 100) 
+```
+
+
+Las tablas también son elementos de visualización. En este caso, hay algo evidente que hacer. Lo vamos a explicar con el siguiente gráfico.
+
+**Paso 5** Gráfico de barras por `tipo_accidente` en el eje `y`.
+
+```{r}
+#| eval: false
+
+accidentes2020_data |>
+  ggplot() +
+  geom_xxx(aes(y = _________))
+```
+
+
+
+
+
+❓ **¿Qué le falta a este gráfico? ¿En qué se puede mejorar?**
+
+Pues está muy claro: 
+
+* cambia la **estética**: dale color `orange` al relleno de las barras y transparencia de `0.6`,
+* modifica el **fondo** con el tema `theme_bw()` y, 
+* lo más importante, **ordena las categorías**. Si no están ordenadas tardamos mucho en determinar, por ejemplo, cuál es la tercera, o la quinta... Únicamente, la más importante es relativamente fácil de situar. 
+
+**Paso 6** Gráfico de barras por tipo de accidente ordenado
+```{r}
+#| eval: false
+ggplot(accidentes2020_data, 
+       aes(y = reorder(tipo_accidente,  
+                       - tipo_accidente,      # Reordena tipos_accidente en orden descendente
+                       length))) +            # Usa la longitud para el reordenamiento
+  geom_bar(fill = "________", alpha = ___) +  
+  theme_xx()   
+```
+
+
+Además, deberíamos especificar un título y unas etiquetas a los ejes x e y.
+
+**Paso 7** El título: `Tipos ccidentes en Madrid durante el año 2020` y la etiqueta del eje x (`Número de accidentes`). ¿Es necesaria la etiqueta del eje y?
+```{r}
+#| eval: false
+ggplot(accidentes2020_data, 
+       aes(y = reorder(tipo_accidente,  
+                       - tipo_accidente, # Reordena tipos_accidente
+                       length))) +       # Usa la longitud para el reordenamiento
+  geom_bar(fill = "orange", alpha = 0.6) +                    
+  labs(title = "_____________",   
+       x = "_______", 
+       y = " ") +  
+  theme_bw()   
+```
+
+❓ **¿Se podría hacer rápidamente un lollipop con las frecuencias relativas (datos en porcentaje)?** 
+
+🦄 **Paso 7** **Lollipop** ordenado con `geom_segment()` y `geom_point()`
+```{r}
+# Calcular la frecuencia de cada tipo de accidente
+accidentes2020_data |>
+  count(tipo_accidente) |>
+  mutate(porcentaje = n / sum(n) * 100) |>
+# Crear el gráfico de lollipop 
+ggplot(aes(y = reorder(tipo_accidente, porcentaje), x = porcentaje)) + 
+  geom_segment(aes(yend = tipo_accidente, xend = 0), 
+               color = "blue", alpha = 0.5) + 
+  geom_point(color = "blue", 
+             size = 4, 
+             alpha = 0.6) + 
+  labs(title = "Tipos ccidentes en Madrid durante el año 2020", 
+       y = " ", 
+       x = "Porcentaje") + 
+  theme_minimal()
+
+```
+
+
+
+# ¿Cuándo? ¿Cuándo se han producido los accidentes? 
+
+Es crucial conocer cuándo ocurrieron los hechos, especialmente si hablamos de un año tan singular como el 2020, marcado por el confinamiento y el estado de alarma. En fin, mejor no recordar más detalles.
+
+Además, sabemos *a priori* que la fecha influye en el aumento del tráfico, por lo que es probable que encontremos algún impacto de la dimensión temporal. Vamos a investigarlo...
+
+
+
+**Paso 1** Primer gráfico del cuándo
+```{r}
+ggplot(data = accidentes2020_data,
+       aes(x = fecha, y = hora)) + 
+  geom_point() +
+  theme_minimal()
+```
+
+
+
+Vamos a separar la fecha y la hora, porque en ese gráfico no vemos casi nada... Pare ello usaremos la función `as.Date()` especificando el formato adecuado en el que se encuentran nuestros datos, en este caso `%d/%m/%Y`, es decir, día/mes/año.
+
+**Paso 2** Prepara los datos teniendo en cuenta la dimensión temporal. Convierte la columna `fecha` a formato `Date` con la función `as.Date`.
+```{r}
+accidentes2020_data$fecha <- as.Date(accidentes2020_data$fecha, format = "%d/%m/%Y")
+```
+
+
+📈 **Gráfico del cuándo según el día**
+
+**Paso 3** Crea un nuevo conjunto de datos `accidentes2020_fecha` donde cada día contenga el número de accidentes ocurridos
+```{r}
+#| eval: false
+____________ <- accidentes2020_data |>
+  group_by(fecha) |>
+  summarise(n = n()) |>
+  ungroup()
+```
+
+
+
+**Paso 4** ¿Qué tipo de gráfico sería apropiado? ¿De barras `geom_bar`? ¿De lineas `geom_line`? ¿De puntos `geom_point`?
+```{r}
+#| eval: false
+ggplot(data = accidentes2020_fecha,   
+       aes(x = fecha, y = n)) +       
+  geom_xxxx() +                      
+  theme_minimal()                     
+```
+
+Como ya le advertimos al alcalde, el año 2020 no es bueno para sacar conclusiones. Ya le hemos pedido que nos facilite datos más amplios para poder proporcionarle una mejor visualización del número de accidentes por fecha, pero mientras tanto, nos tendremos que arreglar con lo que tenemos...
+
+
+
+📈 **Gráfico del cuándo según la hora**
+
+**Paso 5** Convierte la columna `hora` a formato `POSIXct` y extrae la hora del día con la función `hour()`
+```{r}
+accidentes2020_data$hora_dia <- hour(as.POSIXct(accidentes2020_data$hora, format = "%H:%M:%S"))
+```
+
+**Paso 6** Crea un nuevo conjunto de datos `accidentes2020_hora_dia` 
+
+```{r}
+accidentes2020_hora_dia <- accidentes2020_data |>  # Crea el dataset accidentes2020_hora_dia
+  group_by(hora_dia) |>                            # Agrupa los datos por hora_dia
+  summarise(n = n()) |>                               # Crea una nueva columna n con el conteo de accidentes por hora
+  ungroup()                                         # Elimina duplicados
+```
+
+
+**Paso 7** Dibuja el numero de accidentes `n` según la hora del día `hora_dia`.
+```{r}
+#| eval: false
+ggplot(data = accidentes2020_hora_dia,             
+       aes(x = hora_dia, y = n)) +                 # x= hora_dia e  y=n  
+  geom_xxxx(linewidth = _____,      # Ancho de la línea  ____
+            color = "______") +     # Añade una línea de color ______ 
+  labs(title = "Número de accidentes según la horaria del día",   
+       x = "Hora", 
+       y = "Número de accidentes") +   
+  theme_minimal()   
+```
+
+
+
+# ¿Dónde? ¿Dónde se han producido los accidentes de tráfico en Madrid en el 2020?
+
+Conocer las coordenadas exactas donde se ha producido un accidente de tráfico es de vital importancia para la seguridad vial. Esta información nos permite identificar y analizar los llamados "puntos negros", es decir, áreas donde se concentran un alto número de accidentes. Al detectar estos puntos críticos, las autoridades pueden implementar medidas específicas, como mejorar la señalización, rediseñar la infraestructura vial o aumentar la vigilancia, para reducir la incidencia de accidentes. 
+
+Además, el análisis geoespacial de los accidentes facilita la toma de decisiones informadas y la asignación eficiente de recursos para mejorar la seguridad en las zonas más peligrosas. En resumen, la georreferenciación de los accidentes es una herramienta esencial para mostrar al alcalde Almeida.
+
+**Paso 1** Primer mapa de localización de los accidentes  con las variables `coordenada_x_utm` y `coordenada_y_utm`.
+```{r}
+#| eval: false
+ggplot(data = accidentes2020_data,                          
+       aes(x = ___________, y = _____________ )) +    
+  geom_xxxxxx()                                              
+```
+
+
+🎰 El desorden es tu enemigo
+
+Deja mucho que desear, ¿verdad? Recuerda, **el desorden es tu enemigo**. En este momento, solo tenemos puntos representados en un gráfico, no información útil. Con unos pequeños ajustes, como mejorar la estética (reduciendo el tamaño de los puntos para que se vea el fondo) y añadir una referencia geográfica (como un mapa de carreteras), podremos reducir la carga cognitiva y hacer el gráfico más comprensible.
+
+::: {.callout-warning}
+## CUIDADO: estamos trabajando con datos **especiales**, datos **espaciales**. 
+
+Los datos espaciales tienen característica importantes que debemos tener en cuenta. Aquí, repasamos rápidamente los conceptos más importantes:
+
++ **Proyección**: La Tierra es una esfera en 3D y nosotros la vamos a proyectar en un plano 2D.
+
++ **CRS**: Un Sistema de Referencia de Coordenadas, o CRS, es un método para asociar coordenadas numéricas con una posición en la superficie de la Tierra.
+
++ **R-spatial**: para trabajar con datos espaciales en **R** contamos con la librería `sf` y otras que nos proporcionarán mapas.
+:::
+
+
+
+🦄 **Paso 2**  Convierte el dataset accidentes2020_data a un objeto `sf`.
+```{r}
+accidentes2020_sf <- st_as_sf(accidentes2020_data,     
+  coords = c("coordenada_x_utm", "coordenada_y_utm"),  # Define las columnas de coordenadas UTM
+  crs = 25830                                          # Establece el sistema de referencia de coordenadas a ETRS89/UTM zona 30N, usado en Europa
+)
+```
+
+
+🦄 **Paso 3** Obtiene datos del municipio de Madrid con la función `esp_get_munic()` de la librería `mapSpain`.
+```{r}
+madrid <- esp_get_munic(munic = "^Madrid$") |>    # Obtiene los datos del municipio de Madrid
+  st_transform(25830)                             # Transforma las coordenadas al sistema de referencia ETRS89/UTM zona 30N
+
+madrid
+class(madrid)
+```
+
+
+🦄 **Paso 4** Descarga una imagen de un mapa estático de las carreteras de Madrid con la función `esp_getTiles()` de la librería `mapSpain`
+```{r}
+tile <- esp_getTiles(madrid, "IDErioja", zoommin = 2)
+```
+
+
+🦄 **Paso 5** Primer mapa mejorado con la función `ggplot()` (nada nuevo 😉). Añade la imagen del mapa de carreteras de fondo con la función `geom_spatraster_rgb()` del paquete `tidyterra` y especifica la estética (hazlo a tu gusto).
+
+```{r}
+#| eval: false
+ggplot() +                                     # Inicia un gráfico vacío con ggplot
+  geom_spatraster_rgb(data = tile) +           # Añade la imagen del mapa estático como fondo
+  geom_sf(data = accidentes2020_sf,            # Añade los datos de accidentes como puntos en el mapa
+    col = "______",                            # Define el color de los puntos
+    size = ___,                                # Define es tamaño de los puntos (0.05)
+    alpha = __) +                              # Define la transparencia de los puntos
+  coord_sf(expand = FALSE) +                   # Mantiene las proporciones de las coordenadas sin expansión
+  labs(title = "________________")             # Título
+```
+
+¡Esto ya es otra cosa! Apreciamos, lógicamente, la concentración de accidentes en el centro de la ciudad y, especialmente, en las arterias principales.
+
+
+
+🗺 **Mapas interactivos**
+
+Una categoría especial, y que merece mucho la pena destacar, cuando tenemos información georreferenciada, son los mapas interactivos. Una de las librerías más populares para construirlos en **R** es `leaflet`. Este paquete permite crear mapas dinámicos e interactivos utilizando la librería Leaflet de JavaScript. La principal ventaja de utilizar `leaflet` frente a otras alternativas es su flexibilidad y que su implementación en **R** es realmente sencilla de usar.
+
+
+🦄 **Paso 6** Preparación de los datos. Transforma el CRS de `accidentes2020_sf` a WGS 84 (**CRS 4326**), CRS usado en Google Earth y en los sistemas GSP (longitud, latitud).
+
+```{r}
+accidentes2020_sf <- st_transform(accidentes2020_sf, crs = 4326)
+```
+
+
+🦄 **Paso 7** Extrae las coordenadas de longitud y latitud del objeto espacial proyectado `accidentes2020_sf` y las añade como una nuevas columnas, nuevas variables, `longitude` y `latitude`, en el conjunto de datos `accidentes2020_data`.
+
+```{r}
+accidentes2020_data$longitude <- st_coordinates(accidentes2020_sf)[, 1]  
+accidentes2020_data$latitude <- st_coordinates(accidentes2020_sf)[, 2]
+```
+
+
+🦄 **Paso 8** Primer mapa interactivo con `leaflet`
+```{r}
+leaflet(data = accidentes2020_data) |>  # Crea un mapa interactivo con el dataset accidentes2020_data
+  addTiles() |>                         # Añade las teselas (tiles) del mapa base
+  addCircleMarkers(lng = ~longitude, lat = ~latitude,          # Añade marcadores circulares en lon y lat
+                   radius = 1,                                 # Define el radio, 
+                   color = "red",                              # Define el color   
+                   opacity = 0.5                               # Define la opacidad de los marcadores
+                   )   
+#  addProviderTiles(providers$Esri.WorldImagery)
+```
+
+
+
+🎨 **Piensa como un diseñador**
+
+Estas visualizaciones están muy bien pero... ¿y si pudiéramos aminorar la carga cognitiva del mapa interactivo? Una forma de hacerlo es **usar agrupaciones**. Veamos cómo hacerlo.
+
+🦄 **Paso 9** Primer mapa interactivo con `leaflet` y clusters con la función `addCircleMarkers()`
+```{r}
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude, 
+                   clusterOptions = markerClusterOptions()
+                   )
+```
+
+
+🦄 **Paso 10** Primer mapa interactivo con `leaflet` y **mapa de calor** con la función `addHeatmap()` del paquete `leaflet.extras`.
+
+```{r}
+leaflet(data = accidentes2020_data) |>
+  addTiles() |>
+  addHeatmap(lng = ~longitude, lat = ~latitude, 
+             blur = 40, max = 0.05) |> #
+  addLegend(position = "bottomright", 
+            title = "Accidentes", 
+            colors = c("blue", "green", "yellow", "red"), 
+            labels = c("Baja", "Media", "Alta", "Muy Alta"), 
+            opacity = 0.7)
+```
+
+
+
+
+
+::: {.callout-tip}
+## Cómo narrar una historia convincente con tus datos.
+
+Hemos visto el **planteamiento**, en el que proporcionamos el contexto: el mismísimo alcalde de Madrid se ha enterado de nuestras excelentes capacidades y nos ha pedido ayuda.
+
+El análisis exploratorio nos ha introducido en la **trama**, donde descubrimos una fuerte dependencia de la **hora del día** y del **lugar** donde se produce el accidente, y que algunos **tipos de accidentes** son más frecuentes que otros.
+
+Pero, como siempre, lo más importante es el **desenlace**, donde presentamos al alcalde las conclusiones más interesantes, que podemos resumir en un par de gráficos:
+
++ Con un **gráfico de barras ordenado** (o un **lollipop**), mostramos los tipos de accidentes más frecuentes en la ciudad de Madrid.
+
++ Con el **gráfico de evolución** del número de accidentes a lo largo del día, se puede observar que entre las 14 y 19 horas se produce el mayor número de accidentes.
+
++ Con un **mapa interactivo** (podemos elegir cuál nos proporciona la mejor visualización), le damos la posibilidad de explorar dinámicamente qué zonas necesitan más acciones de protección.
+
+
+
+:::
+
+🤔 **Para pensar**
+
+Te hemos propuesto un par de visualizaciones, pero puede que no estés de acuerdo. ¿Qué visualizaciones utilizarías en el desenlace para aportar el mayor conocimiento a Almeida sobre los accidentes de tráfico en su ciudad?
+
+![](img/logos_finan.png){align="right"}
